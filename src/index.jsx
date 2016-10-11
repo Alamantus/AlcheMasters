@@ -7,6 +7,7 @@ import 'idb-wrapper';
 
 import {dynamicSort} from './js/helpers';
 
+import {Map} from './components/Map';
 import {Item} from './components/Item';
 
 class Game extends React.Component {
@@ -87,6 +88,8 @@ class Game extends React.Component {
 	render() {
 		return (
 			<div>
+
+        <Map />
 
         <Item
           item={{}} />

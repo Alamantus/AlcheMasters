@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {colorToElement, capitalizeString} from '../js/helpers';
+import {colorElementMap, capitalizeString} from '../js/helpers';
 
 export class Item extends React.Component {
 	constructor(props) {
@@ -25,7 +25,7 @@ export class Item extends React.Component {
         strengthWording;
 
     if (this.type == 'tool' || this.type == 'weapon') {
-      colorWording = 'Element: ' + capitalizeString(colorToElement(this.color));
+      colorWording = 'Element: ' + capitalizeString(colorElementMap[this.color]);
     } else {
       colorWording = 'Color: ' + capitalizeString(this.color);
     }

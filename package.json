@@ -27,8 +27,10 @@
   },
   "dependencies": {
     "babel-polyfill": "^6.16.0",
+    "compass.js": "git+https://git@github.com/ai/compass.js.git",
     "geolocation": "^0.2.0",
     "idb-wrapper": "^1.7.1",
+    "iframe2image": "^0.1.1",
     "react": "^15.3.2",
     "react-dom": "^15.3.2"
   }

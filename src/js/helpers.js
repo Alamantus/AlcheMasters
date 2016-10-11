@@ -1,3 +1,22 @@
+export const colorElementMap = {
+  red: 'fire',
+  fire: 'red',
+  orange: 'light',
+  light: 'orange',
+  yellow: 'electricity',
+  electricity: 'yellow',
+  green: 'growth',
+  growth: 'green',
+  blue: 'water',
+  water: 'blue',
+  purple: 'ice',
+  ice: 'purple',
+  white: 'wind',
+  wind: 'white',
+  black: 'darkness',
+  darkness: 'black'
+};
+
 export function dynamicSort(propertiesArray) {
   /* Retrieved from http://stackoverflow.com/a/30446887/3508346
      Usage: theArray.sort(dynamicSort(['propertyAscending', '-propertyDescending']));*/
@@ -17,19 +36,6 @@ export function dynamicSort(propertiesArray) {
                 return p ? p : n;
             }, 0);
     };
-}
-
-export function colorToElement(color) {
-  switch (color) {
-    case 'red': return 'fire';
-    case 'orange': return 'light';
-    case 'yellow': return 'electricity';
-    case 'green': return 'growth';
-    case 'blue': return 'water';
-    case 'purple': return 'ice';
-    case 'white': return 'wind';
-    case 'black': return 'darkness';
-  }
 }
 
 export function capitalizeString(string) {
