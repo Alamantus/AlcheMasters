@@ -1,55 +1,101 @@
 import React from 'react';
 
-import i2i from 'iframe2image';
-import Compass from '../../node_modules/compass.js/lib/compass.js';
+import $ from 'jquery';
+import '../../node_modules/compass.js/lib/compass.js';
 
 export class Map extends React.Component {
 	constructor(props) {
 		super(props);
-	}
 
-  componentDidMount () {
-    // Set up the canvas dimensions
-    let canvas = this.refs.mapCanvas,
-        context = canvas.getContext('2d');
-    canvas.width = 400;
-    canvas.height = 300;
-
-    // Grab the iframe
-    let iframe = this.refs.gMapIframe;
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        let iframeSrc = `//www.google.com/maps/embed/v1/view?key=AIzaSyDMD3ATue_NX0g_rBFd9thBReLaGfhp2Fk&center=${position.coords.latitude},${position.coords.longitude}&zoom=19`;
-        console.log(iframeSrc);
-
-        iframe.src = iframeSrc;
-      });
-    } else {
-      alert("Geolocation is not supported by this browser.");
+    this.state = {
+      errorMessage: ''
     }
 
-    // Get the image
-    i2i.iframe2image(iframe, function (err, img) {
-      // If there is an error, log it
-      if (err) { return console.error(err); }
+    this.messages = {
+      noGeolocation: 'Your device does not support geolocation! Please try playing again on a device that does.',
+      noCompass: 'Your device does not support compass facing! Please try playing again on a device that does.',
+      needGPS: 'No GPS Signal found. Go outside and get some signal!',
+      needMove: 'Hold your phone ahead of you and start walking.'
+    }
+	}
 
-      // Otherwise, add the image to the canvas
-      context.drawImage(img, 0, 0);
-    });
+  get canUseGeolocation() {
+    if (navigator.geolocation) {
+      return true;
+    }
+    return false;
+  }
+
+  get canUseCompass() {
+    let result = true;
+    Compass.noSupport(() => result = false);
+    return result;
+  }
+
+  showErrorMessage() {
+    if (this.state.errorMessage !== '') {
+      return (
+        <div id='compassErrorMessage'>
+          <p>{this.state.errorMessage}</p>
+        </div>
+      );
+    }
+  }
+
+  componentDidMount () {
+    if (this.canUseGeolocation) {
+      navigator.geolocation.getCurrentPosition((position) => console.log(position));
+      
+      Compass.needGPS(() => {
+        if (this.state.errorMessage !== this.messages.needGPS) {
+          this.setState({errorMessage: this.messages.needGPS});
+        }
+      }).needMove(() => {
+        if (this.state.errorMessage !== this.messages.needMove) {
+          this.setState({errorMessage: this.messages.needMove});
+        }
+      }).init((method) => {
+        if (method !== false) {
+          Compass.watch((heading) => {
+            $('#compass').css('transform', 'rotate(' + (heading) + 'deg)');
+          });
+        } else {
+          this.setState({errorMessage: this.messages.noCompass});
+        }
+      });
+    } else {
+      this.setState({errorMessage: this.messages.noGeolocation});
+    }
   }
 
 	render() {
     return (
-      <div>
+      <div id='map'>
 
-        <canvas id='mapCanvas' ref='mapCanvas'></canvas>
+        <div id='compassGrid'>
+          <div className='grid-row'>
+            <div id='top-left' className='cell'></div>
+            <div id='top-center' className='cell'></div>
+            <div id='top-right' className='cell'></div>
+          </div>
+          
+          <div className='grid-row'>
+            <div id='middle-left' className='cell'></div>
+            <div id='middle-center' className='cell'>
+              <div id='compass'>&#x21E7;</div>
+            </div>
+            <div id='middle-right' className='cell'></div>
+          </div>
 
-        <iframe id='gMapIframe' ref='gMapIframe'
-          width='800'
-          height='800'
-          frameBorder='0'
-          src='' />
+          <div className='grid-row'>
+            <div id='bottom-left' className='cell'></div>
+            <div id='bottom-center' className='cell'></div>
+            <div id='bottom-right' className='cell'></div>
+          </div>
+
+          {this.showErrorMessage()}
+
+        </div>
   			
       </div>
 		);

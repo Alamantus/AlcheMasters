@@ -9,3 +9,20 @@ $h3-size: $h2-size * 0.75;
 $h4-size: $h3-size * 0.75;
 $h5-size: $h4-size * 0.75;
 $h6-size: $h5-size * 0.75;
+$map-size: 300px;
+
+/*-------------- Mixins --------------*/
+@mixin zero-spacing() {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+@mixin zero-absolute() {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}

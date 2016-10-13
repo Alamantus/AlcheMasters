@@ -22,6 +22,63 @@ h5 {
   font-size: $h5-size;
 }
 
+#map {
+  position: relative;
+  display: block;
+  @include zero-spacing();
+  width: 100%;
+  height: $map-size;
+
+  #compassGrid {
+    display: table;
+    width: $map-size;
+    height: $map-size;
+    margin: 0 auto;
+    padding: 0;
+    border: 1px solid black;
+
+    .grid-row {
+      display: table-row;
+      @include zero-spacing();
+
+      .cell {
+        display: table-cell;
+        @include zero-spacing();
+        max-width: $map-size / 3;
+        max-height: $map-size / 3;
+        overflow: hidden;
+      }
+    }
+
+    #compassErrorMessage {
+      position: absolute;
+      @include zero-absolute();
+      @include zero-spacing();
+      background: red;
+
+      p {
+        margin: 10px 0;
+        padding: 0 10px;
+        font-size: 16pt;
+        font-weight: bold;
+        text-align: center;
+      }
+    }
+  }
+
+  #compass {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    vertical-align: middle;
+    margin: 0 auto;
+    -ms-transform-origin: 50%; /* IE 9 */
+    -webkit-transform-origin: 50%; /* Chrome, Safari, Opera */
+    transform-origin: 50%;
+  }
+}
+
 .item {
   display: block;
   padding: 10px;
