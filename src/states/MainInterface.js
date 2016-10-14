@@ -11,10 +11,8 @@ import {Inventory} from '../classes/Inventory';
 import {Settings} from '../classes/Settings';
 
 export class MainInterface extends Phaser.State {
-	constructor(imgPaths) {
+	constructor() {
     super();
-
-    this.imgPaths = imgPaths;
 
     this.character = new Character();
 
@@ -47,5 +45,6 @@ export class MainInterface extends Phaser.State {
 
   updateCompassAngle () {
     this.compass.angle = this.compass.nav.heading;
+    // this.compass.nav.textDisplay.text = this.compass.nav.heading;
   }
 }

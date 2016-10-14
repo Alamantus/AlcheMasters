@@ -19,7 +19,7 @@ export class Nav {
     this.lastCheck = null;
     this.heading = 0;
 
-    this.textDisplay = this.game.add.text(0, 0, this.errorMessage);
+    this.textDisplay = this.game.add.text(0, 0, this.errorMessage, {fill: 'white'});
 
     this.initiateNav();
 	}
@@ -49,6 +49,7 @@ export class Nav {
   }
 
   initiateCompass () {
+    let nav = this;
     Compass.needGPS(() => {
       if (this.errorMessage !== this.messages.needGPS) {
         this.errorMessage = this.messages.needGPS;
@@ -62,7 +63,7 @@ export class Nav {
     }).init((method) => {
       if (method !== false) {
         Compass.watch((heading) => {
-          this.heading = heading;
+          nav.heading = heading;
         });
       } else {
         this.errorMessage = this.messages.noCompass;
