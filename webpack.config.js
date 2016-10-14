@@ -1,11 +1,16 @@
-const webpack = require('webpack');
 const path = require('path');
+const webpack = require('webpack');
 
 const BUILD_DIR = path.resolve(__dirname, 'public');
 const APP_DIR = path.resolve(__dirname, 'src');
 
+const phaserModule = path.join(__dirname, 'node_modules/phaser/');
+const phaser = path.join(phaserModule, 'build/custom/phaser-split.js'),
+      pixi = path.join(phaserModule, 'build/custom/pixi.js'),
+      p2 = path.join(phaserModule, 'build/custom/p2.js');
+
  module.exports = {
-    entry: APP_DIR + '/index.jsx',
+    entry: APP_DIR + '/index.js',
     output: {
       path: BUILD_DIR,
       filename: 'game.js'
@@ -26,30 +31,44 @@ const APP_DIR = path.resolve(__dirname, 'src');
           loaders: ['style', 'css', 'sass']
         },
         {
-          test: /\.jsx?$/,
+          test: /(pixi\.js|phaser|p2)/,
+          loader: 'script'
+        },
+        {
+          test: /\.js$/,
           exclude: /node_modules/,
           loader: 'babel',
           query: {
-            presets: ['react', 'es2015']
+            presets: ['es2015']
           }
+        },
+        {
+          test: /\.(jpg|png)$/,
+          loaders: [
+                    'url?limit=25000?name=images/[name].[ext]?[hash]',
+                    'img?progressive=true&optimizationLevel=5'
+                  ]
         }
       ]
     },
     resolve: {
-      extensions: ['', '.js', '.jsx'],
+      extensions: ['', '.js'],
+      alias: {
+        'phaser': phaser,
+        'pixi.js': pixi,
+        'p2': p2
+      }
     },
-    // plugins: [
-    // When you're ready to publish, check this article out.
-    // http://dev.topheman.com/make-your-react-production-minified-version-with-webpack/
-    //   new webpack.optimize.UglifyJsPlugin({
-    //     compress: {
-    //       warnings: false
-    //     },
-    //     output: {
-    //       comments: false
-    //     }
-    //   })
-    // ],
+    plugins: [
+      new webpack.optimize.UglifyJsPlugin({
+        compress: {
+          warnings: false
+        },
+        output: {
+          comments: false
+        }
+      })
+    ],
     sassLoader: {
       file: './src/sass/main.scss',
       outFile: './public/styles.css',

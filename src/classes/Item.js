@@ -20,7 +20,6 @@ export class Item extends React.Component {
 
   displayStats() {
     let showColor = true;
-    let colorSpan;
     let colorWording,
         strengthWording;
 
@@ -51,49 +50,10 @@ export class Item extends React.Component {
     }
 
     if (showColor) {
-      colorSpan = (
-        <span>
-          {colorWording}
-        </span>
-      );
-    }
-
-    return (
-      <div>
-
-        {colorSpan}
-
-        <span>
-          {strengthWording}: {this.strength}
-        </span>
       
-      </div>
-    );
+    }
   }
 
 	render() {
-		return (
-			<div className='item'>
-        <span className='type'>
-          {capitalizeString(this.type)}
-        </span>
-
-        <span className='count'>
-          x{this.uses}
-        </span>
-
-        <h3 className='name'>
-          {this.name}
-        </h3>
-
-        <div className='stats'>
-          {this.displayStats()}
-        </div>
-
-        <p className='description'>
-          {this.description}
-        </p>
-			</div>
-		);
 	}
 }

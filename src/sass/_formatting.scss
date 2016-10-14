@@ -22,6 +22,10 @@ h5 {
   font-size: $h5-size;
 }
 
+body, #game {
+  @include zero-spacing();
+}
+
 #map {
   position: relative;
   display: block;

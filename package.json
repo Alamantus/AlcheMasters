@@ -4,6 +4,7 @@
   "description": "A text-based game about making potions using geolocation",
   "main": "src/index.jsx",
   "scripts": {
+    "install": "napa Ezelia/EZGUI",
     "start": "node start-server.js",
     "pack": "node ./node_modules/webpack/bin/webpack.js -d --progress --display-error-details",
     "watch": "node ./node_modules/webpack/bin/webpack.js -d --progress --watch",
@@ -15,14 +16,16 @@
     "babel-core": "^6.17.0",
     "babel-loader": "^6.2.5",
     "babel-preset-es2015": "^6.16.0",
-    "babel-preset-react": "^6.16.0",
     "css-loader": "^0.25.0",
     "express": "^4.14.0",
     "file-loader": "^0.9.0",
     "html-minify-loader": "^1.1.0",
+    "img-loader": "^1.3.1",
     "node-sass": "^3.10.1",
     "sass-loader": "^4.0.2",
+    "script-loader": "^0.7.0",
     "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
     "webpack": "^1.13.2"
   },
   "dependencies": {
@@ -30,9 +33,6 @@
     "compass.js": "git+https://git@github.com/ai/compass.js.git",
     "geolocation": "^0.2.0",
     "idb-wrapper": "^1.7.1",
-    "jquery": "^3.1.1",
-    "phaser": "^2.6.2",
-    "react": "^15.3.2",
-    "react-dom": "^15.3.2"
+    "phaser": "^2.6.2"
   }
 }

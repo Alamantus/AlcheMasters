@@ -1,35 +1,14 @@
-import './index.html';
-import './sass/main.scss';
-
-import React from 'react';
-import ReactDOM from 'react-dom';
 import 'idb-wrapper';
 
-import {dynamicSort} from './js/helpers';
+import {dynamicSort} from '../js/helpers';
 
-import {Map} from './components/Map';
-import {Item} from './components/Item';
-
-class Game extends React.Component {
-	constructor(props) {
-		super(props);
-
-    this.state = {
-      character: {
-        level: 0,
-        experience: 0,
-        levelUpExperience: 20,
-        inventoryMax: 10
-      },
-      inventory: [],
-      settings: {
-        sortMethod: ['name']
-      }
-    }
+export class Inventory {
+	constructor() {
+    this.items = [];
 	}
 
   get numberOfItems() {
-    return this.state.inventory.length;
+    return this.items.length;
   }
 
   addItem(item) {
@@ -49,17 +28,12 @@ class Game extends React.Component {
   }
 
   insertItemIntoInventory(item) {
-    let updatedInventory = this.state.inventory;
-    updatedInventory.push(item);
+    this.items.push(item);
 
-    updatedInventory.sort(dynamicSort(sortMethod));
-    
-    this.setState({
-      inventory: updatedInventory
-    });
+    this.items.sort(dynamicSort(sortMethod));
   }
 
-	saveItemToDB(item) {
+  saveItemToDB(item) {
     // Puts item into IndexedDB and returns the ID.
 
     let resultID;
@@ -83,20 +57,16 @@ class Game extends React.Component {
     });
 
     return resultID;
+  }
+
+	preload () {
 	}
 
-	render() {
-		return (
-			<div>
+  create () {
+  }
 
-        <Map />
-
-        <Item
-          item={{}} />
-
-			</div>
-		);
-	}
+  update () {
+  }
 }
 
-ReactDOM.render(<Game />, document.getElementById('game'));
+export let inventory = new Inventory();
