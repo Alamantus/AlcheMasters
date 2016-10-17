@@ -1,9 +1,10 @@
-import geolocation from 'geolocation';
 import '../../node_modules/compass.js/lib/compass.js';
 
 export class Nav {
 	constructor (game) {
     this.game = game;
+
+    this.name = 'test';
 
     this.errorMessage = '';
 
@@ -19,29 +20,34 @@ export class Nav {
     this.lastCheck = null;
     this.heading = 0;
 
-    this.textDisplay = this.game.add.text(0, 0, this.errorMessage, {fill: 'white'});
+    this.textDisplay = this.game.add.text(0, 0, this.name, {fill: 'white'});
 
     this.initiateNav();
 	}
 
   get canUseGeolocation () {
-    if (geolocation) {
+    if (navigator.geolocation) {
+      this.changeMessage('yes');
       return true;
     }
+    this.changeMessage('no');
     return false;
   }
 
   initiateNav () {
     if (this.canUseGeolocation) {
-      geolocation.getCurrentPosition((error, position) => {
-        if (error) throw error;
-
+      this.changeMessage('initiating');
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.changeMessage(position.coords.latitude + ', ' + position.coords.longitude);
         this.latitude = position.coords.latitude;
         this.longitude = position.coords.longitude;
         this.lastCheck = position.timestamp;
+        this.changeMessage(this.latitude + ', ' + this.longitude);
 
         this.initiateCompass();
-      });
+      }, (error) => {
+        this.changeMessage(error.message);
+      }, {timeout: 5000, maximumAge: 0});
     } else {
       this.errorMessage = this.messages.noGeolocation;
       this.showErrorMessage();
@@ -49,7 +55,7 @@ export class Nav {
   }
 
   initiateCompass () {
-    let nav = this;
+    let self = this;
     Compass.needGPS(() => {
       if (this.errorMessage !== this.messages.needGPS) {
         this.errorMessage = this.messages.needGPS;
@@ -63,7 +69,8 @@ export class Nav {
     }).init((method) => {
       if (method !== false) {
         Compass.watch((heading) => {
-          nav.heading = heading;
+          self.heading = heading;
+          self.textDisplay.text = self.name;
         });
       } else {
         this.errorMessage = this.messages.noCompass;
@@ -75,7 +82,11 @@ export class Nav {
   showErrorMessage () {
     if (this.errorMessage !== '') {
       console.log(this.errorMessage);
-      this.textDisplay.text = this.errorMessage;
+      this.changeMessage(this.errorMessage);
     }
+  }
+
+  changeMessage (newMessage) {
+    this.textDisplay.text = newMessage;
   }
 }
