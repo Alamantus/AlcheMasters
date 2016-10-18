@@ -799,8 +799,8 @@
 	      }).init(function (method) {
 	        if (method !== false) {
 	          Compass.watch(function (heading) {
-	            self.heading = heading;
-	            self.textDisplay.text = self.name;
+	            _this2.heading = heading;
+	            _this2.textDisplay.text = _this2.heading;
 	          });
 	        } else {
 	          _this2.errorMessage = _this2.messages.noCompass;
