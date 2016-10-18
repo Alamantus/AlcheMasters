@@ -2978,8 +2978,8 @@
 	            console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
 	
 	            var itemOffset = {
-	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
-	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
+	                x: this.compass.nav.longitude - this.longitude,
+	                y: this.compass.nav.latitude - this.latitude
 	            };
 	            console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
 	
