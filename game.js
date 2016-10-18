@@ -1343,8 +1343,8 @@
 	            console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
 	
 	            var itemOffset = {
-	                x: this.compass.nav.longitude - this.longitude,
-	                y: this.compass.nav.latitude - this.latitude
+	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
+	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
 	            };
 	            console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
 	
@@ -1364,8 +1364,8 @@
 	
 	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
 	            var result = {
-	                x: Math.round(this.compass.x + radius * Math.cos(angle) + 10 * pixelScale),
-	                y: Math.round(this.compass.y + radius * Math.cos(angle) + 10 * pixelScale)
+	                x: Math.round(this.compass.x + radius * Math.cos(angle) + pixelScale),
+	                y: Math.round(this.compass.y + radius * Math.cos(angle) + pixelScale)
 	            };
 	            console.log('item at: ' + result.x + ', ' + result.y);
 	
