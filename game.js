@@ -679,7 +679,7 @@
 	      this.compass.anchor.y = 0.5;
 	      this.compass.nav = new _Nav.Nav(this);
 	
-	      this.generateItems();
+	      // this.generateItems();
 	    }
 	  }, {
 	    key: 'update',
@@ -749,7 +749,7 @@
 	    this.lastCheck = null;
 	    this.heading = 0;
 	
-	    this.textDisplay = this.state.game.add.text(0, 0, this.name, { fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width });
+	    this.textDisplay = this.state.add.text(0, 0, this.name, { fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width });
 	
 	    this.initiateNav();
 	  }
@@ -769,7 +769,7 @@
 	          console.log('compass latlong: ' + _this.longitude + ', ' + _this.latitude);
 	
 	          // Once location is loaded, allow state to generate items.
-	          // this.state.generateItems();
+	          _this.state.generateItems();
 	
 	          _this.initiateCompass();
 	        }, function (error) {
