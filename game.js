@@ -678,6 +678,7 @@
 	      this.compass.anchor.x = 0.5;
 	      this.compass.anchor.y = 0.5;
 	      this.compass.nav = new _Nav.Nav(this);
+	      console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 	
 	      // this.generateItems();
 	    }
@@ -1363,8 +1364,8 @@
 	
 	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
 	            var result = {
-	                x: (this.compass.x + radius * Math.cos(angle)) * pixelScale,
-	                y: (this.compass.y + radius * Math.cos(angle)) * pixelScale
+	                x: Math.round(this.compass.x + radius * Math.cos(angle) + 10 * pixelScale),
+	                y: Math.round(this.compass.y + radius * Math.cos(angle) + 10 * pixelScale)
 	            };
 	            console.log('item at: ' + result.x + ', ' + result.y);
 	
