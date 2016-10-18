@@ -1327,7 +1327,7 @@
 	
 	        this.compass = compassObject;
 	
-	        var LATLONGMAXDISTANCE = 0.001;
+	        var LATLONGMAXDISTANCE = 0.002;
 	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
 	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
 	        console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
@@ -1343,17 +1343,17 @@
 	            console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
 	
 	            var itemOffset = {
-	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT * pixelScale,
-	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT * pixelScale
+	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
+	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
 	            };
 	            console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
 	
 	            // radius should be the length of the line from the center to the item.
-	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
+	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y) * pixelScale;
 	            console.log('radius = ' + radius);
 	
 	            // Calculate the distance between forward point and item position.
-	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
+	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x * pixelScale) + (0, _helpers.square)(radius - itemOffset.y * pixelScale));
 	            console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
 	
 	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
@@ -1383,7 +1383,7 @@
 	    }, {
 	        key: 'updatePosition',
 	        value: function updatePosition() {
-	            var positionOnScreen = this.calcPosition(2);
+	            var positionOnScreen = this.calcPosition(5);
 	            this.parent.x = positionOnScreen.x;
 	            this.parent.y = positionOnScreen.y;
 	        }
