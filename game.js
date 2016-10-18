@@ -689,6 +689,10 @@
 	      });
 	      console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 	
+	      this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', { fill: 'yellow', align: 'center' });
+	      this.northMarker.anchor.x = 0.5;
+	      this.northMarker.anchor.y = 0.5;
+	
 	      // this.generatePickups();
 	    }
 	  }, {
@@ -702,8 +706,8 @@
 	      }
 	    }
 	  }, {
-	    key: 'updateCompassAngle',
-	    value: function updateCompassAngle() {
+	    key: 'drawNorth',
+	    value: function drawNorth() {
 	      // this.compass.angle = this.compass.nav.heading;
 	    }
 	  }, {
