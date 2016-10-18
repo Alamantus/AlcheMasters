@@ -2936,13 +2936,13 @@
 	
 	    _createClass(SpriteController, [{
 	        key: 'calcPosition',
-	        value: function calcPosition() {
+	        value: function calcPosition(pixelScale) {
 	            var forwardVector = { x: 0, y: 1 };
 	            var forwardVectorNormalized = 1;
 	
 	            var itemVector = {
-	                x: Math.abs(this.compass.nav.latitude - this.latitude),
-	                y: Math.abs(this.compass.nav.longitude - this.longitude)
+	                x: Math.abs(this.compass.nav.latitude - this.latitude) * pixelScale,
+	                y: Math.abs(this.compass.nav.longitude - this.longitude) * pixelScale
 	            };
 	            console.log('itemVector = ' + itemVector.x + ', ' + itemVector.y);
 	
@@ -2956,13 +2956,13 @@
 	            var dotProductDividedByNormalized = dotProduct / (forwardVectorNormalized * itemVectorNormalized);
 	            console.log('dotProductDividedByNormalized = ' + dotProductDividedByNormalized);
 	
-	            var relativeAngle = Math.cos(Math.acos(dotProductDividedByNormalized));
+	            var relativeAngle = Math.acos(dotProductDividedByNormalized);
 	            console.log('relativeAngle = ' + relativeAngle);
 	
 	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
 	            var result = {
-	                x: this.compass.x + itemVectorNormalized * relativeAngle,
-	                y: this.compass.y + itemVectorNormalized * relativeAngle
+	                x: this.compass.x + itemVectorNormalized * Math.cos(relativeAngle),
+	                y: this.compass.y + itemVectorNormalized * Math.cos(relativeAngle)
 	            };
 	            console.log('item at: ' + result.x + ', ' + result.y);
 	
@@ -2971,7 +2971,7 @@
 	    }, {
 	        key: 'updatePosition',
 	        value: function updatePosition() {
-	            var positionOnScreen = this.calcPosition();
+	            var positionOnScreen = this.calcPosition(1000);
 	            this.parent.x = positionOnScreen.x;
 	            this.parent.y = positionOnScreen.y;
 	        }
