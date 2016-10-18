@@ -613,7 +613,7 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 	exports.MainInterface = undefined;
 	
@@ -642,94 +642,121 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var MainInterface = exports.MainInterface = function (_Phaser$State) {
-	  _inherits(MainInterface, _Phaser$State);
+	    _inherits(MainInterface, _Phaser$State);
 	
-	  function MainInterface() {
-	    _classCallCheck(this, MainInterface);
+	    function MainInterface() {
+	        _classCallCheck(this, MainInterface);
 	
-	    var _this = _possibleConstructorReturn(this, (MainInterface.__proto__ || Object.getPrototypeOf(MainInterface)).call(this));
+	        var _this = _possibleConstructorReturn(this, (MainInterface.__proto__ || Object.getPrototypeOf(MainInterface)).call(this));
 	
-	    _this.character = new _Character.Character();
+	        _this.character = new _Character.Character();
 	
-	    _this.inventory = new _Inventory.Inventory();
+	        _this.inventory = new _Inventory.Inventory();
 	
-	    _this.settings = new _Settings.Settings();
+	        _this.settings = new _Settings.Settings();
 	
-	    _this.map = {
-	      pickups: [],
-	      places: []
-	    };
+	        _this.map = {
+	            pickups: [],
+	            places: []
+	        };
 	
-	    _this.hasGeneratedItems = false;
-	    return _this;
-	  }
-	
-	  _createClass(MainInterface, [{
-	    key: 'init',
-	    value: function init() {
-	      // this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-	      // this.scale.pageAlignHorizontally = true;
-	      // this.scale.pageAlignVertically = true;
-	
-	      // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
+	        _this.hasGeneratedItems = false;
+	        return _this;
 	    }
-	  }, {
-	    key: 'preload',
-	    value: function preload() {}
-	  }, {
-	    key: 'create',
-	    value: function create() {
-	      var _this2 = this;
 	
-	      this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
-	      this.compass.anchor.x = 0.5;
-	      this.compass.anchor.y = 0.5;
-	      this.compass.nav = new _Nav.Nav(this, 5000, function () {
-	        return _this2.generatePickups();
-	      });
-	      console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
+	    _createClass(MainInterface, [{
+	        key: 'init',
+	        value: function init() {
+	            // this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+	            // this.scale.pageAlignHorizontally = true;
+	            // this.scale.pageAlignVertically = true;
 	
-	      this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', { fill: 'yellow', align: 'center' });
-	      this.northMarker.anchor.x = 0.5;
-	      this.northMarker.anchor.y = 0.5;
+	            // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
+	        }
+	    }, {
+	        key: 'preload',
+	        value: function preload() {}
+	    }, {
+	        key: 'create',
+	        value: function create() {
+	            var _this2 = this;
 	
-	      // this.generatePickups();
-	    }
-	  }, {
-	    key: 'update',
-	    value: function update() {
-	      // this.updateCompassAngle();
-	      if (this.hasGeneratedItems) {
-	        this.map.pickups.forEach(function (pickup) {
-	          pickup.pickup.updatePosition();
-	        });
-	      }
-	    }
-	  }, {
-	    key: 'drawNorth',
-	    value: function drawNorth() {
-	      // this.compass.angle = this.compass.nav.heading;
-	    }
-	  }, {
-	    key: 'generatePickups',
-	    value: function generatePickups() {
-	      var _this3 = this;
+	            this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
+	            this.compass.anchor.x = 0.5;
+	            this.compass.anchor.y = 0.5;
+	            this.compass.nav = new _Nav.Nav(this, 5000, function () {
+	                return _this2.generatePickups();
+	            });
+	            console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 	
-	      console.log('generating pickups');
-	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
+	            this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', { fill: 'yellow', align: 'center' });
+	            this.northMarker.anchor.x = 0.5;
+	            this.northMarker.anchor.y = 0.5;
 	
-	      this.map.pickups.forEach(function (pickup) {
-	        pickup.pickup = new _Pickup.Pickup(pickup, _this3.compass, 60, 180);
-	        console.log(pickup.pickup.life);
-	      });
+	            // this.generatePickups();
+	        }
+	    }, {
+	        key: 'update',
+	        value: function update() {
+	            // this.updateCompassAngle();
+	            if (this.hasGeneratedItems) {
+	                this.map.pickups.forEach(function (pickup) {
+	                    pickup.pickup.updatePosition();
+	                });
+	            }
 	
-	      this.hasGeneratedItems = true;
-	    }
-	  }]);
+	            this.drawNorth(40);
+	        }
+	    }, {
+	        key: 'drawNorth',
+	        value: function drawNorth(pixelsFromCenter) {
+	            // const LATLONGTOPIXELADJUSTMENT = 1000;
 	
-	  return MainInterface;
+	            // let itemOffset = {
+	            //   x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT
+	            // , y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
+	            // }
+	
+	            // // radius should be the length of the line from the center to the item.
+	            // let radius = Math.sqrt((itemOffset.x * itemOffset.x) + (itemOffset.y * itemOffset.y));
+	
+	            // this.pixelDistance = radius * pixelScale;
+	
+	            // // Calculate the distance between forward point and item position.
+	            // let distanceBetweenPoints = Math.sqrt(square(0 - (itemOffset.x)) + square(radius - (itemOffset.y)))
+	
+	            // let doubleRadiusSquared = 2 * square(radius);
+	
+	            // let insideArcCos = (doubleRadiusSquared - square(distanceBetweenPoints)) / doubleRadiusSquared;
+	
+	            var compassHeadingRadians = this.compass.nav.heading * (Math.PI / 180);
+	
+	            var angle = Math.acos(0) - compassHeadingRadians;
+	
+	            this.northMarker.x = Math.round(this.compass.x + pixelsFromCenter * Math.cos(angle));
+	            this.northMarker.y = Math.round(this.compass.y + pixelsFromCenter * Math.sin(angle));
+	            this.northMarker.bringToTop();
+	        }
+	    }, {
+	        key: 'generatePickups',
+	        value: function generatePickups() {
+	            var _this3 = this;
+	
+	            console.log('generating pickups');
+	            this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
+	            this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
+	            this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
+	
+	            this.map.pickups.forEach(function (pickup) {
+	                pickup.pickup = new _Pickup.Pickup(pickup, _this3.compass, 60, 180);
+	                console.log(pickup.pickup.life);
+	            });
+	
+	            this.hasGeneratedItems = true;
+	        }
+	    }]);
+	
+	    return MainInterface;
 	}(Phaser.State);
 
 /***/ },
@@ -813,6 +840,7 @@
 	        if (method !== false) {
 	          Compass.watch(function (heading) {
 	            _this2.heading = heading;
+	            _this2.updateMessage(_this2.heading);
 	          });
 	        } else {
 	          _this2.updateMessage(_this2.messages.noCompass);
@@ -2991,7 +3019,6 @@
 	            var angle = Math.acos(insideArcCos) - compassHeadingRadians;
 	            // console.log('angle = ' + angle);
 	
-	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
 	            var result = {
 	                x: Math.round(this.compass.x + this.pixelDistance * Math.cos(angle)),
 	                y: Math.round(this.compass.y + this.pixelDistance * Math.sin(angle))
