@@ -613,7 +613,7 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	exports.MainInterface = undefined;
 	
@@ -644,119 +644,100 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var MainInterface = exports.MainInterface = function (_Phaser$State) {
-	    _inherits(MainInterface, _Phaser$State);
+	  _inherits(MainInterface, _Phaser$State);
 	
-	    function MainInterface() {
-	        _classCallCheck(this, MainInterface);
+	  function MainInterface() {
+	    _classCallCheck(this, MainInterface);
 	
-	        var _this = _possibleConstructorReturn(this, (MainInterface.__proto__ || Object.getPrototypeOf(MainInterface)).call(this));
+	    var _this = _possibleConstructorReturn(this, (MainInterface.__proto__ || Object.getPrototypeOf(MainInterface)).call(this));
 	
-	        _this.character = new _Character.Character();
+	    _this.character = new _Character.Character();
 	
-	        _this.inventory = new _Inventory.Inventory();
+	    _this.inventory = new _Inventory.Inventory();
 	
-	        _this.settings = new _Settings.Settings();
+	    _this.settings = new _Settings.Settings();
 	
-	        _this.map = {
-	            pickups: [],
-	            places: []
-	        };
+	    _this.map = {
+	      pickups: [],
+	      places: []
+	    };
 	
-	        _this.hasGeneratedItems = false;
-	        return _this;
+	    _this.hasGeneratedItems = false;
+	    return _this;
+	  }
+	
+	  _createClass(MainInterface, [{
+	    key: 'init',
+	    value: function init() {
+	      // this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+	      // this.scale.pageAlignHorizontally = true;
+	      // this.scale.pageAlignVertically = true;
+	
+	      // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 	    }
+	  }, {
+	    key: 'preload',
+	    value: function preload() {}
+	  }, {
+	    key: 'create',
+	    value: function create() {
+	      var _this2 = this;
 	
-	    _createClass(MainInterface, [{
-	        key: 'init',
-	        value: function init() {
-	            // this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-	            // this.scale.pageAlignHorizontally = true;
-	            // this.scale.pageAlignVertically = true;
+	      this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
+	      this.compass.anchor.x = 0.5;
+	      this.compass.anchor.y = 0.5;
+	      this.compass.nav = new _Nav.Nav(this, 5000, function () {
+	        return _this2.generatePickups();
+	      });
+	      console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 	
-	            // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
-	        }
-	    }, {
-	        key: 'preload',
-	        value: function preload() {}
-	    }, {
-	        key: 'create',
-	        value: function create() {
-	            var _this2 = this;
+	      this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', { fill: 'yellow', align: 'center' });
+	      this.northMarker.anchor.x = 0.5;
+	      this.northMarker.anchor.y = 0.5;
 	
-	            this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
-	            this.compass.anchor.x = 0.5;
-	            this.compass.anchor.y = 0.5;
-	            this.compass.nav = new _Nav.Nav(this, 5000, function () {
-	                return _this2.generatePickups();
-	            });
-	            console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
+	      // this.generatePickups();
+	    }
+	  }, {
+	    key: 'update',
+	    value: function update() {
+	      // this.updateCompassAngle();
+	      if (this.hasGeneratedItems) {
+	        this.map.pickups.forEach(function (pickup) {
+	          pickup.pickup.updatePosition();
+	        });
+	      }
 	
-	            this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', { fill: 'yellow', align: 'center' });
-	            this.northMarker.anchor.x = 0.5;
-	            this.northMarker.anchor.y = 0.5;
+	      this.drawNorth(40);
+	    }
+	  }, {
+	    key: 'drawNorth',
+	    value: function drawNorth(pixelsFromCenter) {
+	      var angle = -(0, _helpers.radians)(this.compass.nav.heading + 90);
 	
-	            // this.generatePickups();
-	        }
-	    }, {
-	        key: 'update',
-	        value: function update() {
-	            // this.updateCompassAngle();
-	            if (this.hasGeneratedItems) {
-	                this.map.pickups.forEach(function (pickup) {
-	                    pickup.pickup.updatePosition();
-	                });
-	            }
+	      this.northMarker.x = Math.round(this.compass.x + pixelsFromCenter * Math.cos(angle));
+	      this.northMarker.y = Math.round(this.compass.y + pixelsFromCenter * Math.sin(angle));
+	      this.northMarker.bringToTop();
+	    }
+	  }, {
+	    key: 'generatePickups',
+	    value: function generatePickups() {
+	      var _this3 = this;
 	
-	            this.drawNorth(40);
-	        }
-	    }, {
-	        key: 'drawNorth',
-	        value: function drawNorth(pixelsFromCenter) {
-	            // const LATLONGTOPIXELADJUSTMENT = 1000;
+	      console.log('generating pickups');
+	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
 	
-	            // let itemOffset = {
-	            //   x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT
-	            // , y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
-	            // }
+	      this.map.pickups.forEach(function (pickup) {
+	        pickup.pickup = new _Pickup.Pickup(pickup, _this3.compass, 60, 180);
+	        console.log(pickup.pickup.life);
+	      });
 	
-	            // // radius should be the length of the line from the center to the item.
-	            // let radius = Math.sqrt((itemOffset.x * itemOffset.x) + (itemOffset.y * itemOffset.y));
+	      this.hasGeneratedItems = true;
+	    }
+	  }]);
 	
-	            // this.pixelDistance = radius * pixelScale;
-	
-	            // // Calculate the distance between forward point and item position.
-	            // let distanceBetweenPoints = Math.sqrt(square(0 - (itemOffset.x)) + square(radius - (itemOffset.y)))
-	
-	            // let doubleRadiusSquared = 2 * square(radius);
-	
-	            // let insideArcCos = (doubleRadiusSquared - square(distanceBetweenPoints)) / doubleRadiusSquared;
-	
-	            var angle = -(0, _helpers.radians)(this.compass.nav.heading + 90);
-	
-	            this.northMarker.x = Math.round(this.compass.x + pixelsFromCenter * Math.cos(angle));
-	            this.northMarker.y = Math.round(this.compass.y + pixelsFromCenter * Math.sin(angle));
-	            this.northMarker.bringToTop();
-	        }
-	    }, {
-	        key: 'generatePickups',
-	        value: function generatePickups() {
-	            var _this3 = this;
-	
-	            console.log('generating pickups');
-	            this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
-	            this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
-	            this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
-	
-	            this.map.pickups.forEach(function (pickup) {
-	                pickup.pickup = new _Pickup.Pickup(pickup, _this3.compass, 60, 180);
-	                console.log(pickup.pickup.life);
-	            });
-	
-	            this.hasGeneratedItems = true;
-	        }
-	    }]);
-	
-	    return MainInterface;
+	  return MainInterface;
 	}(Phaser.State);
 
 /***/ },
