@@ -717,7 +717,8 @@
 	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
 	
 	      this.map.pickups.forEach(function (pickup) {
-	        pickup.pickup = new _Pickup.Pickup(pickup, _this3.compass, {});
+	        pickup.pickup = new _Pickup.Pickup(pickup, _this3.compass, 60, 180);
+	        console.log(pickup.pickup.life);
 	      });
 	
 	      this.hasGeneratedItems = true;
@@ -2908,14 +2909,14 @@
 	  function Pickup(parentObject, compassObject, minLife, maxLife) {
 	    _classCallCheck(this, Pickup);
 	
-	    // Time before destruction in milliseconds.
+	    // Time before destruction in seconds.
 	    var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject));
 	
 	    _this.life = (0, _helpers.getRandomInt)(minLife, maxLife);
 	
 	    setTimeout(function () {
 	      return _this.parent.destroy();
-	    }, _this.life);
+	    }, _this.life * 1000);
 	    return _this;
 	  }
 	
@@ -2958,7 +2959,7 @@
 	        var LATLONGMAXDISTANCE = 0.002;
 	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
 	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	        console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
+	        // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
 	
 	        this.angleMarginOfError = 0.05;
 	        this.geoMarginOfError = 0.00008;
@@ -2969,43 +2970,43 @@
 	    _createClass(MapSpriteController, [{
 	        key: 'calcPosition',
 	        value: function calcPosition(pixelScale) {
-	            console.log('pixelScale = ' + pixelScale);
+	            // console.log('pixelScale = ' + pixelScale);
 	            var LATLONGTOPIXELADJUSTMENT = 1000;
-	            console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
+	            // console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
 	
 	            var itemOffset = {
 	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
 	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
 	            };
-	            console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
+	            // console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
 	
 	            // radius should be the length of the line from the center to the item.
 	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
-	            console.log('radius = ' + radius);
+	            // console.log('radius = ' + radius);
 	
 	            this.pixelDistance = radius * pixelScale;
 	
 	            // Calculate the distance between forward point and item position.
 	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
-	            console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
+	            // console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
 	
 	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
-	            console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
+	            // console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
 	
 	            var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
-	            console.log('insideArcCos = ' + insideArcCos);
+	            // console.log('insideArcCos = ' + insideArcCos);
 	
 	            var compassHeadingRadians = this.compass.nav.heading * (Math.PI / 180);
 	
 	            var angle = Math.acos(insideArcCos) - compassHeadingRadians;
-	            console.log('angle = ' + angle);
+	            // console.log('angle = ' + angle);
 	
 	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
 	            var result = {
 	                x: Math.round(this.compass.x + this.pixelDistance * Math.cos(angle)),
 	                y: Math.round(this.compass.y + this.pixelDistance * Math.sin(angle))
 	            };
-	            console.log('item at: ' + result.x + ', ' + result.y);
+	            // console.log('item at: ' + result.x + ', ' + result.y);
 	
 	            return result;
 	        }
@@ -3014,7 +3015,7 @@
 	        value: function updatePosition() {
 	            if (!(this.headingIsInsideMarginOfError && this.geoIsInsideMarginOfError)) {
 	                this.lastCompassHeading = this.compass.nav.heading;
-	                var positionOnScreen = this.calcPosition(50);
+	                var positionOnScreen = this.calcPosition(25);
 	                this.parent.x = positionOnScreen.x;
 	                this.parent.y = positionOnScreen.y;
 	            }
