@@ -677,7 +677,7 @@
 	      this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
 	      this.compass.anchor.x = 0.5;
 	      this.compass.anchor.y = 0.5;
-	      this.compass.nav = new _Nav.Nav(this);
+	      this.compass.nav = new _Nav.Nav(this, 5000);
 	      console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 	
 	      // this.generateItems();
@@ -730,7 +730,7 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var Nav = exports.Nav = function () {
-	  function Nav(state) {
+	  function Nav(state, locationCheckTimeout) {
 	    _classCallCheck(this, Nav);
 	
 	    this.state = state;
@@ -751,6 +751,8 @@
 	    this.lastCheck = null;
 	    this.heading = 0;
 	
+	    this.locationCheckTimeout = locationCheckTimeout;
+	
 	    this.textDisplay = this.state.add.text(0, 0, this.name, { fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width });
 	
 	    this.initiateNav();
@@ -763,21 +765,11 @@
 	
 	      if (this.canUseGeolocation) {
 	        this.changeMessage('initiating');
-	        navigator.geolocation.getCurrentPosition(function (position) {
-	          _this.changeMessage(position.coords.latitude + ', ' + position.coords.longitude);
-	          _this.latitude = position.coords.latitude;
-	          _this.longitude = position.coords.longitude;
-	          _this.lastCheck = position.timestamp;
-	          console.log('compass latlong: ' + _this.longitude + ', ' + _this.latitude);
-	
-	          // Once location is loaded, allow state to generate items.
-	          console.log('now you can generate items');
+	        this.getGeolocation(function () {
 	          _this.state.generateItems();
 	
 	          _this.initiateCompass();
-	        }, function (error) {
-	          _this.changeMessage(error.message);
-	        }, { timeout: 5000, maximumAge: 0 });
+	        });
 	      } else {
 	        this.errorMessage = this.messages.noGeolocation;
 	        this.showErrorMessage();
@@ -810,6 +802,30 @@
 	          _this2.showErrorMessage();
 	        }
 	      });
+	    }
+	  }, {
+	    key: 'getGeolocation',
+	    value: function getGeolocation(callback) {
+	      var _this3 = this;
+	
+	      navigator.geolocation.getCurrentPosition(function (position) {
+	        _this3.changeMessage(position.coords.latitude + ', ' + position.coords.longitude);
+	        _this3.latitude = position.coords.latitude;
+	        _this3.longitude = position.coords.longitude;
+	        _this3.lastCheck = position.timestamp;
+	        console.log('compass latlong: ' + _this3.longitude + ', ' + _this3.latitude);
+	
+	        if (callback) {
+	          callback();
+	        }
+	
+	        // Start the geolocation loop.
+	        setTimeout(function () {
+	          return _this3.getGeolocation();
+	        }, _this3.locationCheckTimeout);
+	      }, function (error) {
+	        _this3.changeMessage(error.message);
+	      }, { timeout: 5000, maximumAge: 0 });
 	    }
 	  }, {
 	    key: 'showErrorMessage',
@@ -1327,11 +1343,15 @@
 	
 	        this.compass = compassObject;
 	        this.lastCompassHeading = -1;
+	        this.lastCompassLatitude = 0;
+	        this.lastCompassLongitude = 0;
 	
 	        var LATLONGMAXDISTANCE = 0.002;
 	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
 	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
 	        console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
+	
+	        this.geoMarginOfError = 0.00008;
 	
 	        this.updatePosition();
 	    }
@@ -1382,12 +1402,17 @@
 	    }, {
 	        key: 'updatePosition',
 	        value: function updatePosition() {
-	            if (this.compass.nav.heading !== this.lastCompassHeading) {
+	            if (this.compass.nav.heading !== this.lastCompassHeading && !this.compassIsInsideMarginOfError) {
 	                this.lastCompassHeading = this.compass.nav.heading;
 	                var positionOnScreen = this.calcPosition(20);
 	                this.parent.x = positionOnScreen.x;
 	                this.parent.y = positionOnScreen.y;
 	            }
+	        }
+	    }, {
+	        key: 'compassIsInsideMarginOfError',
+	        get: function get() {
+	            return this.compass.nav.longitude < this.lastCompassLongitude + this.geoMarginOfError && this.compass.nav.longitude > this.lastCompassLongitude - this.geoMarginOfError && this.compass.nav.latitude < this.lastCompassLatitude + this.geoMarginOfError && this.compass.nav.latitude > this.lastCompassLatitude - this.geoMarginOfError;
 	        }
 	    }]);
 
