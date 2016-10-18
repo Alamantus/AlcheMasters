@@ -1351,6 +1351,7 @@
 	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
 	        console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
 	
+	        this.angleMarginOfError = 0.05;
 	        this.geoMarginOfError = 0.00008;
 	
 	        this.updatePosition();
@@ -1402,7 +1403,7 @@
 	    }, {
 	        key: 'updatePosition',
 	        value: function updatePosition() {
-	            if (this.compass.nav.heading !== this.lastCompassHeading && !this.compassIsInsideMarginOfError) {
+	            if (!(this.headingIsInsideMarginOfError && this.geoIsInsideMarginOfError)) {
 	                this.lastCompassHeading = this.compass.nav.heading;
 	                var positionOnScreen = this.calcPosition(20);
 	                this.parent.x = positionOnScreen.x;
@@ -1410,9 +1411,14 @@
 	            }
 	        }
 	    }, {
-	        key: 'compassIsInsideMarginOfError',
+	        key: 'geoIsInsideMarginOfError',
 	        get: function get() {
 	            return this.compass.nav.longitude < this.lastCompassLongitude + this.geoMarginOfError && this.compass.nav.longitude > this.lastCompassLongitude - this.geoMarginOfError && this.compass.nav.latitude < this.lastCompassLatitude + this.geoMarginOfError && this.compass.nav.latitude > this.lastCompassLatitude - this.geoMarginOfError;
+	        }
+	    }, {
+	        key: 'headingIsInsideMarginOfError',
+	        get: function get() {
+	            return this.compass.nav.heading < this.lastCompassHeading + this.angleMarginOfError && this.compass.nav.heading > this.lastCompassHeading - this.angleMarginOfError;
 	        }
 	    }]);
 
