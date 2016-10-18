@@ -731,7 +731,7 @@
 	
 	            // let insideArcCos = (doubleRadiusSquared - square(distanceBetweenPoints)) / doubleRadiusSquared;
 	
-	            var angle = (0, _helpers.radians)(this.compass.nav.heading);
+	            var angle = -(0, _helpers.radians)(this.compass.nav.heading + 90);
 	
 	            this.northMarker.x = Math.round(this.compass.x + pixelsFromCenter * Math.cos(angle));
 	            this.northMarker.y = Math.round(this.compass.y + pixelsFromCenter * Math.sin(angle));
@@ -3019,7 +3019,7 @@
 	            var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
 	            // console.log('insideArcCos = ' + insideArcCos);
 	
-	            var angle = Math.acos(insideArcCos) - (0, _helpers.radians)(this.compass.nav.heading);
+	            var angle = Math.acos(insideArcCos) - (0, _helpers.radians)(this.compass.nav.heading - 90);
 	            // console.log('angle = ' + angle);
 	
 	            var result = {
