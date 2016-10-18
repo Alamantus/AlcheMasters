@@ -627,6 +627,8 @@
 	
 	var _Nav = __webpack_require__(/*! ../classes/Nav */ 17);
 	
+	var _Item = __webpack_require__(/*! ../classes/Item */ 24);
+	
 	var _Character = __webpack_require__(/*! ../classes/Character */ 19);
 	
 	var _Inventory = __webpack_require__(/*! ../classes/Inventory */ 20);
@@ -675,24 +677,8 @@
 	      this.compass.anchor.y = 0.5;
 	      this.compass.nav = new _Nav.Nav(this.game);
 	
-	      this.item = this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square');
-	      this.item.anchor.x = 0.5;
-	      this.item.anchor.y = 0.5;
-	      this.item.latitude = this.compass.nav.latitude + 0.01;
-	      this.item.longitude = this.compass.nav.longitude + 0.008;
-	      var forwardVector = { x: 0, y: 1 };
-	      var forwardVectorNormalized = 1;
-	      var itemVector = {
-	        x: Math.abs(this.compass.nav.latitude - this.item.latitude),
-	        y: Math.abs(this.compass.nav.longitude - this.item.longitude)
-	      };
-	      var itemVectorNormalized = Math.sqrt(itemVector.x * itemVector.x + itemVector.y * itemVector.y);
-	      var dotProduct = forwardVector.x * itemVector.x + (forwardVector.y + itemVector.y);
-	      var relativeAngle = Math.acos(dotProduct / (forwardVectorNormalized * itemVectorNormalized));
-	      // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
-	      // Also, itemVectorNormalized should be the length of the line from the center to the item, which would be radius.
-	      this.item.x = this.compass.x + itemVectorNormalized * Math.cos(relativeAngle);
-	      this.item.y = this.compass.y + itemVectorNormalized * Math.cos(relativeAngle);
+	      this.thing = this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square');
+	      this.thing.item = new _Item.Item(this.thing, this.compass, {});
 	    }
 	  }, {
 	    key: 'update',
@@ -2823,6 +2809,176 @@
 	};
 	
 	var settings = exports.settings = new Settings();
+
+/***/ },
+/* 24 */
+/*!*****************************!*\
+  !*** ./src/classes/Item.js ***!
+  \*****************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.Item = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _SpriteController2 = __webpack_require__(/*! ./SpriteController */ 25);
+	
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 22);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Item = exports.Item = function (_SpriteController) {
+	  _inherits(Item, _SpriteController);
+	
+	  function Item(parentObject, compassObject, itemDetails) {
+	    _classCallCheck(this, Item);
+	
+	    var _this = _possibleConstructorReturn(this, (Item.__proto__ || Object.getPrototypeOf(Item)).call(this, parentObject, compassObject));
+	
+	    _this.name = itemDetails.name || 'Error Item';
+	    _this.description = itemDetails.description || 'No item specified.';
+	    _this.type = itemDetails.type || 'error';
+	    _this.color = itemDetails.color || 'error';
+	
+	    // potency, power, etc.
+	    _this.strength = itemDetails.strength || 0;
+	
+	    // durability, second duration, etc.
+	    _this.uses = itemDetails.description || 0;
+	    return _this;
+	  }
+	
+	  _createClass(Item, [{
+	    key: 'displayStats',
+	    value: function displayStats() {
+	      var showColor = true;
+	      var colorWording = void 0,
+	          strengthWording = void 0;
+	
+	      if (this.type == 'tool' || this.type == 'weapon') {
+	        colorWording = 'Element: ' + (0, _helpers.capitalizeString)(_helpers.colorElementMap[this.color]);
+	      } else {
+	        colorWording = 'Color: ' + (0, _helpers.capitalizeString)(this.color);
+	      }
+	
+	      switch (this.type) {
+	        case 'ingredient':
+	          {
+	            strengthWording = 'Quality';
+	            break;
+	          }
+	        case 'potion':
+	          {
+	            strengthWord = 'Potency';
+	            showColor = false;
+	            break;
+	          }
+	        case 'tool':
+	          {
+	            strengthWord = 'Effectiveness';
+	            break;
+	          }
+	        case 'weapon':
+	          {
+	            strengthWord = 'Power';
+	            break;
+	          }
+	      }
+	
+	      if (showColor) {}
+	    }
+	  }]);
+
+	  return Item;
+	}(_SpriteController2.SpriteController);
+
+/***/ },
+/* 25 */
+/*!*****************************************!*\
+  !*** ./src/classes/SpriteController.js ***!
+  \*****************************************/
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var SpriteController = exports.SpriteController = function () {
+	    function SpriteController(parentObject, compassObject) {
+	        _classCallCheck(this, SpriteController);
+	
+	        this.parent = parentObject;
+	        this.parent.anchor.x = 0.5;
+	        this.parent.anchor.y = 0.5;
+	
+	        this.compass = compassObject;
+	
+	        this.latitude = this.compass.nav.latitude + 0.005;
+	        this.longitude = this.compass.nav.longitude + 0.008;
+	
+	        this.updatePosition();
+	    }
+	
+	    _createClass(SpriteController, [{
+	        key: 'calcPosition',
+	        value: function calcPosition() {
+	            var forwardVector = { x: 0, y: 1 };
+	            var forwardVectorNormalized = 1;
+	
+	            var itemVector = {
+	                x: Math.abs(this.compass.nav.latitude - this.latitude),
+	                y: Math.abs(this.compass.nav.longitude - this.longitude)
+	            };
+	            console.log('itemVector = ' + itemVector.x + ', ' + itemVector.y);
+	
+	            // itemVectorNormalized should be the length of the line from the center to the item, which would be radius.
+	            var itemVectorNormalized = Math.sqrt(itemVector.x * itemVector.x + itemVector.y * itemVector.y);
+	            console.log('itemVectorNormalized = ' + itemVectorNormalized);
+	
+	            var dotProduct = forwardVector.x * itemVector.x + (forwardVector.y + itemVector.y);
+	            console.log('dotProduct = ' + dotProduct);
+	
+	            var dotProductDividedByNormalized = dotProduct / (forwardVectorNormalized * itemVectorNormalized);
+	            console.log('dotProductDividedByNormalized = ' + dotProductDividedByNormalized);
+	
+	            var relativeAngle = Math.cos(Math.acos(dotProductDividedByNormalized));
+	            console.log('relativeAngle = ' + relativeAngle);
+	
+	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
+	            var result = {
+	                x: this.compass.x + itemVectorNormalized * relativeAngle,
+	                y: this.compass.y + itemVectorNormalized * relativeAngle
+	            };
+	            console.log('item at: ' + result.x + ', ' + result.y);
+	
+	            return result;
+	        }
+	    }, {
+	        key: 'updatePosition',
+	        value: function updatePosition() {
+	            var positionOnScreen = this.calcPosition();
+	            this.parent.x = positionOnScreen.x;
+	            this.parent.y = positionOnScreen.y;
+	        }
+	    }]);
+
+	    return SpriteController;
+	}();
 
 /***/ }
 /******/ ]);
