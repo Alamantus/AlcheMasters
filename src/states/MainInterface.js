@@ -2,9 +2,6 @@ import 'pixi.js';
 import 'p2';
 import 'phaser';
 
-import geolocation from 'geolocation';
-import '../../node_modules/compass.js/lib/compass.js';
-
 import {Nav} from '../classes/Nav';
 import {Character} from '../classes/Character';
 import {Inventory} from '../classes/Inventory';
