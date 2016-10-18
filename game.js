@@ -697,6 +697,7 @@
 	  }, {
 	    key: 'generateItems',
 	    value: function generateItems() {
+	      console.log('generating items');
 	      this.thing = this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square');
 	      this.thing.item = new _Item.Item(this.thing, this.compass, {});
 	
@@ -769,6 +770,7 @@
 	          console.log('compass latlong: ' + _this.longitude + ', ' + _this.latitude);
 	
 	          // Once location is loaded, allow state to generate items.
+	          console.log('now you can generate items');
 	          _this.state.generateItems();
 	
 	          _this.initiateCompass();
