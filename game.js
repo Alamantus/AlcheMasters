@@ -679,8 +679,7 @@
 	      this.compass.anchor.y = 0.5;
 	      this.compass.nav = new _Nav.Nav(this);
 	
-	      this.thing = this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square');
-	      this.thing.item = new _Item.Item(this.thing, this.compass, {});
+	      this.generateItems();
 	    }
 	  }, {
 	    key: 'update',
@@ -701,7 +700,7 @@
 	      this.thing = this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square');
 	      this.thing.item = new _Item.Item(this.thing, this.compass, {});
 	
-	      this.hasGeneratedItems = true;
+	      // this.hasGeneratedItems = true;
 	    }
 	  }]);
 	
