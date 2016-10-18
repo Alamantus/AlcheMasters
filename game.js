@@ -678,6 +678,9 @@
 	      this.compass.anchor.x = 0.5;
 	      this.compass.anchor.y = 0.5;
 	      this.compass.nav = new _Nav.Nav(this);
+	
+	      this.thing = this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square');
+	      this.thing.item = new _Item.Item(this.thing, this.compass, {});
 	    }
 	  }, {
 	    key: 'update',
@@ -767,7 +770,7 @@
 	          console.log('compass latlong: ' + _this.longitude + ', ' + _this.latitude);
 	
 	          // Once location is loaded, allow state to generate items.
-	          _this.state.generateItems();
+	          // this.state.generateItems();
 	
 	          _this.initiateCompass();
 	        }, function (error) {
