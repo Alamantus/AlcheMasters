@@ -1,6 +1,6 @@
 import {getRandom, square} from '../js/helpers';
 
-export class SpriteController {
+export class MapSpriteController {
   constructor (parentObject, compassObject) {
     this.parent = parentObject;
     this.parent.anchor.x = 0.5;

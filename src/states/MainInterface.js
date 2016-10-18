@@ -3,7 +3,7 @@ import 'p2';
 import 'phaser';
 
 import {Nav} from '../classes/Nav';
-import {Item} from '../classes/Item';
+import {Pickup} from '../classes/Pickup';
 import {Character} from '../classes/Character';
 import {Inventory} from '../classes/Inventory';
 import {Settings} from '../classes/Settings';
@@ -17,6 +17,11 @@ export class MainInterface extends Phaser.State {
     this.inventory = new Inventory();
 
     this.settings = new Settings();
+
+    this.map = {
+      pickups: []
+    , places: []
+    }
 
     this.hasGeneratedItems = false;
 	}
@@ -36,16 +41,18 @@ export class MainInterface extends Phaser.State {
     this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
     this.compass.anchor.x = 0.5;
     this.compass.anchor.y = 0.5;
-    this.compass.nav = new Nav(this, 5000);
+    this.compass.nav = new Nav(this, 5000, () => this.generatePickups());
     console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 
-    // this.generateItems();
+    // this.generatePickups();
   }
 
   update () {
     // this.updateCompassAngle();
     if (this.hasGeneratedItems) {
-      this.thing.item.updatePosition();
+      this.map.pickups.forEach((pickup) => {
+        pickup.pickup.updatePosition();
+      });
     }
   }
 
@@ -53,10 +60,12 @@ export class MainInterface extends Phaser.State {
     // this.compass.angle = this.compass.nav.heading;
   }
 
-  generateItems () {
-    console.log('generating items');
-    this.thing = this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square');
-    this.thing.item = new Item(this.thing, this.compass, {});
+  generatePickups () {
+    console.log('generating pickups');
+    let addedItem = null;
+    this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
+    addedItem = this.map.pickups[this.map.pickups.length - 1];
+    addedItem.pickup = new Pickup(this.thing, this.compass, {});
 
     this.hasGeneratedItems = true;
   }

@@ -1,7 +1,7 @@
 import '../../node_modules/compass.js/lib/compass.js';
 
 export class Nav {
-	constructor (state, locationCheckTimeout) {
+	constructor (state, locationCheckTimeout, runOnReady) {
     this.state = state;
 
     this.name = 'test';
@@ -24,7 +24,7 @@ export class Nav {
 
     this.textDisplay = this.state.add.text(0, 0, this.name, {fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width});
 
-    this.initiateNav();
+    this.initiateNav(runOnReady);
 	}
 
   get canUseGeolocation () {
@@ -36,11 +36,11 @@ export class Nav {
     return false;
   }
 
-  initiateNav () {
+  initiateNav (runOnReady) {
     if (this.canUseGeolocation) {
       this.changeMessage('initiating');
       this.getGeolocation(() => {
-        this.state.generateItems();
+        runOnReady();
 
         this.initiateCompass();
       });

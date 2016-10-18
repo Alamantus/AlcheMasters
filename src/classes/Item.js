@@ -1,12 +1,8 @@
-import {SpriteController} from './SpriteController';
-
 import {colorElementMap, capitalizeString} from '../js/helpers';
 
-export class Item extends SpriteController {
-	constructor(parentObject, compassObject, itemDetails) {
-    super(parentObject, compassObject);
-
-		this.name = itemDetails.name || 'Error Item';
+export class Item {
+	constructor(itemDetails) {
+    this.name = itemDetails.name || 'Error Item';
     this.description = itemDetails.description || 'No item specified.';
     this.type = itemDetails.type || 'error';
     this.color = itemDetails.color || 'error';
