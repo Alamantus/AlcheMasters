@@ -1367,13 +1367,10 @@
 	            var angle = Math.acos(insideArcCos) - compassHeadingRadians;
 	            console.log('angle = ' + angle);
 	
-	            var cosOfAngle = Math.cos(angle);
-	            console.log('cosOfAngle = ' + cosOfAngle);
-	
 	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
 	            var result = {
-	                x: Math.round(this.compass.x + radius * pixelScale * cosOfAngle),
-	                y: Math.round(this.compass.y + radius * pixelScale * cosOfAngle)
+	                x: Math.round(this.compass.x + radius * pixelScale * Math.cos(angle)),
+	                y: Math.round(this.compass.y + radius * pixelScale * Math.sin(angle))
 	            };
 	            console.log('item at: ' + result.x + ', ' + result.y);
 	
