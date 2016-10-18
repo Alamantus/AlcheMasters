@@ -635,6 +635,8 @@
 	
 	var _Settings = __webpack_require__(/*! ../classes/Settings */ 25);
 	
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -729,9 +731,7 @@
 	
 	            // let insideArcCos = (doubleRadiusSquared - square(distanceBetweenPoints)) / doubleRadiusSquared;
 	
-	            var compassHeadingRadians = this.compass.nav.heading * (Math.PI / 180);
-	
-	            var angle = Math.acos(0) - compassHeadingRadians;
+	            var angle = Math.acos((0, _helpers.radians)(180)) - (0, _helpers.radians)(this.compass.nav.heading);
 	
 	            this.northMarker.x = Math.round(this.compass.x + pixelsFromCenter * Math.cos(angle));
 	            this.northMarker.y = Math.round(this.compass.y + pixelsFromCenter * Math.sin(angle));
@@ -1278,6 +1278,7 @@
 	exports.square = square;
 	exports.getRandom = getRandom;
 	exports.getRandomInt = getRandomInt;
+	exports.radians = radians;
 	var colorElementMap = exports.colorElementMap = {
 	  red: 'fire',
 	  fire: 'red',
@@ -1330,6 +1331,10 @@
 	
 	function getRandomInt(min, max) {
 	  return Math.floor(Math.random() * (max - min + 1) + min);
+	}
+	
+	function radians(angle) {
+	  return angle * (Math.PI / 180);
 	}
 
 /***/ },
@@ -3014,9 +3019,7 @@
 	            var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
 	            // console.log('insideArcCos = ' + insideArcCos);
 	
-	            var compassHeadingRadians = this.compass.nav.heading * (Math.PI / 180);
-	
-	            var angle = Math.acos(insideArcCos) - compassHeadingRadians;
+	            var angle = Math.acos(insideArcCos) - (0, _helpers.radians)(this.compass.nav.heading);
 	            // console.log('angle = ' + angle);
 	
 	            var result = {
