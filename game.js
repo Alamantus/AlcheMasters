@@ -2744,6 +2744,7 @@
 	});
 	exports.dynamicSort = dynamicSort;
 	exports.capitalizeString = capitalizeString;
+	exports.square = square;
 	exports.getRandom = getRandom;
 	exports.getRandomInt = getRandomInt;
 	var colorElementMap = exports.colorElementMap = {
@@ -2786,6 +2787,10 @@
 	
 	function capitalizeString(string) {
 	  return string[0].toUpperCase() + string.substr(1);
+	}
+	
+	function square(value) {
+	  return value * value;
 	}
 	
 	function getRandom(min, max) {
@@ -2953,37 +2958,30 @@
 	        value: function calcPosition(pixelScale) {
 	            var LATLONGTOPIXELADJUSTMENT = 1000;
 	
-	            var forwardVector = { x: 0, y: 1 };
-	            var forwardVectorNormalized = 1;
-	            var itemVector = {
-	                x: Math.abs(this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
-	                y: Math.abs(this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
+	            var itemOffset = {
+	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
+	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
 	            };
-	            console.log('itemVector = ' + itemVector.x + ', ' + itemVector.y);
+	            console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
 	
-	            // itemVectorNormalized should be the length of the line from the center to the item, which would be radius.
-	            var itemVectorNormalized = Math.sqrt(itemVector.x * itemVector.x + itemVector.y * itemVector.y);
-	            console.log('itemVectorNormalized = ' + itemVectorNormalized);
+	            // radius should be the length of the line from the center to the item.
+	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
+	            console.log('radius = ' + radius);
 	
-	            var dotProduct = forwardVector.x * itemVector.x + (forwardVector.y + itemVector.y);
-	            console.log('dotProduct = ' + dotProduct);
+	            // Calculate the distance between forward point and item position.
+	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
+	            console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
 	
-	            var dotProductDividedByNormalized = dotProduct / (forwardVectorNormalized * itemVectorNormalized);
-	            console.log('dotProductDividedByNormalized = ' + dotProductDividedByNormalized);
+	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
+	            console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
 	
-	            var relativeAngle = Math.acos(dotProductDividedByNormalized);
-	            console.log('relativeAngle = ' + relativeAngle);
-	
-	            var cosineOfRelativeAngle = Math.cos(relativeAngle);
-	            console.log('cosineOfRelativeAngle = ' + cosineOfRelativeAngle);
-	
-	            var cosineVectorProduct = itemVectorNormalized * cosineOfRelativeAngle;
-	            console.log('cosineVectorProduct = ' + cosineVectorProduct);
+	            var angle = Math.acos((doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared);
+	            console.log('angle = ' + angle);
 	
 	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
 	            var result = {
-	                x: (this.compass.x + cosineVectorProduct) * pixelScale,
-	                y: (this.compass.y + cosineVectorProduct) * pixelScale
+	                x: (this.compass.x + radius * Math.cos(angle)) * pixelScale,
+	                y: (this.compass.y + radius * Math.cos(angle)) * pixelScale
 	            };
 	            console.log('item at: ' + result.x + ', ' + result.y);
 	
