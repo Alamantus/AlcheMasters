@@ -69,8 +69,8 @@ export class Nav {
     }).init((method) => {
       if (method !== false) {
         Compass.watch((heading) => {
-          self.heading = heading;
-          self.textDisplay.text = self.name;
+          this.heading = heading;
+          this.textDisplay.text = this.heading;
         });
       } else {
         this.errorMessage = this.messages.noCompass;
