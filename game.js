@@ -2951,14 +2951,13 @@
 	    _createClass(SpriteController, [{
 	        key: 'calcPosition',
 	        value: function calcPosition(pixelScale) {
+	            var LATLONGTOPIXELADJUSTMENT = 1000;
+	
 	            var forwardVector = { x: 0, y: 1 };
 	            var forwardVectorNormalized = 1;
-	
-	            var LATLONGTOPIXELADJUSTMENT = 1000;
-	            console.log(pixelScale);
 	            var itemVector = {
-	                x: Math.abs(this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT * pixelScale,
-	                y: Math.abs(this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT * pixelScale
+	                x: Math.abs(this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
+	                y: Math.abs(this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
 	            };
 	            console.log('itemVector = ' + itemVector.x + ', ' + itemVector.y);
 	
@@ -2975,10 +2974,16 @@
 	            var relativeAngle = Math.acos(dotProductDividedByNormalized);
 	            console.log('relativeAngle = ' + relativeAngle);
 	
+	            var cosineOfRelativeAngle = Math.cos(relativeAngle);
+	            console.log('cosineOfRelativeAngle = ' + cosineOfRelativeAngle);
+	
+	            var cosineVectorProduct = itemVectorNormalized * cosineOfRelativeAngle;
+	            console.log('cosineVectorProduct = ' + cosineVectorProduct);
+	
 	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
 	            var result = {
-	                x: this.compass.x + itemVectorNormalized * Math.cos(relativeAngle),
-	                y: this.compass.y + itemVectorNormalized * Math.cos(relativeAngle)
+	                x: (this.compass.x + cosineVectorProduct) * pixelScale,
+	                y: (this.compass.y + cosineVectorProduct) * pixelScale
 	            };
 	            console.log('item at: ' + result.x + ', ' + result.y);
 	
