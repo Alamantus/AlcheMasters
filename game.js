@@ -709,11 +709,16 @@
 	  }, {
 	    key: 'generatePickups',
 	    value: function generatePickups() {
+	      var _this3 = this;
+	
 	      console.log('generating pickups');
-	      var addedItem = null;
 	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
-	      addedItem = this.map.pickups[this.map.pickups.length - 1];
-	      addedItem.pickup = new _Pickup.Pickup(this.thing, this.compass, {});
+	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
+	
+	      this.map.pickups.forEach(function (pickup) {
+	        pickup.pickup = new _Pickup.Pickup(pickup, _this3.compass, {});
+	      });
 	
 	      this.hasGeneratedItems = true;
 	    }
@@ -2906,7 +2911,7 @@
 	    // Time before destruction in milliseconds.
 	    var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject));
 	
-	    _this.life = getRandom(minLife, maxLife);
+	    _this.life = (0, _helpers.getRandomInt)(minLife, maxLife);
 	
 	    setTimeout(function () {
 	      return _this.parent.destroy();
@@ -3009,7 +3014,7 @@
 	        value: function updatePosition() {
 	            if (!(this.headingIsInsideMarginOfError && this.geoIsInsideMarginOfError)) {
 	                this.lastCompassHeading = this.compass.nav.heading;
-	                var positionOnScreen = this.calcPosition(20);
+	                var positionOnScreen = this.calcPosition(50);
 	                this.parent.x = positionOnScreen.x;
 	                this.parent.y = positionOnScreen.y;
 	            }
