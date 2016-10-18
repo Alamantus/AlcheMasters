@@ -828,11 +828,11 @@
 	      var _this3 = this;
 	
 	      navigator.geolocation.getCurrentPosition(function (position) {
-	        _this3.changeMessage(position.coords.latitude + ', ' + position.coords.longitude);
+	        // this.changeMessage(position.coords.latitude + ', ' + position.coords.longitude);
 	        _this3.latitude = position.coords.latitude;
 	        _this3.longitude = position.coords.longitude;
 	        _this3.lastCheck = position.timestamp;
-	        console.log('compass latlong: ' + _this3.longitude + ', ' + _this3.latitude);
+	        // console.log('compass latlong: ' + this.longitude + ', ' + this.latitude);
 	
 	        if (callback) {
 	          callback();
@@ -843,7 +843,8 @@
 	          return _this3.getGeolocation();
 	        }, _this3.locationCheckTimeout);
 	      }, function (error) {
-	        _this3.changeMessage(error.message);
+	        _this3.errorMessage = error.message;
+	        _this3.showErrorMessage();
 	      }, { timeout: 5000, maximumAge: 0 });
 	    }
 	  }, {
