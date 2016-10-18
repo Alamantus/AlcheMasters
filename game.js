@@ -755,7 +755,7 @@
 	          _this.latitude = position.coords.latitude;
 	          _this.longitude = position.coords.longitude;
 	          _this.lastCheck = position.timestamp;
-	          _this.changeMessage(_this.latitude + ', ' + _this.longitude);
+	          console.log('compass latlong: ' + _this.longitude + ', ' + _this.latitude);
 	
 	          _this.initiateCompass();
 	        }, function (error) {
@@ -2949,6 +2949,7 @@
 	        var LATLONGMAXDISTANCE = 0.001;
 	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
 	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+	        console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
 	
 	        this.updatePosition();
 	    }
