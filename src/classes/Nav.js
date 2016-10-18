@@ -1,8 +1,8 @@
 import '../../node_modules/compass.js/lib/compass.js';
 
 export class Nav {
-	constructor (game) {
-    this.game = game;
+	constructor (state) {
+    this.state = state;
 
     this.name = 'test';
 
@@ -20,7 +20,7 @@ export class Nav {
     this.lastCheck = null;
     this.heading = 0;
 
-    this.textDisplay = this.game.add.text(0, 0, this.name, {fill: 'white'});
+    this.textDisplay = this.state.add.text(0, 0, this.name, {fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width});
 
     this.initiateNav();
 	}
@@ -42,7 +42,11 @@ export class Nav {
         this.latitude = position.coords.latitude;
         this.longitude = position.coords.longitude;
         this.lastCheck = position.timestamp;
-        this.changeMessage(this.latitude + ', ' + this.longitude);
+        console.log('compass latlong: ' + this.longitude + ', ' + this.latitude);
+
+        // Once location is loaded, allow state to generate items.
+        console.log('now you can generate items');
+        this.state.generateItems();
 
         this.initiateCompass();
       }, (error) => {
@@ -69,8 +73,8 @@ export class Nav {
     }).init((method) => {
       if (method !== false) {
         Compass.watch((heading) => {
-          self.heading = heading;
-          self.textDisplay.text = self.name;
+          this.heading = heading;
+          this.textDisplay.text = this.heading;
         });
       } else {
         this.errorMessage = this.messages.noCompass;

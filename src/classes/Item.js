@@ -1,21 +1,21 @@
-import React from 'react';
+import {SpriteController} from './SpriteController';
 
 import {colorElementMap, capitalizeString} from '../js/helpers';
 
-export class Item extends React.Component {
-	constructor(props) {
-		super(props);
+export class Item extends SpriteController {
+	constructor(parentObject, compassObject, itemDetails) {
+    super(parentObject, compassObject);
 
-    this.name = props.item.name || 'Error Item';
-    this.description = props.item.description || 'No item specified.';
-    this.type = props.item.type || 'error';
-    this.color = props.item.color || 'error'
+		this.name = itemDetails.name || 'Error Item';
+    this.description = itemDetails.description || 'No item specified.';
+    this.type = itemDetails.type || 'error';
+    this.color = itemDetails.color || 'error';
 
     // potency, power, etc.
-    this.strength = props.item.strength || 0;
+    this.strength = itemDetails.strength || 0;
 
     // durability, second duration, etc.
-    this.uses = props.item.description || 0;
+    this.uses = itemDetails.description || 0;
 	}
 
   displayStats() {
@@ -53,7 +53,4 @@ export class Item extends React.Component {
       
     }
   }
-
-	render() {
-	}
 }

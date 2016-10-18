@@ -17,7 +17,7 @@ export const colorElementMap = {
   darkness: 'black'
 };
 
-export function dynamicSort(propertiesArray) {
+export function dynamicSort (propertiesArray) {
   /* Retrieved from http://stackoverflow.com/a/30446887/3508346
      Usage: theArray.sort(dynamicSort(['propertyAscending', '-propertyDescending']));*/
     return function (a, b) {
@@ -38,6 +38,18 @@ export function dynamicSort(propertiesArray) {
     };
 }
 
-export function capitalizeString(string) {
+export function capitalizeString (string) {
   return string[0].toUpperCase() + string.substr(1);
+}
+
+export function square (value) {
+  return value * value;
+}
+
+export function getRandom (min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+export function getRandomInt (min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
