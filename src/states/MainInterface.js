@@ -8,6 +8,8 @@ import {Character} from '../classes/Character';
 import {Inventory} from '../classes/Inventory';
 import {Settings} from '../classes/Settings';
 
+import {radians} from '../js/helpers';
+
 export class MainInterface extends Phaser.State {
 	constructor() {
     super();
@@ -44,6 +46,10 @@ export class MainInterface extends Phaser.State {
     this.compass.nav = new Nav(this, 5000, () => this.generatePickups());
     console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 
+    this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', {fill: 'yellow', align: 'center'});
+    this.northMarker.anchor.x = 0.5;
+    this.northMarker.anchor.y = 0.5;
+
     // this.generatePickups();
   }
 
@@ -54,18 +60,28 @@ export class MainInterface extends Phaser.State {
         pickup.pickup.updatePosition();
       });
     }
+
+    this.drawNorth(40);
   }
 
-  updateCompassAngle () {
-    // this.compass.angle = this.compass.nav.heading;
+  drawNorth (pixelsFromCenter) {
+    let angle = -radians(this.compass.nav.heading + 90);
+
+    this.northMarker.x = Math.round(this.compass.x + (pixelsFromCenter * Math.cos(angle)));
+    this.northMarker.y = Math.round(this.compass.y + (pixelsFromCenter * Math.sin(angle)));
+    this.northMarker.bringToTop();
   }
 
   generatePickups () {
     console.log('generating pickups');
-    let addedItem = null;
     this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
-    addedItem = this.map.pickups[this.map.pickups.length - 1];
-    addedItem.pickup = new Pickup(this.thing, this.compass, {});
+    this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
+    this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
+
+    this.map.pickups.forEach((pickup) => {
+      pickup.pickup = new Pickup(pickup, this.compass, 60, 180);
+      console.log(pickup.pickup.life);
+    });
 
     this.hasGeneratedItems = true;
   }

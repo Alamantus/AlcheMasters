@@ -53,3 +53,7 @@ export function getRandom (min, max) {
 export function getRandomInt (min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+export function radians(angle) {
+  return angle * (Math.PI / 180);
+}
