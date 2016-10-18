@@ -754,11 +754,8 @@
 	
 	    this.state = state;
 	
-	    this.name = 'test';
-	
-	    this.errorMessage = '';
-	
 	    this.messages = {
+	      geolocationReady: 'Geolocation active!',
 	      noGeolocation: 'Your device does not support geolocation! Please try playing again on a device that does.',
 	      noCompass: 'Your device does not support compass facing! Please try playing again on a device that does.',
 	      needGPS: 'No GPS Signal found. Go outside and get some signal!',
@@ -772,7 +769,7 @@
 	
 	    this.locationCheckTimeout = locationCheckTimeout;
 	
-	    this.textDisplay = this.state.add.text(0, 0, this.name, { fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width });
+	    this.textDisplay = this.state.add.text(0, 0, 'Inititializing...', { fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width });
 	
 	    this.initiateNav(runOnReady);
 	  }
@@ -783,15 +780,15 @@
 	      var _this = this;
 	
 	      if (this.canUseGeolocation) {
-	        this.changeMessage('initiating');
 	        this.getGeolocation(function () {
+	          _this.updateMessage(_this.messages.geolocationReady + ' Geoposition: ' + _this.latitude + ', ' + _this.longitude);
+	
 	          runOnReady();
 	
 	          _this.initiateCompass();
 	        });
 	      } else {
-	        this.errorMessage = this.messages.noGeolocation;
-	        this.showErrorMessage();
+	        this.updateMessage(this.messages.noGeolocation);
 	      }
 	    }
 	  }, {
@@ -801,24 +798,20 @@
 	
 	      var self = this;
 	      Compass.needGPS(function () {
-	        if (_this2.errorMessage !== _this2.messages.needGPS) {
-	          _this2.errorMessage = _this2.messages.needGPS;
-	          _this2.showErrorMessage();
+	        if (_this2.textDisplay.text !== _this2.messages.needGPS) {
+	          _this2.updateMessage(_this2.messages.needGPS);
 	        }
 	      }).needMove(function () {
-	        if (_this2.errorMessage !== _this2.messages.needMove) {
-	          _this2.errorMessage = _this2.messages.needMove;
-	          _this2.showErrorMessage();
+	        if (_this2.textDisplay.text !== _this2.messages.needMove) {
+	          _this2.updateMessage(_this2.messages.needMove);
 	        }
 	      }).init(function (method) {
 	        if (method !== false) {
 	          Compass.watch(function (heading) {
 	            _this2.heading = heading;
-	            _this2.textDisplay.text = _this2.heading;
 	          });
 	        } else {
-	          _this2.errorMessage = _this2.messages.noCompass;
-	          _this2.showErrorMessage();
+	          _this2.updateMessage(_this2.messages.noCompass);
 	        }
 	      });
 	    }
@@ -828,7 +821,7 @@
 	      var _this3 = this;
 	
 	      navigator.geolocation.getCurrentPosition(function (position) {
-	        // this.changeMessage(position.coords.latitude + ', ' + position.coords.longitude);
+	        // this.updateMessage(position.coords.latitude + ', ' + position.coords.longitude);
 	        _this3.latitude = position.coords.latitude;
 	        _this3.longitude = position.coords.longitude;
 	        _this3.lastCheck = position.timestamp;
@@ -843,31 +836,23 @@
 	          return _this3.getGeolocation();
 	        }, _this3.locationCheckTimeout);
 	      }, function (error) {
-	        _this3.errorMessage = error.message;
-	        _this3.showErrorMessage();
+	        _this3.updateMessage(error.message);
 	      }, { timeout: 5000, maximumAge: 0 });
 	    }
 	  }, {
-	    key: 'showErrorMessage',
-	    value: function showErrorMessage() {
-	      if (this.errorMessage !== '') {
-	        console.log(this.errorMessage);
-	        this.changeMessage(this.errorMessage);
-	      }
-	    }
-	  }, {
-	    key: 'changeMessage',
-	    value: function changeMessage(newMessage) {
+	    key: 'updateMessage',
+	    value: function updateMessage(newMessage) {
 	      this.textDisplay.text = newMessage;
+	      console.log(newMessage);
 	    }
 	  }, {
 	    key: 'canUseGeolocation',
 	    get: function get() {
 	      if (navigator.geolocation) {
-	        this.changeMessage('yes');
+	        this.updateMessage('yes');
 	        return true;
 	      }
-	      this.changeMessage('no');
+	      this.updateMessage('no');
 	      return false;
 	    }
 	  }]);
