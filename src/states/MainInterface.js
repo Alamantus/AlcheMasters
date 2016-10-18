@@ -36,7 +36,7 @@ export class MainInterface extends Phaser.State {
     this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
     this.compass.anchor.x = 0.5;
     this.compass.anchor.y = 0.5;
-    this.compass.nav = new Nav(this);
+    this.compass.nav = new Nav(this, 5000);
     console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 
     // this.generateItems();

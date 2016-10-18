@@ -1,7 +1,7 @@
 import '../../node_modules/compass.js/lib/compass.js';
 
 export class Nav {
-	constructor (state) {
+	constructor (state, locationCheckTimeout) {
     this.state = state;
 
     this.name = 'test';
@@ -20,6 +20,8 @@ export class Nav {
     this.lastCheck = null;
     this.heading = 0;
 
+    this.locationCheckTimeout = locationCheckTimeout;
+
     this.textDisplay = this.state.add.text(0, 0, this.name, {fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width});
 
     this.initiateNav();
@@ -37,21 +39,11 @@ export class Nav {
   initiateNav () {
     if (this.canUseGeolocation) {
       this.changeMessage('initiating');
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.changeMessage(position.coords.latitude + ', ' + position.coords.longitude);
-        this.latitude = position.coords.latitude;
-        this.longitude = position.coords.longitude;
-        this.lastCheck = position.timestamp;
-        console.log('compass latlong: ' + this.longitude + ', ' + this.latitude);
-
-        // Once location is loaded, allow state to generate items.
-        console.log('now you can generate items');
+      this.getGeolocation(() => {
         this.state.generateItems();
 
         this.initiateCompass();
-      }, (error) => {
-        this.changeMessage(error.message);
-      }, {timeout: 5000, maximumAge: 0});
+      });
     } else {
       this.errorMessage = this.messages.noGeolocation;
       this.showErrorMessage();
@@ -81,6 +73,25 @@ export class Nav {
         this.showErrorMessage();
       }
     });
+  }
+
+  getGeolocation (callback) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      this.changeMessage(position.coords.latitude + ', ' + position.coords.longitude);
+      this.latitude = position.coords.latitude;
+      this.longitude = position.coords.longitude;
+      this.lastCheck = position.timestamp;
+      console.log('compass latlong: ' + this.longitude + ', ' + this.latitude);
+
+      if (callback){
+        callback();
+      }
+
+      // Start the geolocation loop.
+      setTimeout(() => this.getGeolocation(), this.locationCheckTimeout);
+    }, (error) => {
+      this.changeMessage(error.message);
+    }, {timeout: 5000, maximumAge: 0});
   }
 
   showErrorMessage () {
