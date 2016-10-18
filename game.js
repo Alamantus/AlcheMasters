@@ -655,7 +655,10 @@
 	
 	    _this.settings = new _Settings.Settings();
 	
-	    _this.map.pickups = [];
+	    _this.map = {
+	      pickups: [],
+	      places: []
+	    };
 	
 	    _this.hasGeneratedItems = false;
 	    return _this;
