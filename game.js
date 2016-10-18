@@ -627,13 +627,13 @@
 	
 	var _Nav = __webpack_require__(/*! ../classes/Nav */ 17);
 	
-	var _Item = __webpack_require__(/*! ../classes/Item */ 24);
+	var _Item = __webpack_require__(/*! ../classes/Item */ 19);
 	
-	var _Character = __webpack_require__(/*! ../classes/Character */ 19);
+	var _Character = __webpack_require__(/*! ../classes/Character */ 22);
 	
-	var _Inventory = __webpack_require__(/*! ../classes/Inventory */ 20);
+	var _Inventory = __webpack_require__(/*! ../classes/Inventory */ 23);
 	
-	var _Settings = __webpack_require__(/*! ../classes/Settings */ 23);
+	var _Settings = __webpack_require__(/*! ../classes/Settings */ 25);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -674,14 +674,10 @@
 	  }, {
 	    key: 'create',
 	    value: function create() {
-	      var _this2 = this;
-	
 	      this.compass = this.add.sprite(this.game.width / 2, this.game.height / 4, 'compass');
 	      this.compass.anchor.x = 0.5;
 	      this.compass.anchor.y = 0.5;
-	      this.compass.nav = new _Nav.Nav(this, function () {
-	        return _this2.generateItems();
-	      });
+	      this.compass.nav = new _Nav.Nav(this);
 	    }
 	  }, {
 	    key: 'update',
@@ -730,7 +726,7 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var Nav = exports.Nav = function () {
-	  function Nav(state, callback) {
+	  function Nav(state) {
 	    _classCallCheck(this, Nav);
 	
 	    this.state = state;
@@ -751,14 +747,14 @@
 	    this.lastCheck = null;
 	    this.heading = 0;
 	
-	    this.textDisplay = this.state.add.text(0, 0, this.name, { fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width });
+	    this.textDisplay = this.state.game.add.text(0, 0, this.name, { fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width });
 	
-	    this.initiateNav(callback);
+	    this.initiateNav();
 	  }
 	
 	  _createClass(Nav, [{
 	    key: 'initiateNav',
-	    value: function initiateNav(callback) {
+	    value: function initiateNav() {
 	      var _this = this;
 	
 	      if (this.canUseGeolocation) {
@@ -771,7 +767,7 @@
 	          console.log('compass latlong: ' + _this.longitude + ', ' + _this.latitude);
 	
 	          // Once location is loaded, allow state to generate items.
-	          callback();
+	          _this.state.generateItems();
 	
 	          _this.initiateCompass();
 	        }, function (error) {
@@ -1207,6 +1203,254 @@
 
 /***/ },
 /* 19 */
+/*!*****************************!*\
+  !*** ./src/classes/Item.js ***!
+  \*****************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.Item = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _SpriteController2 = __webpack_require__(/*! ./SpriteController */ 20);
+	
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Item = exports.Item = function (_SpriteController) {
+	  _inherits(Item, _SpriteController);
+	
+	  function Item(parentObject, compassObject, itemDetails) {
+	    _classCallCheck(this, Item);
+	
+	    var _this = _possibleConstructorReturn(this, (Item.__proto__ || Object.getPrototypeOf(Item)).call(this, parentObject, compassObject));
+	
+	    _this.name = itemDetails.name || 'Error Item';
+	    _this.description = itemDetails.description || 'No item specified.';
+	    _this.type = itemDetails.type || 'error';
+	    _this.color = itemDetails.color || 'error';
+	
+	    // potency, power, etc.
+	    _this.strength = itemDetails.strength || 0;
+	
+	    // durability, second duration, etc.
+	    _this.uses = itemDetails.description || 0;
+	    return _this;
+	  }
+	
+	  _createClass(Item, [{
+	    key: 'displayStats',
+	    value: function displayStats() {
+	      var showColor = true;
+	      var colorWording = void 0,
+	          strengthWording = void 0;
+	
+	      if (this.type == 'tool' || this.type == 'weapon') {
+	        colorWording = 'Element: ' + (0, _helpers.capitalizeString)(_helpers.colorElementMap[this.color]);
+	      } else {
+	        colorWording = 'Color: ' + (0, _helpers.capitalizeString)(this.color);
+	      }
+	
+	      switch (this.type) {
+	        case 'ingredient':
+	          {
+	            strengthWording = 'Quality';
+	            break;
+	          }
+	        case 'potion':
+	          {
+	            strengthWord = 'Potency';
+	            showColor = false;
+	            break;
+	          }
+	        case 'tool':
+	          {
+	            strengthWord = 'Effectiveness';
+	            break;
+	          }
+	        case 'weapon':
+	          {
+	            strengthWord = 'Power';
+	            break;
+	          }
+	      }
+	
+	      if (showColor) {}
+	    }
+	  }]);
+
+	  return Item;
+	}(_SpriteController2.SpriteController);
+
+/***/ },
+/* 20 */
+/*!*****************************************!*\
+  !*** ./src/classes/SpriteController.js ***!
+  \*****************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.SpriteController = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var SpriteController = exports.SpriteController = function () {
+	    function SpriteController(parentObject, compassObject) {
+	        _classCallCheck(this, SpriteController);
+	
+	        this.parent = parentObject;
+	        this.parent.anchor.x = 0.5;
+	        this.parent.anchor.y = 0.5;
+	
+	        this.compass = compassObject;
+	
+	        var LATLONGMAXDISTANCE = 0.001;
+	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+	        console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
+	
+	        this.updatePosition();
+	    }
+	
+	    _createClass(SpriteController, [{
+	        key: 'calcPosition',
+	        value: function calcPosition(pixelScale) {
+	            console.log('pixelScale = ' + pixelScale);
+	            var LATLONGTOPIXELADJUSTMENT = 500;
+	            console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
+	
+	            var itemOffset = {
+	                x: this.compass.nav.longitude - this.longitude,
+	                y: this.compass.nav.latitude - this.latitude
+	            };
+	            console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
+	
+	            // radius should be the length of the line from the center to the item.
+	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
+	            console.log('radius = ' + radius);
+	
+	            // Calculate the distance between forward point and item position.
+	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
+	            console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
+	
+	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
+	            console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
+	
+	            var angle = Math.acos((doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared);
+	            console.log('angle = ' + angle);
+	
+	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
+	            var result = {
+	                x: (this.compass.x + radius * Math.cos(angle)) * pixelScale,
+	                y: (this.compass.y + radius * Math.cos(angle)) * pixelScale
+	            };
+	            console.log('item at: ' + result.x + ', ' + result.y);
+	
+	            return result;
+	        }
+	    }, {
+	        key: 'updatePosition',
+	        value: function updatePosition() {
+	            var positionOnScreen = this.calcPosition(1);
+	            this.parent.x = positionOnScreen.x;
+	            this.parent.y = positionOnScreen.y;
+	        }
+	    }]);
+
+	    return SpriteController;
+	}();
+
+/***/ },
+/* 21 */
+/*!***************************!*\
+  !*** ./src/js/helpers.js ***!
+  \***************************/
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.dynamicSort = dynamicSort;
+	exports.capitalizeString = capitalizeString;
+	exports.square = square;
+	exports.getRandom = getRandom;
+	exports.getRandomInt = getRandomInt;
+	var colorElementMap = exports.colorElementMap = {
+	  red: 'fire',
+	  fire: 'red',
+	  orange: 'light',
+	  light: 'orange',
+	  yellow: 'electricity',
+	  electricity: 'yellow',
+	  green: 'growth',
+	  growth: 'green',
+	  blue: 'water',
+	  water: 'blue',
+	  purple: 'ice',
+	  ice: 'purple',
+	  white: 'wind',
+	  wind: 'white',
+	  black: 'darkness',
+	  darkness: 'black'
+	};
+	
+	function dynamicSort(propertiesArray) {
+	  /* Retrieved from http://stackoverflow.com/a/30446887/3508346
+	     Usage: theArray.sort(dynamicSort(['propertyAscending', '-propertyDescending']));*/
+	  return function (a, b) {
+	    return propertiesArray.map(function (o) {
+	      var dir = 1;
+	      if (o[0] === '-') {
+	        dir = -1;
+	        o = o.substring(1);
+	      }
+	      if (removeDiacritics(a[o]).toLowerCase() > removeDiacritics(b[o]).toLowerCase()) return dir;
+	      if (removeDiacritics(a[o]).toLowerCase() < removeDiacritics(b[o]).toLowerCase()) return -dir;
+	      return 0;
+	    }).reduce(function firstNonZeroValue(p, n) {
+	      return p ? p : n;
+	    }, 0);
+	  };
+	}
+	
+	function capitalizeString(string) {
+	  return string[0].toUpperCase() + string.substr(1);
+	}
+	
+	function square(value) {
+	  return value * value;
+	}
+	
+	function getRandom(min, max) {
+	  return Math.random() * (max - min) + min;
+	}
+	
+	function getRandomInt(min, max) {
+	  return Math.floor(Math.random() * (max - min + 1) + min);
+	}
+
+/***/ },
+/* 22 */
 /*!**********************************!*\
   !*** ./src/classes/Character.js ***!
   \**********************************/
@@ -1232,7 +1476,7 @@
 	var character = exports.character = new Character();
 
 /***/ },
-/* 20 */
+/* 23 */
 /*!**********************************!*\
   !*** ./src/classes/Inventory.js ***!
   \**********************************/
@@ -1247,9 +1491,9 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	__webpack_require__(/*! idb-wrapper */ 21);
+	__webpack_require__(/*! idb-wrapper */ 24);
 	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 22);
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -1333,7 +1577,7 @@
 	var inventory = exports.inventory = new Inventory();
 
 /***/ },
-/* 21 */
+/* 24 */
 /*!***********************************!*\
   !*** ./~/idb-wrapper/idbstore.js ***!
   \***********************************/
@@ -2747,78 +2991,7 @@
 
 
 /***/ },
-/* 22 */
-/*!***************************!*\
-  !*** ./src/js/helpers.js ***!
-  \***************************/
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.dynamicSort = dynamicSort;
-	exports.capitalizeString = capitalizeString;
-	exports.square = square;
-	exports.getRandom = getRandom;
-	exports.getRandomInt = getRandomInt;
-	var colorElementMap = exports.colorElementMap = {
-	  red: 'fire',
-	  fire: 'red',
-	  orange: 'light',
-	  light: 'orange',
-	  yellow: 'electricity',
-	  electricity: 'yellow',
-	  green: 'growth',
-	  growth: 'green',
-	  blue: 'water',
-	  water: 'blue',
-	  purple: 'ice',
-	  ice: 'purple',
-	  white: 'wind',
-	  wind: 'white',
-	  black: 'darkness',
-	  darkness: 'black'
-	};
-	
-	function dynamicSort(propertiesArray) {
-	  /* Retrieved from http://stackoverflow.com/a/30446887/3508346
-	     Usage: theArray.sort(dynamicSort(['propertyAscending', '-propertyDescending']));*/
-	  return function (a, b) {
-	    return propertiesArray.map(function (o) {
-	      var dir = 1;
-	      if (o[0] === '-') {
-	        dir = -1;
-	        o = o.substring(1);
-	      }
-	      if (removeDiacritics(a[o]).toLowerCase() > removeDiacritics(b[o]).toLowerCase()) return dir;
-	      if (removeDiacritics(a[o]).toLowerCase() < removeDiacritics(b[o]).toLowerCase()) return -dir;
-	      return 0;
-	    }).reduce(function firstNonZeroValue(p, n) {
-	      return p ? p : n;
-	    }, 0);
-	  };
-	}
-	
-	function capitalizeString(string) {
-	  return string[0].toUpperCase() + string.substr(1);
-	}
-	
-	function square(value) {
-	  return value * value;
-	}
-	
-	function getRandom(min, max) {
-	  return Math.random() * (max - min) + min;
-	}
-	
-	function getRandomInt(min, max) {
-	  return Math.floor(Math.random() * (max - min + 1) + min);
-	}
-
-/***/ },
-/* 23 */
+/* 25 */
 /*!*********************************!*\
   !*** ./src/classes/Settings.js ***!
   \*********************************/
@@ -2840,183 +3013,6 @@
 	};
 	
 	var settings = exports.settings = new Settings();
-
-/***/ },
-/* 24 */
-/*!*****************************!*\
-  !*** ./src/classes/Item.js ***!
-  \*****************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.Item = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _SpriteController2 = __webpack_require__(/*! ./SpriteController */ 25);
-	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 22);
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var Item = exports.Item = function (_SpriteController) {
-	  _inherits(Item, _SpriteController);
-	
-	  function Item(parentObject, compassObject, itemDetails) {
-	    _classCallCheck(this, Item);
-	
-	    var _this = _possibleConstructorReturn(this, (Item.__proto__ || Object.getPrototypeOf(Item)).call(this, parentObject, compassObject));
-	
-	    _this.name = itemDetails.name || 'Error Item';
-	    _this.description = itemDetails.description || 'No item specified.';
-	    _this.type = itemDetails.type || 'error';
-	    _this.color = itemDetails.color || 'error';
-	
-	    // potency, power, etc.
-	    _this.strength = itemDetails.strength || 0;
-	
-	    // durability, second duration, etc.
-	    _this.uses = itemDetails.description || 0;
-	    return _this;
-	  }
-	
-	  _createClass(Item, [{
-	    key: 'displayStats',
-	    value: function displayStats() {
-	      var showColor = true;
-	      var colorWording = void 0,
-	          strengthWording = void 0;
-	
-	      if (this.type == 'tool' || this.type == 'weapon') {
-	        colorWording = 'Element: ' + (0, _helpers.capitalizeString)(_helpers.colorElementMap[this.color]);
-	      } else {
-	        colorWording = 'Color: ' + (0, _helpers.capitalizeString)(this.color);
-	      }
-	
-	      switch (this.type) {
-	        case 'ingredient':
-	          {
-	            strengthWording = 'Quality';
-	            break;
-	          }
-	        case 'potion':
-	          {
-	            strengthWord = 'Potency';
-	            showColor = false;
-	            break;
-	          }
-	        case 'tool':
-	          {
-	            strengthWord = 'Effectiveness';
-	            break;
-	          }
-	        case 'weapon':
-	          {
-	            strengthWord = 'Power';
-	            break;
-	          }
-	      }
-	
-	      if (showColor) {}
-	    }
-	  }]);
-
-	  return Item;
-	}(_SpriteController2.SpriteController);
-
-/***/ },
-/* 25 */
-/*!*****************************************!*\
-  !*** ./src/classes/SpriteController.js ***!
-  \*****************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.SpriteController = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 22);
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var SpriteController = exports.SpriteController = function () {
-	    function SpriteController(parentObject, compassObject) {
-	        _classCallCheck(this, SpriteController);
-	
-	        this.parent = parentObject;
-	        this.parent.anchor.x = 0.5;
-	        this.parent.anchor.y = 0.5;
-	
-	        this.compass = compassObject;
-	
-	        var LATLONGMAXDISTANCE = 0.001;
-	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	        console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
-	
-	        this.updatePosition();
-	    }
-	
-	    _createClass(SpriteController, [{
-	        key: 'calcPosition',
-	        value: function calcPosition(pixelScale) {
-	            console.log('pixelScale = ' + pixelScale);
-	            var LATLONGTOPIXELADJUSTMENT = 500;
-	            console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
-	
-	            var itemOffset = {
-	                x: this.compass.nav.longitude - this.longitude,
-	                y: this.compass.nav.latitude - this.latitude
-	            };
-	            console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
-	
-	            // radius should be the length of the line from the center to the item.
-	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
-	            console.log('radius = ' + radius);
-	
-	            // Calculate the distance between forward point and item position.
-	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
-	            console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
-	
-	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
-	            console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
-	
-	            var angle = Math.acos((doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared);
-	            console.log('angle = ' + angle);
-	
-	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
-	            var result = {
-	                x: (this.compass.x + radius * Math.cos(angle)) * pixelScale,
-	                y: (this.compass.y + radius * Math.cos(angle)) * pixelScale
-	            };
-	            console.log('item at: ' + result.x + ', ' + result.y);
-	
-	            return result;
-	        }
-	    }, {
-	        key: 'updatePosition',
-	        value: function updatePosition() {
-	            var positionOnScreen = this.calcPosition(1);
-	            this.parent.x = positionOnScreen.x;
-	            this.parent.y = positionOnScreen.y;
-	        }
-	    }]);
-
-	    return SpriteController;
-	}();
 
 /***/ }
 /******/ ]);
