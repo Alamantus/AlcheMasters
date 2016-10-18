@@ -683,13 +683,13 @@
 	  }, {
 	    key: 'update',
 	    value: function update() {
-	      this.updateCompassAngle();
+	      // this.updateCompassAngle();
+	      this.thing.item.updatePosition();
 	    }
 	  }, {
 	    key: 'updateCompassAngle',
 	    value: function updateCompassAngle() {
-	      this.compass.angle = this.compass.nav.heading;
-	      // this.compass.nav.textDisplay.text = this.compass.nav.heading;
+	      // this.compass.angle = this.compass.nav.heading;
 	    }
 	  }]);
 	
@@ -2740,50 +2740,60 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	exports.dynamicSort = dynamicSort;
 	exports.capitalizeString = capitalizeString;
+	exports.getRandom = getRandom;
+	exports.getRandomInt = getRandomInt;
 	var colorElementMap = exports.colorElementMap = {
-	    red: 'fire',
-	    fire: 'red',
-	    orange: 'light',
-	    light: 'orange',
-	    yellow: 'electricity',
-	    electricity: 'yellow',
-	    green: 'growth',
-	    growth: 'green',
-	    blue: 'water',
-	    water: 'blue',
-	    purple: 'ice',
-	    ice: 'purple',
-	    white: 'wind',
-	    wind: 'white',
-	    black: 'darkness',
-	    darkness: 'black'
+	  red: 'fire',
+	  fire: 'red',
+	  orange: 'light',
+	  light: 'orange',
+	  yellow: 'electricity',
+	  electricity: 'yellow',
+	  green: 'growth',
+	  growth: 'green',
+	  blue: 'water',
+	  water: 'blue',
+	  purple: 'ice',
+	  ice: 'purple',
+	  white: 'wind',
+	  wind: 'white',
+	  black: 'darkness',
+	  darkness: 'black'
 	};
 	
 	function dynamicSort(propertiesArray) {
-	    /* Retrieved from http://stackoverflow.com/a/30446887/3508346
-	       Usage: theArray.sort(dynamicSort(['propertyAscending', '-propertyDescending']));*/
-	    return function (a, b) {
-	        return propertiesArray.map(function (o) {
-	            var dir = 1;
-	            if (o[0] === '-') {
-	                dir = -1;
-	                o = o.substring(1);
-	            }
-	            if (removeDiacritics(a[o]).toLowerCase() > removeDiacritics(b[o]).toLowerCase()) return dir;
-	            if (removeDiacritics(a[o]).toLowerCase() < removeDiacritics(b[o]).toLowerCase()) return -dir;
-	            return 0;
-	        }).reduce(function firstNonZeroValue(p, n) {
-	            return p ? p : n;
-	        }, 0);
-	    };
+	  /* Retrieved from http://stackoverflow.com/a/30446887/3508346
+	     Usage: theArray.sort(dynamicSort(['propertyAscending', '-propertyDescending']));*/
+	  return function (a, b) {
+	    return propertiesArray.map(function (o) {
+	      var dir = 1;
+	      if (o[0] === '-') {
+	        dir = -1;
+	        o = o.substring(1);
+	      }
+	      if (removeDiacritics(a[o]).toLowerCase() > removeDiacritics(b[o]).toLowerCase()) return dir;
+	      if (removeDiacritics(a[o]).toLowerCase() < removeDiacritics(b[o]).toLowerCase()) return -dir;
+	      return 0;
+	    }).reduce(function firstNonZeroValue(p, n) {
+	      return p ? p : n;
+	    }, 0);
+	  };
 	}
 	
 	function capitalizeString(string) {
-	    return string[0].toUpperCase() + string.substr(1);
+	  return string[0].toUpperCase() + string.substr(1);
+	}
+	
+	function getRandom(min, max) {
+	  return Math.random() * (max - min) + min;
+	}
+	
+	function getRandomInt(min, max) {
+	  return Math.floor(Math.random() * (max - min + 1) + min);
 	}
 
 /***/ },
@@ -2906,15 +2916,18 @@
 /*!*****************************************!*\
   !*** ./src/classes/SpriteController.js ***!
   \*****************************************/
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+	exports.SpriteController = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 22);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -2928,8 +2941,9 @@
 	
 	        this.compass = compassObject;
 	
-	        this.latitude = this.compass.nav.latitude + 0.005;
-	        this.longitude = this.compass.nav.longitude + 0.008;
+	        var LATLONGMAXDISTANCE = 0.001;
+	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
 	
 	        this.updatePosition();
 	    }
@@ -2940,9 +2954,11 @@
 	            var forwardVector = { x: 0, y: 1 };
 	            var forwardVectorNormalized = 1;
 	
+	            var LATLONGTOPIXELADJUSTMENT = 1000;
+	            console.log(pixelScale);
 	            var itemVector = {
-	                x: Math.abs(this.compass.nav.latitude - this.latitude) * pixelScale,
-	                y: Math.abs(this.compass.nav.longitude - this.longitude) * pixelScale
+	                x: Math.abs(this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT * pixelScale,
+	                y: Math.abs(this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT * pixelScale
 	            };
 	            console.log('itemVector = ' + itemVector.x + ', ' + itemVector.y);
 	
@@ -2971,7 +2987,7 @@
 	    }, {
 	        key: 'updatePosition',
 	        value: function updatePosition() {
-	            var positionOnScreen = this.calcPosition(1000);
+	            var positionOnScreen = this.calcPosition(2);
 	            this.parent.x = positionOnScreen.x;
 	            this.parent.y = positionOnScreen.y;
 	        }
