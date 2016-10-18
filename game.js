@@ -1349,11 +1349,11 @@
 	            console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
 	
 	            // radius should be the length of the line from the center to the item.
-	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y) * pixelScale;
+	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
 	            console.log('radius = ' + radius);
 	
 	            // Calculate the distance between forward point and item position.
-	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x * pixelScale) + (0, _helpers.square)(radius - itemOffset.y * pixelScale));
+	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
 	            console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
 	
 	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
@@ -1364,7 +1364,7 @@
 	
 	            var compassHeadingRadians = this.compass.nav.heading * (Math.PI / 180);
 	
-	            var angle = compassHeadingRadians - Math.acos(insideArcCos);
+	            var angle = Math.acos(insideArcCos) - compassHeadingRadians;
 	            console.log('angle = ' + angle);
 	
 	            var cosOfAngle = Math.cos(angle);
@@ -1372,8 +1372,8 @@
 	
 	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
 	            var result = {
-	                x: Math.round(this.compass.x + radius * cosOfAngle),
-	                y: Math.round(this.compass.y + radius * cosOfAngle)
+	                x: Math.round(this.compass.x + radius * pixelScale * cosOfAngle),
+	                y: Math.round(this.compass.y + radius * pixelScale * cosOfAngle)
 	            };
 	            console.log('item at: ' + result.x + ', ' + result.y);
 	
@@ -1382,7 +1382,7 @@
 	    }, {
 	        key: 'updatePosition',
 	        value: function updatePosition() {
-	            var positionOnScreen = this.calcPosition(5);
+	            var positionOnScreen = this.calcPosition(10);
 	            this.parent.x = positionOnScreen.x;
 	            this.parent.y = positionOnScreen.y;
 	        }
