@@ -1359,16 +1359,15 @@
 	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
 	            console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
 	
-	            // The commented block below is simplified by the cosOfAngle variable below the block because cos
-	            // and arccos are opposites and therefore cancel each other out.
-	            /*let insideArcCos = (doubleRadiusSquared - square(distanceBetweenPoints)) / doubleRadiusSquared;
+	            var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
 	            console.log('insideArcCos = ' + insideArcCos);
-	              let angle = Math.acos(insideArcCos);
-	            console.log('angle = ' + angle);
-	              let cosOfAngle = Math.cos(angle);
-	            console.log('cosOfAngle = ' + cosOfAngle);*/
 	
-	            var cosOfAngle = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
+	            var compassHeadingRadians = this.compass.nav.heading * (Math.PI / 180);
+	
+	            var angle = compassHeadingRadians - Math.acos(insideArcCos);
+	            console.log('angle = ' + angle);
+	
+	            var cosOfAngle = Math.cos(angle);
 	            console.log('cosOfAngle = ' + cosOfAngle);
 	
 	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
