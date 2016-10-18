@@ -2956,7 +2956,9 @@
 	    _createClass(SpriteController, [{
 	        key: 'calcPosition',
 	        value: function calcPosition(pixelScale) {
-	            var LATLONGTOPIXELADJUSTMENT = 1000;
+	            console.log('pixelScale = ' + pixelScale);
+	            var LATLONGTOPIXELADJUSTMENT = 500;
+	            console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
 	
 	            var itemOffset = {
 	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
@@ -2990,7 +2992,7 @@
 	    }, {
 	        key: 'updatePosition',
 	        value: function updatePosition() {
-	            var positionOnScreen = this.calcPosition(2);
+	            var positionOnScreen = this.calcPosition(1);
 	            this.parent.x = positionOnScreen.x;
 	            this.parent.y = positionOnScreen.y;
 	        }
