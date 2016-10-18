@@ -1,7 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 
-const BUILD_DIR = path.resolve(__dirname, 'public');
+const BUILD_DIR = path.resolve(__dirname, '../gh-pages');
 const APP_DIR = path.resolve(__dirname, 'src');
 
 const phaserModule = path.join(__dirname, 'node_modules/phaser/');
@@ -59,19 +59,19 @@ const phaser = path.join(phaserModule, 'build/custom/phaser-split.js'),
         'p2': p2
       }
     },
-    plugins: [
-      new webpack.optimize.UglifyJsPlugin({
-        compress: {
-          warnings: false
-        },
-        output: {
-          comments: false
-        }
-      })
-    ],
+    // Turn on optimization plugin for prod, leave off for dev
+    // plugins: [
+    //   new webpack.optimize.UglifyJsPlugin({
+    //     compress: {
+    //       warnings: false
+    //     },
+    //     output: {
+    //       comments: false
+    //     }
+    //   })
+    // ],
     sassLoader: {
       file: './src/sass/main.scss',
-      outFile: './public/styles.css',
       outputStyle: 'compressed'
     }
  };

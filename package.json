@@ -1,7 +1,7 @@
 {
   "name": "potion-game",
   "version": "0.0.0",
-  "description": "A text-based game about making potions using geolocation",
+  "description": "An attempt to make a fantasy potion-themed AR game using geolocation and compass heading in Phaser and ES6/ES2015.",
   "main": "src/index.jsx",
   "scripts": {
     "install": "napa Ezelia/EZGUI",
