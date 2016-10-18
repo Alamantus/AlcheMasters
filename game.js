@@ -1339,12 +1339,12 @@
 	        key: 'calcPosition',
 	        value: function calcPosition(pixelScale) {
 	            console.log('pixelScale = ' + pixelScale);
-	            var LATLONGTOPIXELADJUSTMENT = 500;
+	            var LATLONGTOPIXELADJUSTMENT = 1000;
 	            console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
 	
 	            var itemOffset = {
-	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
-	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
+	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT * pixelScale,
+	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT * pixelScale
 	            };
 	            console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
 	
@@ -1359,13 +1359,19 @@
 	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
 	            console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
 	
-	            var angle = Math.acos((doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared);
+	            var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
+	            console.log('insideArcCos = ' + insideArcCos);
+	
+	            var angle = Math.acos(insideArcCos);
 	            console.log('angle = ' + angle);
+	
+	            var cosOfAngle = Math.cos(angle);
+	            console.log('cosOfAngle = ' + cosOfAngle);
 	
 	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
 	            var result = {
-	                x: Math.round(this.compass.x + radius * Math.cos(angle) + pixelScale),
-	                y: Math.round(this.compass.y + radius * Math.cos(angle) + pixelScale)
+	                x: Math.round(this.compass.x + radius * cosOfAngle),
+	                y: Math.round(this.compass.y + radius * cosOfAngle)
 	            };
 	            console.log('item at: ' + result.x + ', ' + result.y);
 	
