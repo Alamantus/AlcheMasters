@@ -1326,6 +1326,7 @@
 	        this.parent.anchor.y = 0.5;
 	
 	        this.compass = compassObject;
+	        this.lastCompassHeading = -1;
 	
 	        var LATLONGMAXDISTANCE = 0.002;
 	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
@@ -1352,6 +1353,8 @@
 	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
 	            console.log('radius = ' + radius);
 	
+	            this.pixelDistance = radius * pixelScale;
+	
 	            // Calculate the distance between forward point and item position.
 	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
 	            console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
@@ -1369,8 +1372,8 @@
 	
 	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
 	            var result = {
-	                x: Math.round(this.compass.x + radius * pixelScale * Math.cos(angle)),
-	                y: Math.round(this.compass.y + radius * pixelScale * Math.sin(angle))
+	                x: Math.round(this.compass.x + this.pixelDistance * Math.cos(angle)),
+	                y: Math.round(this.compass.y + this.pixelDistance * Math.sin(angle))
 	            };
 	            console.log('item at: ' + result.x + ', ' + result.y);
 	
@@ -1379,9 +1382,12 @@
 	    }, {
 	        key: 'updatePosition',
 	        value: function updatePosition() {
-	            var positionOnScreen = this.calcPosition(10);
-	            this.parent.x = positionOnScreen.x;
-	            this.parent.y = positionOnScreen.y;
+	            if (this.compass.nav.heading !== this.lastCompassHeading) {
+	                this.lastCompassHeading = this.compass.nav.heading;
+	                var positionOnScreen = this.calcPosition(20);
+	                this.parent.x = positionOnScreen.x;
+	                this.parent.y = positionOnScreen.y;
+	            }
 	        }
 	    }]);
 
