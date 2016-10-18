@@ -654,6 +654,8 @@
 	    _this.inventory = new _Inventory.Inventory();
 	
 	    _this.settings = new _Settings.Settings();
+	
+	    _this.hasGeneratedItems = false;
 	    return _this;
 	  }
 	
@@ -672,24 +674,35 @@
 	  }, {
 	    key: 'create',
 	    value: function create() {
+	      var _this2 = this;
+	
 	      this.compass = this.add.sprite(this.game.width / 2, this.game.height / 4, 'compass');
 	      this.compass.anchor.x = 0.5;
 	      this.compass.anchor.y = 0.5;
-	      this.compass.nav = new _Nav.Nav(this.game);
-	
-	      this.thing = this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square');
-	      this.thing.item = new _Item.Item(this.thing, this.compass, {});
+	      this.compass.nav = new _Nav.Nav(this, function () {
+	        return _this2.generateItems();
+	      });
 	    }
 	  }, {
 	    key: 'update',
 	    value: function update() {
 	      // this.updateCompassAngle();
-	      this.thing.item.updatePosition();
+	      if (this.hasGeneratedItems) {
+	        this.thing.item.updatePosition();
+	      }
 	    }
 	  }, {
 	    key: 'updateCompassAngle',
 	    value: function updateCompassAngle() {
 	      // this.compass.angle = this.compass.nav.heading;
+	    }
+	  }, {
+	    key: 'generateItems',
+	    value: function generateItems() {
+	      this.thing = this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square');
+	      this.thing.item = new _Item.Item(this.thing, this.compass, {});
+	
+	      this.hasGeneratedItems = true;
 	    }
 	  }]);
 	
@@ -717,10 +730,10 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var Nav = exports.Nav = function () {
-	  function Nav(game) {
+	  function Nav(state, callback) {
 	    _classCallCheck(this, Nav);
 	
-	    this.game = game;
+	    this.state = state;
 	
 	    this.name = 'test';
 	
@@ -738,14 +751,14 @@
 	    this.lastCheck = null;
 	    this.heading = 0;
 	
-	    this.textDisplay = this.game.add.text(0, 0, this.name, { fill: 'white' });
+	    this.textDisplay = this.state.add.text(0, 0, this.name, { fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width });
 	
-	    this.initiateNav();
+	    this.initiateNav(callback);
 	  }
 	
 	  _createClass(Nav, [{
 	    key: 'initiateNav',
-	    value: function initiateNav() {
+	    value: function initiateNav(callback) {
 	      var _this = this;
 	
 	      if (this.canUseGeolocation) {
@@ -756,6 +769,9 @@
 	          _this.longitude = position.coords.longitude;
 	          _this.lastCheck = position.timestamp;
 	          console.log('compass latlong: ' + _this.longitude + ', ' + _this.latitude);
+	
+	          // Once location is loaded, allow state to generate items.
+	          callback();
 	
 	          _this.initiateCompass();
 	        }, function (error) {
