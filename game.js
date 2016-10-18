@@ -674,7 +674,7 @@
 	  }, {
 	    key: 'create',
 	    value: function create() {
-	      this.compass = this.add.sprite(this.game.width / 2, this.game.height / 4, 'compass');
+	      this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
 	      this.compass.anchor.x = 0.5;
 	      this.compass.anchor.y = 0.5;
 	      this.compass.nav = new _Nav.Nav(this);
@@ -702,7 +702,7 @@
 	      this.thing = this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square');
 	      this.thing.item = new _Item.Item(this.thing, this.compass, {});
 	
-	      // this.hasGeneratedItems = true;
+	      this.hasGeneratedItems = true;
 	    }
 	  }]);
 	
@@ -1359,13 +1359,16 @@
 	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
 	            console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
 	
-	            var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
+	            // The commented block below is simplified by the cosOfAngle variable below the block because cos
+	            // and arccos are opposites and therefore cancel each other out.
+	            /*let insideArcCos = (doubleRadiusSquared - square(distanceBetweenPoints)) / doubleRadiusSquared;
 	            console.log('insideArcCos = ' + insideArcCos);
-	
-	            var angle = Math.acos(insideArcCos);
+	              let angle = Math.acos(insideArcCos);
 	            console.log('angle = ' + angle);
+	              let cosOfAngle = Math.cos(angle);
+	            console.log('cosOfAngle = ' + cosOfAngle);*/
 	
-	            var cosOfAngle = Math.cos(angle);
+	            var cosOfAngle = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
 	            console.log('cosOfAngle = ' + cosOfAngle);
 	
 	            // Pretty sure the acos of relativeAngle and the cos below cancel out, but we'll see.
@@ -1380,7 +1383,7 @@
 	    }, {
 	        key: 'updatePosition',
 	        value: function updatePosition() {
-	            var positionOnScreen = this.calcPosition(1);
+	            var positionOnScreen = this.calcPosition(2);
 	            this.parent.x = positionOnScreen.x;
 	            this.parent.y = positionOnScreen.y;
 	        }
