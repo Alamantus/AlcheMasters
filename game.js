@@ -686,6 +686,8 @@
 	    value: function create() {
 	      var _this2 = this;
 	
+	      this.game.time.advancedTiming = true;
+	
 	      this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
 	      this.compass.anchor.x = 0.5;
 	      this.compass.anchor.y = 0.5;
@@ -697,6 +699,11 @@
 	      // this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', {fill: 'yellow', align: 'center'});
 	      // this.northMarker.anchor.x = 0.5;
 	      // this.northMarker.anchor.y = 0.5;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      this.game.debug.text(this.game.time.fps, 2, 200, "#00ff00");
 	    }
 	  }, {
 	    key: 'update',
