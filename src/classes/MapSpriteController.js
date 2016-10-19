@@ -1,4 +1,4 @@
-import {getRandom, square, radians, inverseLerp} from '../js/helpers';
+import {getRandom, square, radians, lerp, inverseLerp} from '../js/helpers';
 
 export class MapSpriteController {
   constructor (parentObject, compassObject) {
@@ -74,8 +74,8 @@ export class MapSpriteController {
   updatePosition () {
     if (this.compass.nav.hasChanged) {
       let positionOnScreen = this.calcPosition(window.settings.pixelScale);
-      this.parent.x = positionOnScreen.x;
-      this.parent.y = positionOnScreen.y;
+      this.parent.x = lerp(this.parent.x, positionOnScreen.x, window.settings.lerpPercent);
+      this.parent.y = lerp(this.parent.y, positionOnScreen.y, window.settings.lerpPercent);
     }
   }
 }

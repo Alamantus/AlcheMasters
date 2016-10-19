@@ -94,7 +94,7 @@ export class Nav {
         this.latitude = position.coords.latitude;
         this.lastUpdate = position.timestamp;
       }
-      
+
       this.updateMessage(`position: ${this.longitude}, ${this.latitude}\nchanged: ${this.lastLongitude - this.longitude}, ${this.lastLatitude - this.latitude}`);
 
       if (callback){
@@ -105,6 +105,8 @@ export class Nav {
       setTimeout(() => this.getGeolocation(), this.locationCheckTimeout);
     }, (error) => {
       this.updateMessage(error.message);
+      // If it fails, try again.
+      setTimeout(() => this.getGeolocation(), this.locationCheckTimeout);
     }, {timeout: 5000, maximumAge: 0});
   }
 

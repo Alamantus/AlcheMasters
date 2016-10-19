@@ -17,11 +17,13 @@ export class Settings {
 
     // The margin range within which an item's position will not update if the player's compass heading.
     // Meant to combat items floating/moving when the heading change is very small.
-    this.angleMarginOfError = 0.09;
+    this.angleMarginOfError = 0.05;
 
     // The margin range within which an item's position will not update if the player's coordinates change.
     // Meant to combat items floating/moving when the geoposition calculation is inconsistent.
-    this.geoMarginOfError = 0.0000966;
+    this.geoMarginOfError = 0.00009;
+
+    this.lerpPercent = 0.2;
   }
 }
 
