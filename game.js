@@ -784,6 +784,8 @@
 	
 	    this.latitude = 0;
 	    this.longitude = 0;
+	    this.lastLatitude = 0;
+	    this.lastLongitude = 0;
 	    this.lastCheck = null;
 	    this.heading = 0;
 	
@@ -829,7 +831,7 @@
 	        if (method !== false) {
 	          Compass.watch(function (heading) {
 	            _this2.heading = heading;
-	            _this2.updateMessage(_this2.heading);
+	            // this.updateMessage(this.heading);
 	          });
 	        } else {
 	          _this2.updateMessage(_this2.messages.noCompass);
@@ -842,11 +844,13 @@
 	      var _this3 = this;
 	
 	      navigator.geolocation.getCurrentPosition(function (position) {
-	        // this.updateMessage(position.coords.latitude + ', ' + position.coords.longitude);
-	        _this3.latitude = position.coords.latitude;
+	        _this3.lastLongitude = _this3.longitude;
+	        _this3.lastLatitude = _this3.latitude;
+	
 	        _this3.longitude = position.coords.longitude;
+	        _this3.latitude = position.coords.latitude;
 	        _this3.lastCheck = position.timestamp;
-	        // console.log('compass latlong: ' + this.longitude + ', ' + this.latitude);
+	        _this3.updateMessage('position: ' + _this3.longitude + ', ' + _this3.latitude + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude) + ', ' + (_this3.lastLatitude - _this3.latitude));
 	
 	        if (callback) {
 	          callback();
@@ -1331,8 +1335,6 @@
 	    this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
 	    this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
 	    // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
-	
-	    window.pixelScale = 30;
 	
 	    this.updatePosition();
 	  }
