@@ -1,4 +1,4 @@
-import {getRandom, square, radians} from '../js/helpers';
+import {getRandom, square, radians, inverseLerp} from '../js/helpers';
 
 export class MapSpriteController {
   constructor (parentObject, compassObject) {
@@ -42,13 +42,11 @@ export class MapSpriteController {
       x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT
     , y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
     }
-    // console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
+    // console.log('item geoposition offset = ' + (itemOffset.x / LATLONGTOPIXELADJUSTMENT) + ', ' + (itemOffset.y / LATLONGTOPIXELADJUSTMENT));
 
     // radius should be the length of the line from the center to the item.
     let radius = Math.sqrt((itemOffset.x * itemOffset.x) + (itemOffset.y * itemOffset.y));
     // console.log('radius = ' + radius);
-
-    this.pixelDistance = radius * pixelScale;
 
     // Calculate the distance between forward point and item position.
     let distanceBetweenPoints = Math.sqrt(square(0 - (itemOffset.x)) + square(radius - (itemOffset.y)))
@@ -62,6 +60,22 @@ export class MapSpriteController {
 
     let angle = Math.acos(insideArcCos) - radians(this.compass.nav.heading - 90);
     // console.log('angle = ' + angle);
+
+    // The xAdjustmentvalues equate to the itemOffset and radius values so we can use inverseLerp.
+    let minAdjustmentValue = window.settings.minPixelDistance / pixelScale;
+    let maxAdjustmentValue = window.settings.maxPixelDistance / pixelScale;
+
+    // This returns a distance scaled by a scaled pixelScale. The closer the object is, the lower the pixelScale, and the farther something is, the larger the pixelScale.
+    // This makes the object display farther away when it's farther away but approach quickly as you get closer by reducing the radius scale.
+    // The pixelDistance is then controlled by the max and min pixelDistance settings.
+    this.pixelDistance = radius * (pixelScale * inverseLerp(minAdjustmentValue, maxAdjustmentValue, radius));
+    if (this.pixelDistance > window.settings.maxPixelDistance) {
+      this.pixelDistance = window.settings.maxPixelDistance;
+    }
+    if (this.pixelDistance < window.settings.minPixelDistance) {
+      this.pixelDistance = window.settings.minPixelDistance;
+    }
+    // console.log('pixelDistance = ' + this.pixelDistance);
 
     let result = {
       x: Math.round(this.compass.x + (this.pixelDistance * Math.cos(angle)))

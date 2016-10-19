@@ -23,6 +23,9 @@ export class MainInterface extends Phaser.State {
     }
 
     this.hasGeneratedItems = false;
+
+    // Frames before checking the items.
+    this.itemCheckFrameDelay = 0;
 	}
 
   init () {
@@ -52,10 +55,15 @@ export class MainInterface extends Phaser.State {
 
   update () {
     // this.updateCompassAngle();
+    this.itemCheckFrameDelay--;
     if (this.hasGeneratedItems) {
-      this.map.pickups.forEach((pickup) => {
-        pickup.pickup.updatePosition();
-      });
+      if (this.itemCheckFrameDelay <= 0) {
+        this.map.pickups.forEach((pickup) => {
+          pickup.pickup.updatePosition();
+        });
+        // Only check items once every this number of frames.
+        this.itemCheckFrameDelay = window.settings.itemCheckDelayNumberOfFrames;
+      }
     }
 
     this.drawNorth(40);

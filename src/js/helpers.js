@@ -54,6 +54,14 @@ export function getRandomInt (min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-export function radians(angle) {
+export function radians (angle) {
   return angle * (Math.PI / 180);
+}
+
+export function lerp (start, end, percent) {
+  return start + (percent * (end - start));
+}
+
+export function inverseLerp (start, end, current) {
+  return (current - start) / (end - start);
 }
