@@ -9,6 +9,8 @@ export class Pickup extends MapSpriteController {
     // Time before destruction in seconds.
 		this.life = getRandomInt(minLife, maxLife);
 
-    setTimeout(() => this.parent.destroy(), this.life * 1000);
+    this.deathTime = Date.now() + this.life * 1000;
+
+    // setTimeout(() => this.parent.destroy(), this.life * 1000);
 	}
 }

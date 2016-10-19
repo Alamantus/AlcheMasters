@@ -11,27 +11,26 @@ export class MapSpriteController {
     this.lastCompassLatitude = 0;
     this.lastCompassLongitude = 0;
 
+    // I belive this will only be used for testing! LatLong will likely be distributed based on positions
+    // at regular 0.005 (or something like that) global latlong intervals that the player is closest to.
     const LATLONGMAXDISTANCE = 0.002;
     this.longitude = this.compass.nav.longitude + getRandom(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
     this.latitude = this.compass.nav.latitude + getRandom(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
     // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
 
-    this.angleMarginOfError = 0.05;
-    this.geoMarginOfError = 0.00008;
-
     this.updatePosition();
   }
 
   get geoIsInsideMarginOfError() {
-    return (this.compass.nav.longitude < this.lastCompassLongitude + this.geoMarginOfError
-            && this.compass.nav.longitude > this.lastCompassLongitude - this.geoMarginOfError
-            && this.compass.nav.latitude < this.lastCompassLatitude + this.geoMarginOfError
-            && this.compass.nav.latitude > this.lastCompassLatitude - this.geoMarginOfError);
+    return (this.compass.nav.longitude < this.lastCompassLongitude + window.settings.geoMarginOfError
+            && this.compass.nav.longitude > this.lastCompassLongitude - window.settings.geoMarginOfError
+            && this.compass.nav.latitude < this.lastCompassLatitude + window.settings.geoMarginOfError
+            && this.compass.nav.latitude > this.lastCompassLatitude - window.settings.geoMarginOfError);
   }
 
   get headingIsInsideMarginOfError() {
-    return (this.compass.nav.heading < this.lastCompassHeading + this.angleMarginOfError
-            && this.compass.nav.heading > this.lastCompassHeading - this.angleMarginOfError);
+    return (this.compass.nav.heading < this.lastCompassHeading + window.settings.angleMarginOfError
+            && this.compass.nav.heading > this.lastCompassHeading - window.settings.angleMarginOfError);
   }
 
   calcPosition (pixelScale) {
@@ -76,7 +75,7 @@ export class MapSpriteController {
   updatePosition () {
     if (!(this.headingIsInsideMarginOfError && this.geoIsInsideMarginOfError)) {
       this.lastCompassHeading = this.compass.nav.heading;
-      let positionOnScreen = this.calcPosition(25);
+      let positionOnScreen = this.calcPosition(window.settings.pixelScale);
       this.parent.x = positionOnScreen.x;
       this.parent.y = positionOnScreen.y;
     }

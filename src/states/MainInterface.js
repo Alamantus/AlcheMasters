@@ -6,7 +6,6 @@ import {Nav} from '../classes/Nav';
 import {Pickup} from '../classes/Pickup';
 import {Character} from '../classes/Character';
 import {Inventory} from '../classes/Inventory';
-import {Settings} from '../classes/Settings';
 
 import {radians} from '../js/helpers';
 
@@ -17,8 +16,6 @@ export class MainInterface extends Phaser.State {
     this.character = new Character();
 
     this.inventory = new Inventory();
-
-    this.settings = new Settings();
 
     this.map = {
       pickups: []
@@ -43,8 +40,8 @@ export class MainInterface extends Phaser.State {
     this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
     this.compass.anchor.x = 0.5;
     this.compass.anchor.y = 0.5;
-    this.compass.nav = new Nav(this, 5000, () => this.generatePickups());
-    console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
+    this.compass.nav = new Nav(this, window.settings.locationCheckDelaySeconds, () => this.generatePickups());
+    // console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 
     this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', {fill: 'yellow', align: 'center'});
     this.northMarker.anchor.x = 0.5;
@@ -80,7 +77,7 @@ export class MainInterface extends Phaser.State {
 
     this.map.pickups.forEach((pickup) => {
       pickup.pickup = new Pickup(pickup, this.compass, 60, 180);
-      console.log(pickup.pickup.life);
+      // console.log(pickup.pickup.life);
     });
 
     this.hasGeneratedItems = true;

@@ -1,7 +1,7 @@
 import '../../node_modules/compass.js/lib/compass.js';
 
 export class Nav {
-	constructor (state, locationCheckTimeout, runOnReady) {
+	constructor (state, locationCheckDelaySeconds, runOnReady) {
     this.state = state;
 
     this.messages = {
@@ -17,7 +17,7 @@ export class Nav {
     this.lastCheck = null;
     this.heading = 0;
 
-    this.locationCheckTimeout = locationCheckTimeout;
+    this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
 
     this.textDisplay = this.state.add.text(0, 0, 'Inititializing...', {fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width});
 
