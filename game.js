@@ -694,11 +694,9 @@
 	      });
 	      // console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 	
-	      this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', { fill: 'yellow', align: 'center' });
-	      this.northMarker.anchor.x = 0.5;
-	      this.northMarker.anchor.y = 0.5;
-	
-	      // this.generatePickups();
+	      // this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', {fill: 'yellow', align: 'center'});
+	      // this.northMarker.anchor.x = 0.5;
+	      // this.northMarker.anchor.y = 0.5;
 	    }
 	  }, {
 	    key: 'update',
@@ -715,7 +713,7 @@
 	        }
 	      }
 	
-	      this.drawNorth(40);
+	      // this.drawNorth(40);
 	    }
 	  }, {
 	    key: 'drawNorth',
@@ -857,9 +855,10 @@
 	        if (!_this3.geoIsInsideMarginOfError(position.coords.latitude, position.coords.longitude)) {
 	          _this3.longitude = position.coords.longitude;
 	          _this3.latitude = position.coords.latitude;
-	          _this3.updateMessage('position: ' + _this3.longitude + ', ' + _this3.latitude + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude) + ', ' + (_this3.lastLatitude - _this3.latitude));
 	          _this3.lastUpdate = position.timestamp;
 	        }
+	
+	        _this3.updateMessage('position: ' + _this3.longitude + ', ' + _this3.latitude + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude) + ', ' + (_this3.lastLatitude - _this3.latitude));
 	
 	        if (callback) {
 	          callback();
