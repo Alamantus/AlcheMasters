@@ -1418,8 +1418,8 @@
 	        value: function updatePosition() {
 	            if (this.compass.nav.hasChanged) {
 	                var positionOnScreen = this.calcPosition(window.settings.pixelScale);
-	                this.parent.x = (0, _helpers.lerp)(this.parent.x, positionOnScreen.x, 0.02);
-	                this.parent.y = (0, _helpers.lerp)(this.parent.x, positionOnScreen.y, 0.02);
+	                this.parent.x = (0, _helpers.lerp)(this.parent.x, positionOnScreen.x, window.settings.lerpPercent);
+	                this.parent.y = (0, _helpers.lerp)(this.parent.y, positionOnScreen.y, window.settings.lerpPercent);
 	            }
 	        }
 	    }]);
@@ -3089,11 +3089,13 @@
 	
 	    // The margin range within which an item's position will not update if the player's compass heading.
 	    // Meant to combat items floating/moving when the heading change is very small.
-	    this.angleMarginOfError = 0.06;
+	    this.angleMarginOfError = 0.05;
 	
 	    // The margin range within which an item's position will not update if the player's coordinates change.
 	    // Meant to combat items floating/moving when the geoposition calculation is inconsistent.
 	    this.geoMarginOfError = 0.00009;
+	
+	    this.lerpPercent = 0.06;
 	};
 	
 	var settings = exports.settings = new Settings();
