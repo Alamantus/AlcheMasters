@@ -799,7 +799,7 @@
 	
 	    this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
 	
-	    this.textDisplay = this.state.add.text(2, 28, 'Inititializing...', { fontSize: '14px', fill: '#ff00ff', wordWrap: true, wordWrapWidth: this.state.game.width });
+	    this.textDisplay = this.state.add.text(2, 28, 'Inititializing...', { font: 'Courier New', fontSize: '14px', fill: '#ff00ff', wordWrap: true, wordWrapWidth: this.state.game.width });
 	
 	    this.initiateNav(runOnReady);
 	  }
