@@ -63,6 +63,10 @@
 	
 	var _MainInterface = __webpack_require__(/*! ./states/MainInterface */ 16);
 	
+	var _Settings = __webpack_require__(/*! ./classes/Settings */ 25);
+	
+	window.settings = new _Settings.Settings();
+	
 	// Create a new Phaser instance with same width and height as the window,
 	// picking webGL or canvas automatically, and putting it into HTML with the id='game'.
 	var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'game');
@@ -633,8 +637,6 @@
 	
 	var _Inventory = __webpack_require__(/*! ../classes/Inventory */ 23);
 	
-	var _Settings = __webpack_require__(/*! ../classes/Settings */ 25);
-	
 	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -654,8 +656,6 @@
 	    _this.character = new _Character.Character();
 	
 	    _this.inventory = new _Inventory.Inventory();
-	
-	    _this.settings = new _Settings.Settings();
 	
 	    _this.map = {
 	      pickups: [],
@@ -689,7 +689,7 @@
 	      this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
 	      this.compass.anchor.x = 0.5;
 	      this.compass.anchor.y = 0.5;
-	      this.compass.nav = new _Nav.Nav(this, this.settings.locationCheckDelaySeconds, function () {
+	      this.compass.nav = new _Nav.Nav(this, window.settings.locationCheckDelaySeconds, function () {
 	        return _this2.generatePickups();
 	      });
 	      // console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
@@ -711,7 +711,7 @@
 	            pickup.pickup.updatePosition();
 	          });
 	          // Only check items once every this number of frames.
-	          this.itemCheckFrameDelay = this.settings.itemCheckDelayNumberOfFrames;
+	          this.itemCheckFrameDelay = window.settings.itemCheckDelayNumberOfFrames;
 	        }
 	      }
 	
@@ -1312,9 +1312,6 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var MAXPIXELDISTANCE = 180;
-	var MINPIXELDISTANCE = 16;
-	
 	var MapSpriteController = exports.MapSpriteController = function () {
 	    function MapSpriteController(parentObject, compassObject) {
 	        _classCallCheck(this, MapSpriteController);
@@ -1352,7 +1349,7 @@
 	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
 	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
 	            };
-	            console.log('item geoposition offset = ' + itemOffset.x / LATLONGTOPIXELADJUSTMENT + ', ' + itemOffset.y / LATLONGTOPIXELADJUSTMENT);
+	            // console.log('item geoposition offset = ' + (itemOffset.x / LATLONGTOPIXELADJUSTMENT) + ', ' + (itemOffset.y / LATLONGTOPIXELADJUSTMENT));
 	
 	            // radius should be the length of the line from the center to the item.
 	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
@@ -1372,15 +1369,15 @@
 	            // console.log('angle = ' + angle);
 	
 	            this.pixelDistance = radius * pixelScale;
-	            if (this.pixelDistance > MAXPIXELDISTANCE) {
-	                this.pixelDistance = MAXPIXELDISTANCE;
+	            if (this.pixelDistance > window.settings.maxPixelDistance) {
+	                this.pixelDistance = window.settings.maxPixelDistance;
 	            }
-	            if (this.pixelDistance < MINPIXELDISTANCE) {
-	                this.pixelDistance = MINPIXELDISTANCE;
+	            if (this.pixelDistance < window.settings.minPixelDistance) {
+	                this.pixelDistance = window.settings.minPixelDistance;
 	            }
 	            console.log('pixelDistance = ' + this.pixelDistance);
 	
-	            var displayDistance = MINPIXELDISTANCE + (MAXPIXELDISTANCE - MINPIXELDISTANCE) * (0, _helpers.inverseLerp)(MINPIXELDISTANCE, MAXPIXELDISTANCE, this.pixelDistance);
+	            var displayDistance = window.settings.minPixelDistance + (window.settings.maxPixelDistance - window.settings.minPixelDistance) * (0, _helpers.inverseLerp)(window.settings.minPixelDistance, window.settings.maxPixelDistance, this.pixelDistance);
 	
 	            var result = {
 	                x: Math.round(this.compass.x + displayDistance * Math.cos(angle)),
@@ -1395,7 +1392,7 @@
 	        value: function updatePosition() {
 	            if (!(this.headingIsInsideMarginOfError && this.geoIsInsideMarginOfError)) {
 	                this.lastCompassHeading = this.compass.nav.heading;
-	                var positionOnScreen = this.calcPosition(window.pixelScale);
+	                var positionOnScreen = this.calcPosition(window.settings.pixelScale);
 	                this.parent.x = positionOnScreen.x;
 	                this.parent.y = positionOnScreen.y;
 	            }
@@ -3052,21 +3049,28 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var Settings = exports.Settings = function Settings() {
-	  _classCallCheck(this, Settings);
+	    _classCallCheck(this, Settings);
 	
-	  // Set Default Settings
-	  this.sortMethod = ['name'];
+	    // Set Default Settings
+	    this.sortMethod = ['name'];
 	
-	  this.locationCheckDelaySeconds = 5;
+	    this.locationCheckDelaySeconds = 5;
 	
-	  // Number of frames to skip before recalculating item positions.
-	  this.itemCheckDelayNumberOfFrames = 5;
+	    // Number of frames to skip before recalculating item positions.
+	    this.itemCheckDelayNumberOfFrames = 5;
+	
+	    // Min and max pixels that a map object can draw from the center of the circle.
+	    this.minPixelDistance = 16;
+	    this.maxPixelDistance = 180;
+	
+	    // Multiplier for converting 1000 * latlong to distance in pixels for MapSpriteControllers.
+	    this.pixelScale = 60;
 	};
 	
 	var settings = exports.settings = new Settings();
