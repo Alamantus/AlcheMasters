@@ -14,12 +14,12 @@ export class Nav {
 
     this.latitude = 0;
     this.longitude = 0;
-    this.lastLatitude = 0;
-    this.lastLongitude = 0;
+    this.lastLatitude = null;
+    this.lastLongitude = null;
     this.lastCheck = null;
     this.lastUpdate = null;
     this.heading = 0;
-    this.lastHeading = 0;
+    this.lastHeading = null;
 
     this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
 
@@ -35,18 +35,6 @@ export class Nav {
     }
     this.updateMessage('no');
     return false;
-  }
-
-  get geoIsInsideMarginOfError () {
-    return (this.longitude < this.lastLongitude + window.settings.geoMarginOfError
-            && this.longitude > this.lastLongitude - window.settings.geoMarginOfError
-            && this.latitude < this.lastLatitude + window.settings.geoMarginOfError
-            && this.latitude > this.lastLatitude - window.settings.geoMarginOfError);
-  }
-
-  get headingIsInsideMarginOfError () {
-    return (this.heading < this.lastHeading + window.settings.angleMarginOfError
-            && this.heading > this.lastHeading - window.settings.angleMarginOfError);
   }
 
   get hasChanged () {
@@ -84,7 +72,7 @@ export class Nav {
         Compass.watch((heading) => {
           this.lastHeading = this.heading;
 
-          if (!this.headingIsInsideMarginOfError) {
+          if (!this.headingIsInsideMarginOfError(heading)) {
             this.heading = heading;
             // this.updateMessage(this.heading);
           }
@@ -101,12 +89,13 @@ export class Nav {
       this.lastLatitude = this.latitude;
       this.lastCheck = position.timestamp;
 
-      if (this.geoIsInsideMarginOfError) {
+      if (!this.geoIsInsideMarginOfError(position.coords.latitude, position.coords.longitude)) {
         this.longitude = position.coords.longitude;
         this.latitude = position.coords.latitude;
-        this.updateMessage(`position: ${this.longitude}, ${this.latitude}\nchanged: ${this.lastLongitude - this.longitude}, ${this.lastLatitude - this.latitude}`);
         this.lastUpdate = position.timestamp;
       }
+      
+      this.updateMessage(`position: ${this.longitude}, ${this.latitude}\nchanged: ${this.lastLongitude - this.longitude}, ${this.lastLatitude - this.latitude}`);
 
       if (callback){
         callback();
@@ -117,6 +106,18 @@ export class Nav {
     }, (error) => {
       this.updateMessage(error.message);
     }, {timeout: 5000, maximumAge: 0});
+  }
+
+  geoIsInsideMarginOfError (latitude, longitude) {
+    return (longitude < this.lastLongitude + window.settings.geoMarginOfError
+            && longitude > this.lastLongitude - window.settings.geoMarginOfError
+            && latitude < this.lastLatitude + window.settings.geoMarginOfError
+            && latitude > this.lastLatitude - window.settings.geoMarginOfError);
+  }
+
+  headingIsInsideMarginOfError (angle) {
+    return (angle < this.lastHeading + window.settings.angleMarginOfError
+            && angle > this.lastHeading - window.settings.angleMarginOfError);
   }
 
   updateMessage (newMessage) {

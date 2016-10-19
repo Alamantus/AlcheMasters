@@ -46,11 +46,9 @@ export class MainInterface extends Phaser.State {
     this.compass.nav = new Nav(this, window.settings.locationCheckDelaySeconds, () => this.generatePickups());
     // console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 
-    this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', {fill: 'yellow', align: 'center'});
-    this.northMarker.anchor.x = 0.5;
-    this.northMarker.anchor.y = 0.5;
-
-    // this.generatePickups();
+    // this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', {fill: 'yellow', align: 'center'});
+    // this.northMarker.anchor.x = 0.5;
+    // this.northMarker.anchor.y = 0.5;
   }
 
   update () {
@@ -66,7 +64,7 @@ export class MainInterface extends Phaser.State {
       }
     }
 
-    this.drawNorth(40);
+    // this.drawNorth(40);
   }
 
   drawNorth (pixelsFromCenter) {
