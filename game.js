@@ -903,9 +903,19 @@
 	      return false;
 	    }
 	  }, {
+	    key: 'positionHasChanged',
+	    get: function get() {
+	      return this.longitude !== this.lastLongitude || this.latitude === this.lastLatitude;
+	    }
+	  }, {
+	    key: 'headingHasChanged',
+	    get: function get() {
+	      return this.heading !== this.lastHeading;
+	    }
+	  }, {
 	    key: 'hasChanged',
 	    get: function get() {
-	      return !(this.heading === this.lastHeading && this.longitude === this.lastLongitude && this.latitude === this.lastLatitude);
+	      return this.headingHasChanged || this.positionHasChanged;
 	    }
 	  }]);
 
@@ -1333,7 +1343,7 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	exports.MapSpriteController = undefined;
 	
@@ -1344,91 +1354,95 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var MapSpriteController = exports.MapSpriteController = function () {
-	    function MapSpriteController(parentObject, compassObject) {
-	        _classCallCheck(this, MapSpriteController);
+	  function MapSpriteController(parentObject, compassObject) {
+	    _classCallCheck(this, MapSpriteController);
 	
-	        this.parent = parentObject;
-	        this.parent.anchor.x = 0.5;
-	        this.parent.anchor.y = 0.5;
+	    this.parent = parentObject;
+	    this.parent.anchor.x = 0.5;
+	    this.parent.anchor.y = 0.5;
 	
-	        this.compass = compassObject;
+	    this.compass = compassObject;
 	
-	        // I belive this will only be used for testing! LatLong will likely be distributed based on positions
-	        // at regular 0.005 (or something like that) global latlong intervals that the player is closest to.
-	        var LATLONGMAXDISTANCE = 0.002;
-	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	        // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
+	    // I belive this will only be used for testing! LatLong will likely be distributed based on positions
+	    // at regular 0.005 (or something like that) global latlong intervals that the player is closest to.
+	    var LATLONGMAXDISTANCE = 0.002;
+	    this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+	    this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+	    // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
 	
-	        this.updatePosition();
+	    this.updatePosition();
+	  }
+	
+	  _createClass(MapSpriteController, [{
+	    key: 'calcPosition',
+	    value: function calcPosition(pixelScale) {
+	      // console.log('pixelScale = ' + pixelScale);
+	      var LATLONGTOPIXELADJUSTMENT = 1000;
+	      // console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
+	
+	      var itemOffset = {
+	        x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
+	        y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
+	      };
+	      // console.log('item geoposition offset = ' + (itemOffset.x / LATLONGTOPIXELADJUSTMENT) + ', ' + (itemOffset.y / LATLONGTOPIXELADJUSTMENT));
+	
+	      // radius should be the length of the line from the center to the item.
+	      var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
+	      // console.log('radius = ' + radius);
+	
+	      // Calculate the distance between forward point and item position.
+	      var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
+	      // console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
+	
+	      var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
+	      // console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
+	
+	      var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
+	      // console.log('insideArcCos = ' + insideArcCos);
+	
+	      if (this.compass.nav.headingHasChanged) {
+	        this.displayAngle = Math.acos(insideArcCos) - (0, _helpers.radians)(this.compass.nav.heading - 90);
+	      }
+	      // console.log('this.displayAngle = ' + this.displayAngle);
+	
+	      // The xAdjustmentvalues equate to the itemOffset and radius values so we can use inverseLerp.
+	      var minAdjustmentValue = window.settings.minPixelDistance / pixelScale;
+	      var maxAdjustmentValue = window.settings.maxPixelDistance / pixelScale;
+	
+	      if (this.compass.nav.positionHasChanged) {
+	        // This returns a distance scaled by a scaled pixelScale. The closer the object is, the lower the pixelScale, and the farther something is, the larger the pixelScale.
+	        // This makes the object display farther away when it's farther away but approach quickly as you get closer by reducing the radius scale.
+	        // The pixelDistance is then controlled by the max and min pixelDistance settings.
+	        this.pixelDistance = radius * (pixelScale * (0, _helpers.inverseLerp)(minAdjustmentValue, maxAdjustmentValue, radius));
+	        if (this.pixelDistance > window.settings.maxPixelDistance) {
+	          this.pixelDistance = window.settings.maxPixelDistance;
+	        }
+	        if (this.pixelDistance < window.settings.minPixelDistance) {
+	          this.pixelDistance = window.settings.minPixelDistance;
+	        }
+	      }
+	      // console.log('pixelDistance = ' + this.pixelDistance);
+	
+	      var result = {
+	        x: Math.round(this.compass.x + this.pixelDistance * Math.cos(this.displayAngle)),
+	        y: Math.round(this.compass.y + this.pixelDistance * Math.sin(this.displayAngle))
+	      };
+	      // console.log('item at: ' + result.x + ', ' + result.y);
+	
+	      return result;
 	    }
-	
-	    _createClass(MapSpriteController, [{
-	        key: 'calcPosition',
-	        value: function calcPosition(pixelScale) {
-	            // console.log('pixelScale = ' + pixelScale);
-	            var LATLONGTOPIXELADJUSTMENT = 1000;
-	            // console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
-	
-	            var itemOffset = {
-	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
-	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
-	            };
-	            // console.log('item geoposition offset = ' + (itemOffset.x / LATLONGTOPIXELADJUSTMENT) + ', ' + (itemOffset.y / LATLONGTOPIXELADJUSTMENT));
-	
-	            // radius should be the length of the line from the center to the item.
-	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
-	            // console.log('radius = ' + radius);
-	
-	            // Calculate the distance between forward point and item position.
-	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
-	            // console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
-	
-	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
-	            // console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
-	
-	            var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
-	            // console.log('insideArcCos = ' + insideArcCos);
-	
-	            var angle = Math.acos(insideArcCos) - (0, _helpers.radians)(this.compass.nav.heading - 90);
-	            // console.log('angle = ' + angle);
-	
-	            // The xAdjustmentvalues equate to the itemOffset and radius values so we can use inverseLerp.
-	            var minAdjustmentValue = window.settings.minPixelDistance / pixelScale;
-	            var maxAdjustmentValue = window.settings.maxPixelDistance / pixelScale;
-	
-	            // This returns a distance scaled by a scaled pixelScale. The closer the object is, the lower the pixelScale, and the farther something is, the larger the pixelScale.
-	            // This makes the object display farther away when it's farther away but approach quickly as you get closer by reducing the radius scale.
-	            // The pixelDistance is then controlled by the max and min pixelDistance settings.
-	            this.pixelDistance = radius * (pixelScale * (0, _helpers.inverseLerp)(minAdjustmentValue, maxAdjustmentValue, radius));
-	            if (this.pixelDistance > window.settings.maxPixelDistance) {
-	                this.pixelDistance = window.settings.maxPixelDistance;
-	            }
-	            if (this.pixelDistance < window.settings.minPixelDistance) {
-	                this.pixelDistance = window.settings.minPixelDistance;
-	            }
-	            // console.log('pixelDistance = ' + this.pixelDistance);
-	
-	            var result = {
-	                x: Math.round(this.compass.x + this.pixelDistance * Math.cos(angle)),
-	                y: Math.round(this.compass.y + this.pixelDistance * Math.sin(angle))
-	            };
-	            // console.log('item at: ' + result.x + ', ' + result.y);
-	
-	            return result;
-	        }
-	    }, {
-	        key: 'updatePosition',
-	        value: function updatePosition() {
-	            if (this.compass.nav.hasChanged) {
-	                var positionOnScreen = this.calcPosition(window.settings.pixelScale);
-	                this.parent.x = (0, _helpers.lerp)(this.parent.x, positionOnScreen.x, window.settings.lerpPercent);
-	                this.parent.y = (0, _helpers.lerp)(this.parent.y, positionOnScreen.y, window.settings.lerpPercent);
-	            }
-	        }
-	    }]);
+	  }, {
+	    key: 'updatePosition',
+	    value: function updatePosition() {
+	      if (this.compass.nav.hasChanged) {
+	        var positionOnScreen = this.calcPosition(window.settings.pixelScale);
+	        this.parent.x = (0, _helpers.lerp)(this.parent.x, positionOnScreen.x, window.settings.lerpPercent);
+	        this.parent.y = (0, _helpers.lerp)(this.parent.y, positionOnScreen.y, window.settings.lerpPercent);
+	      }
+	    }
+	  }]);
 
-	    return MapSpriteController;
+	  return MapSpriteController;
 	}();
 
 /***/ },
