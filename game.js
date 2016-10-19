@@ -784,12 +784,12 @@
 	
 	    this.latitude = 0;
 	    this.longitude = 0;
-	    this.lastLatitude = 0;
-	    this.lastLongitude = 0;
+	    this.lastLatitude = null;
+	    this.lastLongitude = null;
 	    this.lastCheck = null;
 	    this.lastUpdate = null;
 	    this.heading = 0;
-	    this.lastHeading = 0;
+	    this.lastHeading = null;
 	
 	    this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
 	
@@ -834,10 +834,10 @@
 	          Compass.watch(function (heading) {
 	            _this2.lastHeading = _this2.heading;
 	
-	            // if (!this.headingIsInsideMarginOfError) {
-	            _this2.heading = heading;
-	            // this.updateMessage(this.heading);
-	            // }
+	            if (!_this2.headingIsInsideMarginOfError(heading)) {
+	              _this2.heading = heading;
+	              // this.updateMessage(this.heading);
+	            }
 	          });
 	        } else {
 	          _this2.updateMessage(_this2.messages.noCompass);
@@ -854,7 +854,7 @@
 	        _this3.lastLatitude = _this3.latitude;
 	        _this3.lastCheck = position.timestamp;
 	
-	        if (!_this3.geoIsInsideMarginOfError) {
+	        if (!_this3.geoIsInsideMarginOfError(position.coords.latitude, position.coords.longitude)) {
 	          _this3.longitude = position.coords.longitude;
 	          _this3.latitude = position.coords.latitude;
 	          _this3.updateMessage('position: ' + _this3.longitude + ', ' + _this3.latitude + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude) + ', ' + (_this3.lastLatitude - _this3.latitude));
@@ -874,6 +874,16 @@
 	      }, { timeout: 5000, maximumAge: 0 });
 	    }
 	  }, {
+	    key: 'geoIsInsideMarginOfError',
+	    value: function geoIsInsideMarginOfError(latitude, longitude) {
+	      return longitude < this.lastLongitude + window.settings.geoMarginOfError && longitude > this.lastLongitude - window.settings.geoMarginOfError && latitude < this.lastLatitude + window.settings.geoMarginOfError && latitude > this.lastLatitude - window.settings.geoMarginOfError;
+	    }
+	  }, {
+	    key: 'headingIsInsideMarginOfError',
+	    value: function headingIsInsideMarginOfError(angle) {
+	      return angle < this.lastHeading + window.settings.angleMarginOfError && angle > this.lastHeading - window.settings.angleMarginOfError;
+	    }
+	  }, {
 	    key: 'updateMessage',
 	    value: function updateMessage(newMessage) {
 	      this.textDisplay.text = newMessage;
@@ -888,16 +898,6 @@
 	      }
 	      this.updateMessage('no');
 	      return false;
-	    }
-	  }, {
-	    key: 'geoIsInsideMarginOfError',
-	    get: function get() {
-	      return this.longitude < this.lastLongitude + window.settings.geoMarginOfError && this.longitude > this.lastLongitude - window.settings.geoMarginOfError && this.latitude < this.lastLatitude + window.settings.geoMarginOfError && this.latitude > this.lastLatitude - window.settings.geoMarginOfError;
-	    }
-	  }, {
-	    key: 'headingIsInsideMarginOfError',
-	    get: function get() {
-	      return this.heading < this.lastHeading + window.settings.angleMarginOfError && this.heading > this.lastHeading - window.settings.angleMarginOfError;
 	    }
 	  }, {
 	    key: 'hasChanged',
