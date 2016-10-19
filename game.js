@@ -689,7 +689,7 @@
 	      this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
 	      this.compass.anchor.x = 0.5;
 	      this.compass.anchor.y = 0.5;
-	      this.compass.nav = new _Nav.Nav(this, 5000, function () {
+	      this.compass.nav = new _Nav.Nav(this, this.settings.locationCheckDelaySeconds, function () {
 	        return _this2.generatePickups();
 	      });
 	      // console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
@@ -769,7 +769,7 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var Nav = exports.Nav = function () {
-	  function Nav(state, locationCheckTimeout, runOnReady) {
+	  function Nav(state, locationCheckDelaySeconds, runOnReady) {
 	    _classCallCheck(this, Nav);
 	
 	    this.state = state;
@@ -787,7 +787,7 @@
 	    this.lastCheck = null;
 	    this.heading = 0;
 	
-	    this.locationCheckTimeout = locationCheckTimeout;
+	    this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
 	
 	    this.textDisplay = this.state.add.text(0, 0, 'Inititializing...', { fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width });
 	
@@ -3063,6 +3063,9 @@
 	  // Set Default Settings
 	  this.sortMethod = ['name'];
 	
+	  this.locationCheckDelaySeconds = 5;
+	
+	  // Number of frames to skip before recalculating item positions.
 	  this.itemCheckDelayNumberOfFrames = 5;
 	};
 	
