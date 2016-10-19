@@ -23,7 +23,7 @@ export class Nav {
 
     this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
 
-    this.textDisplay = this.state.add.text(0, 0, 'Inititializing...', {fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width});
+    this.textDisplay = this.state.add.text(2, 28, 'Inititializing...', {font: 'Courier New', fontSize: '14px', fill: '#ff00ff', wordWrap: true, wordWrapWidth: this.state.game.width});
 
     this.initiateNav(runOnReady);
 	}
@@ -37,16 +37,22 @@ export class Nav {
     return false;
   }
 
+  get positionHasChanged () {
+    return this.longitude !== this.lastLongitude || this.latitude === this.lastLatitude;
+  }
+
+  get headingHasChanged () {
+    return this.heading !== this.lastHeading;
+  }
+
   get hasChanged () {
-    return !(this.heading === this.lastHeading
-            && this.longitude === this.lastLongitude
-            && this.latitude === this.lastLatitude);
+    return this.headingHasChanged || this.positionHasChanged;
   }
 
   initiateNav (runOnReady) {
     if (this.canUseGeolocation) {
       this.getGeolocation(() => {
-        this.updateMessage(this.messages.geolocationReady + ' Geoposition: ' + this.latitude + ', ' + this.longitude);
+        this.updateMessage(`${this.messages.geolocationReady}\nGeoposition: ${this.latitude}, ${this.longitude}`);
 
         runOnReady();
 

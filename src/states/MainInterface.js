@@ -40,6 +40,8 @@ export class MainInterface extends Phaser.State {
 	}
 
   create () {
+    this.game.time.advancedTiming = true;
+
     this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
     this.compass.anchor.x = 0.5;
     this.compass.anchor.y = 0.5;
@@ -49,6 +51,10 @@ export class MainInterface extends Phaser.State {
     // this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', {fill: 'yellow', align: 'center'});
     // this.northMarker.anchor.x = 0.5;
     // this.northMarker.anchor.y = 0.5;
+  }
+
+  render() {
+    this.game.debug.text(this.game.time.fps, 2, 14, "#00ff00");
   }
 
   update () {

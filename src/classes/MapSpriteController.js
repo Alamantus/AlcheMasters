@@ -43,28 +43,32 @@ export class MapSpriteController {
     let insideArcCos = (doubleRadiusSquared - square(distanceBetweenPoints)) / doubleRadiusSquared;
     // console.log('insideArcCos = ' + insideArcCos);
 
-    let angle = Math.acos(insideArcCos) - radians(this.compass.nav.heading - 90);
-    // console.log('angle = ' + angle);
+    if (this.compass.nav.headingHasChanged) {
+      this.displayAngle = Math.acos(insideArcCos) - radians(this.compass.nav.heading - 90);
+    }
+    // console.log('this.displayAngle = ' + this.displayAngle);
 
     // The xAdjustmentvalues equate to the itemOffset and radius values so we can use inverseLerp.
     let minAdjustmentValue = window.settings.minPixelDistance / pixelScale;
     let maxAdjustmentValue = window.settings.maxPixelDistance / pixelScale;
 
-    // This returns a distance scaled by a scaled pixelScale. The closer the object is, the lower the pixelScale, and the farther something is, the larger the pixelScale.
-    // This makes the object display farther away when it's farther away but approach quickly as you get closer by reducing the radius scale.
-    // The pixelDistance is then controlled by the max and min pixelDistance settings.
-    this.pixelDistance = radius * (pixelScale * inverseLerp(minAdjustmentValue, maxAdjustmentValue, radius));
-    if (this.pixelDistance > window.settings.maxPixelDistance) {
-      this.pixelDistance = window.settings.maxPixelDistance;
-    }
-    if (this.pixelDistance < window.settings.minPixelDistance) {
-      this.pixelDistance = window.settings.minPixelDistance;
+    if (this.compass.nav.positionHasChanged) {
+      // This returns a distance scaled by a scaled pixelScale. The closer the object is, the lower the pixelScale, and the farther something is, the larger the pixelScale.
+      // This makes the object display farther away when it's farther away but approach quickly as you get closer by reducing the radius scale.
+      // The pixelDistance is then controlled by the max and min pixelDistance settings.
+      this.pixelDistance = radius * (pixelScale * inverseLerp(minAdjustmentValue, maxAdjustmentValue, radius));
+      if (this.pixelDistance > window.settings.maxPixelDistance) {
+        this.pixelDistance = window.settings.maxPixelDistance;
+      }
+      if (this.pixelDistance < window.settings.minPixelDistance) {
+        this.pixelDistance = window.settings.minPixelDistance;
+      }
     }
     // console.log('pixelDistance = ' + this.pixelDistance);
 
     let result = {
-      x: Math.round(this.compass.x + (this.pixelDistance * Math.cos(angle)))
-    , y: Math.round(this.compass.y + (this.pixelDistance * Math.sin(angle)))
+      x: Math.round(this.compass.x + (this.pixelDistance * Math.cos(this.displayAngle)))
+    , y: Math.round(this.compass.y + (this.pixelDistance * Math.sin(this.displayAngle)))
     }
     // console.log('item at: ' + result.x + ', ' + result.y);
 
