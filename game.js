@@ -689,7 +689,7 @@
 	      this.compass.nav = new _Nav.Nav(this, 5000, function () {
 	        return _this2.generatePickups();
 	      });
-	      console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
+	      // console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 	
 	      this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', { fill: 'yellow', align: 'center' });
 	      this.northMarker.anchor.x = 0.5;
@@ -1325,7 +1325,7 @@
 	    var LATLONGMAXDISTANCE = 0.002;
 	    this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
 	    this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	    // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
+	    console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
 	
 	    this.angleMarginOfError = 0.05;
 	    this.geoMarginOfError = 0.00008;
@@ -1346,7 +1346,7 @@
 	        x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
 	        y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
 	      };
-	      // console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
+	      console.log('item geoposition = ' + itemOffset.x + ', ' + itemOffset.y);
 	
 	      // radius should be the length of the line from the center to the item.
 	      var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
@@ -1360,6 +1360,7 @@
 	        this.pixelDistance = MINPIXELDISTANCE;
 	      }
 	      this.pixelDistance = this.pixelDistance * (0, _helpers.inverseLerp)(MAXPIXELDISTANCE, MINPIXELDISTANCE, this.pixelDistance);
+	      console.log('pixelDistance = ' + this.pixelDistance);
 	
 	      // Calculate the distance between forward point and item position.
 	      var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
