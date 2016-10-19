@@ -870,6 +870,10 @@
 	        }, _this3.locationCheckTimeout);
 	      }, function (error) {
 	        _this3.updateMessage(error.message);
+	        // If it fails, try again.
+	        setTimeout(function () {
+	          return _this3.getGeolocation();
+	        }, _this3.locationCheckTimeout);
 	      }, { timeout: 5000, maximumAge: 0 });
 	    }
 	  }, {
