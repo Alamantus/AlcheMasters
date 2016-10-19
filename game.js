@@ -627,7 +627,7 @@
 	
 	var _Nav = __webpack_require__(/*! ../classes/Nav */ 17);
 	
-	var _Pickup = __webpack_require__(/*! ../classes/Pickup */ 26);
+	var _Pickup = __webpack_require__(/*! ../classes/Pickup */ 19);
 	
 	var _Character = __webpack_require__(/*! ../classes/Character */ 22);
 	
@@ -1241,8 +1241,173 @@
 
 
 /***/ },
-/* 19 */,
-/* 20 */,
+/* 19 */
+/*!*******************************!*\
+  !*** ./src/classes/Pickup.js ***!
+  \*******************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.Pickup = undefined;
+	
+	var _MapSpriteController2 = __webpack_require__(/*! ./MapSpriteController */ 20);
+	
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Pickup = exports.Pickup = function (_MapSpriteController) {
+	    _inherits(Pickup, _MapSpriteController);
+	
+	    function Pickup(parentObject, compassObject, minLife, maxLife) {
+	        _classCallCheck(this, Pickup);
+	
+	        // Time before destruction in seconds.
+	        var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject));
+	
+	        _this.life = (0, _helpers.getRandomInt)(minLife, maxLife);
+	
+	        _this.deathTime = Date.now() + _this.life * 1000;
+	
+	        setTimeout(function () {
+	            return _this.parent.destroy();
+	        }, _this.life * 1000);
+	        return _this;
+	    }
+	
+	    return Pickup;
+	}(_MapSpriteController2.MapSpriteController);
+
+/***/ },
+/* 20 */
+/*!********************************************!*\
+  !*** ./src/classes/MapSpriteController.js ***!
+  \********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.MapSpriteController = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var MAXPIXELDISTANCE = 180;
+	var MINPIXELDISTANCE = 16;
+	
+	var MapSpriteController = exports.MapSpriteController = function () {
+	  function MapSpriteController(parentObject, compassObject) {
+	    _classCallCheck(this, MapSpriteController);
+	
+	    this.parent = parentObject;
+	    this.parent.anchor.x = 0.5;
+	    this.parent.anchor.y = 0.5;
+	
+	    this.compass = compassObject;
+	    this.lastCompassHeading = -1;
+	    this.lastCompassLatitude = 0;
+	    this.lastCompassLongitude = 0;
+	
+	    var LATLONGMAXDISTANCE = 0.002;
+	    this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+	    this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+	    // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
+	
+	    this.angleMarginOfError = 0.05;
+	    this.geoMarginOfError = 0.00008;
+	
+	    window.pixelScale = 30;
+	
+	    this.updatePosition();
+	  }
+	
+	  _createClass(MapSpriteController, [{
+	    key: 'calcPosition',
+	    value: function calcPosition(pixelScale) {
+	      // console.log('pixelScale = ' + pixelScale);
+	      var LATLONGTOPIXELADJUSTMENT = 1000;
+	      // console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
+	
+	      var itemOffset = {
+	        x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
+	        y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
+	      };
+	      // console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
+	
+	      // radius should be the length of the line from the center to the item.
+	      var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
+	      // console.log('radius = ' + radius);
+	
+	      this.pixelDistance = radius * pixelScale;
+	      if (this.pixelDistance > MAXPIXELDISTANCE) {
+	        this.pixelDistance = MAXPIXELDISTANCE;
+	      }
+	      if (this.pixelDistance < MINPIXELDISTANCE) {
+	        this.pixelDistance = MINPIXELDISTANCE;
+	      }
+	      this.pixelDistance = this.pixelDistance * (0, _helpers.inverseLerp)(MAXPIXELDISTANCE, MINPIXELDISTANCE, this.pixelDistance);
+	
+	      // Calculate the distance between forward point and item position.
+	      var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
+	      // console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
+	
+	      var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
+	      // console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
+	
+	      var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
+	      // console.log('insideArcCos = ' + insideArcCos);
+	
+	      var angle = Math.acos(insideArcCos) - (0, _helpers.radians)(this.compass.nav.heading - 90);
+	      // console.log('angle = ' + angle);
+	
+	      var result = {
+	        x: Math.round(this.compass.x + this.pixelDistance * Math.cos(angle)),
+	        y: Math.round(this.compass.y + this.pixelDistance * Math.sin(angle))
+	      };
+	      // console.log('item at: ' + result.x + ', ' + result.y);
+	
+	      return result;
+	    }
+	  }, {
+	    key: 'updatePosition',
+	    value: function updatePosition() {
+	      if (!(this.headingIsInsideMarginOfError && this.geoIsInsideMarginOfError)) {
+	        this.lastCompassHeading = this.compass.nav.heading;
+	        var positionOnScreen = this.calcPosition(window.pixelScale);
+	        this.parent.x = positionOnScreen.x;
+	        this.parent.y = positionOnScreen.y;
+	      }
+	    }
+	  }, {
+	    key: 'geoIsInsideMarginOfError',
+	    get: function get() {
+	      return this.compass.nav.longitude < this.lastCompassLongitude + this.geoMarginOfError && this.compass.nav.longitude > this.lastCompassLongitude - this.geoMarginOfError && this.compass.nav.latitude < this.lastCompassLatitude + this.geoMarginOfError && this.compass.nav.latitude > this.lastCompassLatitude - this.geoMarginOfError;
+	    }
+	  }, {
+	    key: 'headingIsInsideMarginOfError',
+	    get: function get() {
+	      return this.compass.nav.heading < this.lastCompassHeading + this.angleMarginOfError && this.compass.nav.heading > this.lastCompassHeading - this.angleMarginOfError;
+	    }
+	  }]);
+
+	  return MapSpriteController;
+	}();
+
+/***/ },
 /* 21 */
 /*!***************************!*\
   !*** ./src/js/helpers.js ***!
@@ -1260,6 +1425,8 @@
 	exports.getRandom = getRandom;
 	exports.getRandomInt = getRandomInt;
 	exports.radians = radians;
+	exports.lerp = lerp;
+	exports.inverseLerp = inverseLerp;
 	var colorElementMap = exports.colorElementMap = {
 	  red: 'fire',
 	  fire: 'red',
@@ -1316,6 +1483,14 @@
 	
 	function radians(angle) {
 	  return angle * (Math.PI / 180);
+	}
+	
+	function lerp(start, end, percent) {
+	  return start + percent * (end - start);
+	}
+	
+	function inverseLerp(start, end, current) {
+	  return (current - start) / (end - start);
 	}
 
 /***/ },
@@ -2882,159 +3057,6 @@
 	};
 	
 	var settings = exports.settings = new Settings();
-
-/***/ },
-/* 26 */
-/*!*******************************!*\
-  !*** ./src/classes/Pickup.js ***!
-  \*******************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.Pickup = undefined;
-	
-	var _MapSpriteController2 = __webpack_require__(/*! ./MapSpriteController */ 27);
-	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var Pickup = exports.Pickup = function (_MapSpriteController) {
-	  _inherits(Pickup, _MapSpriteController);
-	
-	  function Pickup(parentObject, compassObject, minLife, maxLife) {
-	    _classCallCheck(this, Pickup);
-	
-	    // Time before destruction in seconds.
-	    var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject));
-	
-	    _this.life = (0, _helpers.getRandomInt)(minLife, maxLife);
-	
-	    setTimeout(function () {
-	      return _this.parent.destroy();
-	    }, _this.life * 1000);
-	    return _this;
-	  }
-	
-	  return Pickup;
-	}(_MapSpriteController2.MapSpriteController);
-
-/***/ },
-/* 27 */
-/*!********************************************!*\
-  !*** ./src/classes/MapSpriteController.js ***!
-  \********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.MapSpriteController = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var MapSpriteController = exports.MapSpriteController = function () {
-	    function MapSpriteController(parentObject, compassObject) {
-	        _classCallCheck(this, MapSpriteController);
-	
-	        this.parent = parentObject;
-	        this.parent.anchor.x = 0.5;
-	        this.parent.anchor.y = 0.5;
-	
-	        this.compass = compassObject;
-	        this.lastCompassHeading = -1;
-	        this.lastCompassLatitude = 0;
-	        this.lastCompassLongitude = 0;
-	
-	        var LATLONGMAXDISTANCE = 0.002;
-	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	        // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
-	
-	        this.angleMarginOfError = 0.05;
-	        this.geoMarginOfError = 0.00008;
-	
-	        this.updatePosition();
-	    }
-	
-	    _createClass(MapSpriteController, [{
-	        key: 'calcPosition',
-	        value: function calcPosition(pixelScale) {
-	            // console.log('pixelScale = ' + pixelScale);
-	            var LATLONGTOPIXELADJUSTMENT = 1000;
-	            // console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
-	
-	            var itemOffset = {
-	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
-	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
-	            };
-	            // console.log('itemOffset = ' + itemOffset.x + ', ' + itemOffset.y);
-	
-	            // radius should be the length of the line from the center to the item.
-	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
-	            // console.log('radius = ' + radius);
-	
-	            this.pixelDistance = radius * pixelScale;
-	
-	            // Calculate the distance between forward point and item position.
-	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
-	            // console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
-	
-	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
-	            // console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
-	
-	            var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
-	            // console.log('insideArcCos = ' + insideArcCos);
-	
-	            var angle = Math.acos(insideArcCos) - (0, _helpers.radians)(this.compass.nav.heading - 90);
-	            // console.log('angle = ' + angle);
-	
-	            var result = {
-	                x: Math.round(this.compass.x + this.pixelDistance * Math.cos(angle)),
-	                y: Math.round(this.compass.y + this.pixelDistance * Math.sin(angle))
-	            };
-	            // console.log('item at: ' + result.x + ', ' + result.y);
-	
-	            return result;
-	        }
-	    }, {
-	        key: 'updatePosition',
-	        value: function updatePosition() {
-	            if (!(this.headingIsInsideMarginOfError && this.geoIsInsideMarginOfError)) {
-	                this.lastCompassHeading = this.compass.nav.heading;
-	                var positionOnScreen = this.calcPosition(25);
-	                this.parent.x = positionOnScreen.x;
-	                this.parent.y = positionOnScreen.y;
-	            }
-	        }
-	    }, {
-	        key: 'geoIsInsideMarginOfError',
-	        get: function get() {
-	            return this.compass.nav.longitude < this.lastCompassLongitude + this.geoMarginOfError && this.compass.nav.longitude > this.lastCompassLongitude - this.geoMarginOfError && this.compass.nav.latitude < this.lastCompassLatitude + this.geoMarginOfError && this.compass.nav.latitude > this.lastCompassLatitude - this.geoMarginOfError;
-	        }
-	    }, {
-	        key: 'headingIsInsideMarginOfError',
-	        get: function get() {
-	            return this.compass.nav.heading < this.lastCompassHeading + this.angleMarginOfError && this.compass.nav.heading > this.lastCompassHeading - this.angleMarginOfError;
-	        }
-	    }]);
-
-	    return MapSpriteController;
-	}();
 
 /***/ }
 /******/ ]);
