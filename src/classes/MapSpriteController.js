@@ -7,9 +7,6 @@ export class MapSpriteController {
     this.parent.anchor.y = 0.5;
 
     this.compass = compassObject;
-    this.lastCompassHeading = -1;
-    this.lastCompassLatitude = 0;
-    this.lastCompassLongitude = 0;
 
     // I belive this will only be used for testing! LatLong will likely be distributed based on positions
     // at regular 0.005 (or something like that) global latlong intervals that the player is closest to.
@@ -19,18 +16,6 @@ export class MapSpriteController {
     // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
 
     this.updatePosition();
-  }
-
-  get geoIsInsideMarginOfError() {
-    return (this.compass.nav.longitude < this.lastCompassLongitude + window.settings.geoMarginOfError
-            && this.compass.nav.longitude > this.lastCompassLongitude - window.settings.geoMarginOfError
-            && this.compass.nav.latitude < this.lastCompassLatitude + window.settings.geoMarginOfError
-            && this.compass.nav.latitude > this.lastCompassLatitude - window.settings.geoMarginOfError);
-  }
-
-  get headingIsInsideMarginOfError() {
-    return (this.compass.nav.heading < this.lastCompassHeading + window.settings.angleMarginOfError
-            && this.compass.nav.heading > this.lastCompassHeading - window.settings.angleMarginOfError);
   }
 
   calcPosition (pixelScale) {
@@ -87,8 +72,7 @@ export class MapSpriteController {
   }
 
   updatePosition () {
-    if (!(this.headingIsInsideMarginOfError && this.geoIsInsideMarginOfError)) {
-      this.lastCompassHeading = this.compass.nav.heading;
+    if (this.compass.nav.hasChanged) {
       let positionOnScreen = this.calcPosition(window.settings.pixelScale);
       this.parent.x = positionOnScreen.x;
       this.parent.y = positionOnScreen.y;

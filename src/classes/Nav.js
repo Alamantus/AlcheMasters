@@ -14,8 +14,12 @@ export class Nav {
 
     this.latitude = 0;
     this.longitude = 0;
+    this.lastLatitude = 0;
+    this.lastLongitude = 0;
     this.lastCheck = null;
+    this.lastUpdate = null;
     this.heading = 0;
+    this.lastHeading = 0;
 
     this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
 
@@ -31,6 +35,24 @@ export class Nav {
     }
     this.updateMessage('no');
     return false;
+  }
+
+  get geoIsInsideMarginOfError () {
+    return (this.longitude < this.lastLongitude + window.settings.geoMarginOfError
+            && this.longitude > this.lastLongitude - window.settings.geoMarginOfError
+            && this.latitude < this.lastLatitude + window.settings.geoMarginOfError
+            && this.latitude > this.lastLatitude - window.settings.geoMarginOfError);
+  }
+
+  get headingIsInsideMarginOfError () {
+    return (this.heading < this.lastHeading + window.settings.angleMarginOfError
+            && this.heading > this.lastHeading - window.settings.angleMarginOfError);
+  }
+
+  get hasChanged () {
+    return !(this.heading === this.lastHeading
+            && this.longitude === this.lastLongitude
+            && this.latitude === this.lastLatitude);
   }
 
   initiateNav (runOnReady) {
@@ -60,8 +82,12 @@ export class Nav {
     }).init((method) => {
       if (method !== false) {
         Compass.watch((heading) => {
-          this.heading = heading;
-          this.updateMessage(this.heading);
+          this.lastHeading = this.heading;
+
+          if (!this.headingIsInsideMarginOfError) {
+            this.heading = heading;
+            // this.updateMessage(this.heading);
+          }
         });
       } else {
         this.updateMessage(this.messages.noCompass);
@@ -71,11 +97,16 @@ export class Nav {
 
   getGeolocation (callback) {
     navigator.geolocation.getCurrentPosition((position) => {
-      // this.updateMessage(position.coords.latitude + ', ' + position.coords.longitude);
-      this.latitude = position.coords.latitude;
-      this.longitude = position.coords.longitude;
+      this.lastLongitude = this.longitude;
+      this.lastLatitude = this.latitude;
       this.lastCheck = position.timestamp;
-      // console.log('compass latlong: ' + this.longitude + ', ' + this.latitude);
+
+      if (this.geoIsInsideMarginOfError) {
+        this.longitude = position.coords.longitude;
+        this.latitude = position.coords.latitude;
+        this.updateMessage(`position: ${this.longitude}, ${this.latitude}\nchanged: ${this.lastLongitude - this.longitude}, ${this.lastLatitude - this.latitude}`);
+        this.lastUpdate = position.timestamp;
+      }
 
       if (callback){
         callback();

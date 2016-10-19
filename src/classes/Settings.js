@@ -21,7 +21,7 @@ export class Settings {
 
     // The margin range within which an item's position will not update if the player's coordinates change.
     // Meant to combat items floating/moving when the geoposition calculation is inconsistent.
-    this.geoMarginOfError = 0.000095;
+    this.geoMarginOfError = 0.0000966;
   }
 }
 
