@@ -703,7 +703,8 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      this.game.debug.text(this.game.time.fps, 2, 200, "#00ff00");
+	      this.game.debug.text(this.game.time.fps, 2, 14, "#00ff00");
+	      // this.compass.nav.debug();
 	    }
 	  }, {
 	    key: 'update',
@@ -798,7 +799,7 @@
 	
 	    this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
 	
-	    this.textDisplay = this.state.add.text(0, 0, 'Inititializing...', { fill: 'white', wordWrap: true, wordWrapWidth: this.state.game.width });
+	    this.textDisplay = this.state.add.text(2, 28, 'Inititializing...', { fontSize: '14px', fill: '#ff00ff', wordWrap: true, wordWrapWidth: this.state.game.width });
 	
 	    this.initiateNav(runOnReady);
 	  }
@@ -810,7 +811,7 @@
 	
 	      if (this.canUseGeolocation) {
 	        this.getGeolocation(function () {
-	          _this.updateMessage(_this.messages.geolocationReady + ' Geoposition: ' + _this.latitude + ', ' + _this.longitude);
+	          _this.updateMessage(_this.messages.geolocationReady + '\nGeoposition: ' + _this.latitude + ', ' + _this.longitude);
 	
 	          runOnReady();
 	
