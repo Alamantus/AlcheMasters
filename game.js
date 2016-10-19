@@ -1294,7 +1294,7 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 	exports.MapSpriteController = undefined;
 	
@@ -1308,102 +1308,103 @@
 	var MINPIXELDISTANCE = 16;
 	
 	var MapSpriteController = exports.MapSpriteController = function () {
-	  function MapSpriteController(parentObject, compassObject) {
-	    _classCallCheck(this, MapSpriteController);
+	    function MapSpriteController(parentObject, compassObject) {
+	        _classCallCheck(this, MapSpriteController);
 	
-	    this.parent = parentObject;
-	    this.parent.anchor.x = 0.5;
-	    this.parent.anchor.y = 0.5;
+	        this.parent = parentObject;
+	        this.parent.anchor.x = 0.5;
+	        this.parent.anchor.y = 0.5;
 	
-	    this.compass = compassObject;
-	    this.lastCompassHeading = -1;
-	    this.lastCompassLatitude = 0;
-	    this.lastCompassLongitude = 0;
+	        this.compass = compassObject;
+	        this.lastCompassHeading = -1;
+	        this.lastCompassLatitude = 0;
+	        this.lastCompassLongitude = 0;
 	
-	    var LATLONGMAXDISTANCE = 0.002;
-	    this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	    this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	    console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
+	        var LATLONGMAXDISTANCE = 0.002;
+	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+	        console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
 	
-	    this.angleMarginOfError = 0.05;
-	    this.geoMarginOfError = 0.00008;
+	        this.angleMarginOfError = 0.05;
+	        this.geoMarginOfError = 0.00008;
 	
-	    window.pixelScale = 30;
+	        window.pixelScale = 30;
 	
-	    this.updatePosition();
-	  }
-	
-	  _createClass(MapSpriteController, [{
-	    key: 'calcPosition',
-	    value: function calcPosition(pixelScale) {
-	      // console.log('pixelScale = ' + pixelScale);
-	      var LATLONGTOPIXELADJUSTMENT = 1000;
-	      // console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
-	
-	      var itemOffset = {
-	        x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
-	        y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
-	      };
-	      console.log('item geoposition = ' + itemOffset.x + ', ' + itemOffset.y);
-	
-	      // radius should be the length of the line from the center to the item.
-	      var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
-	      // console.log('radius = ' + radius);
-	
-	      this.pixelDistance = radius * pixelScale;
-	      if (this.pixelDistance > MAXPIXELDISTANCE) {
-	        this.pixelDistance = MAXPIXELDISTANCE;
-	      }
-	      if (this.pixelDistance < MINPIXELDISTANCE) {
-	        this.pixelDistance = MINPIXELDISTANCE;
-	      }
-	      this.pixelDistance = this.pixelDistance * (0, _helpers.inverseLerp)(MAXPIXELDISTANCE, MINPIXELDISTANCE, this.pixelDistance);
-	      console.log('pixelDistance = ' + this.pixelDistance);
-	
-	      // Calculate the distance between forward point and item position.
-	      var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
-	      // console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
-	
-	      var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
-	      // console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
-	
-	      var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
-	      // console.log('insideArcCos = ' + insideArcCos);
-	
-	      var angle = Math.acos(insideArcCos) - (0, _helpers.radians)(this.compass.nav.heading - 90);
-	      // console.log('angle = ' + angle);
-	
-	      var result = {
-	        x: Math.round(this.compass.x + this.pixelDistance * Math.cos(angle)),
-	        y: Math.round(this.compass.y + this.pixelDistance * Math.sin(angle))
-	      };
-	      // console.log('item at: ' + result.x + ', ' + result.y);
-	
-	      return result;
+	        this.updatePosition();
 	    }
-	  }, {
-	    key: 'updatePosition',
-	    value: function updatePosition() {
-	      if (!(this.headingIsInsideMarginOfError && this.geoIsInsideMarginOfError)) {
-	        this.lastCompassHeading = this.compass.nav.heading;
-	        var positionOnScreen = this.calcPosition(window.pixelScale);
-	        this.parent.x = positionOnScreen.x;
-	        this.parent.y = positionOnScreen.y;
-	      }
-	    }
-	  }, {
-	    key: 'geoIsInsideMarginOfError',
-	    get: function get() {
-	      return this.compass.nav.longitude < this.lastCompassLongitude + this.geoMarginOfError && this.compass.nav.longitude > this.lastCompassLongitude - this.geoMarginOfError && this.compass.nav.latitude < this.lastCompassLatitude + this.geoMarginOfError && this.compass.nav.latitude > this.lastCompassLatitude - this.geoMarginOfError;
-	    }
-	  }, {
-	    key: 'headingIsInsideMarginOfError',
-	    get: function get() {
-	      return this.compass.nav.heading < this.lastCompassHeading + this.angleMarginOfError && this.compass.nav.heading > this.lastCompassHeading - this.angleMarginOfError;
-	    }
-	  }]);
+	
+	    _createClass(MapSpriteController, [{
+	        key: 'calcPosition',
+	        value: function calcPosition(pixelScale) {
+	            // console.log('pixelScale = ' + pixelScale);
+	            var LATLONGTOPIXELADJUSTMENT = 1000;
+	            // console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
+	
+	            var itemOffset = {
+	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
+	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
+	            };
+	            console.log('item geoposition = ' + itemOffset.x + ', ' + itemOffset.y);
+	
+	            // radius should be the length of the line from the center to the item.
+	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
+	            console.log('radius = ' + radius);
+	
+	            // Calculate the distance between forward point and item position.
+	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
+	            // console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
+	
+	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
+	            // console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
+	
+	            var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
+	            // console.log('insideArcCos = ' + insideArcCos);
+	
+	            var angle = Math.acos(insideArcCos) - (0, _helpers.radians)(this.compass.nav.heading - 90);
+	            // console.log('angle = ' + angle);
+	
+	            this.pixelDistance = radius * pixelScale;
+	            if (this.pixelDistance > MAXPIXELDISTANCE) {
+	                this.pixelDistance = MAXPIXELDISTANCE;
+	            }
+	            if (this.pixelDistance < MINPIXELDISTANCE) {
+	                this.pixelDistance = MINPIXELDISTANCE;
+	            }
+	            console.log('pixelDistance = ' + this.pixelDistance);
+	
+	            var displayDistance = MINPIXELDISTANCE + (MAXPIXELDISTANCE - MINPIXELDISTANCE) * (0, _helpers.inverseLerp)(MINPIXELDISTANCE, MAXPIXELDISTANCE, this.pixelDistance);
+	
+	            var result = {
+	                x: Math.round(this.compass.x + displayDistance * Math.cos(angle)),
+	                y: Math.round(this.compass.y + displayDistance * Math.sin(angle))
+	            };
+	            // console.log('item at: ' + result.x + ', ' + result.y);
+	
+	            return result;
+	        }
+	    }, {
+	        key: 'updatePosition',
+	        value: function updatePosition() {
+	            if (!(this.headingIsInsideMarginOfError && this.geoIsInsideMarginOfError)) {
+	                this.lastCompassHeading = this.compass.nav.heading;
+	                var positionOnScreen = this.calcPosition(window.pixelScale);
+	                this.parent.x = positionOnScreen.x;
+	                this.parent.y = positionOnScreen.y;
+	            }
+	        }
+	    }, {
+	        key: 'geoIsInsideMarginOfError',
+	        get: function get() {
+	            return this.compass.nav.longitude < this.lastCompassLongitude + this.geoMarginOfError && this.compass.nav.longitude > this.lastCompassLongitude - this.geoMarginOfError && this.compass.nav.latitude < this.lastCompassLatitude + this.geoMarginOfError && this.compass.nav.latitude > this.lastCompassLatitude - this.geoMarginOfError;
+	        }
+	    }, {
+	        key: 'headingIsInsideMarginOfError',
+	        get: function get() {
+	            return this.compass.nav.heading < this.lastCompassHeading + this.angleMarginOfError && this.compass.nav.heading > this.lastCompassHeading - this.angleMarginOfError;
+	        }
+	    }]);
 
-	  return MapSpriteController;
+	    return MapSpriteController;
 	}();
 
 /***/ },
