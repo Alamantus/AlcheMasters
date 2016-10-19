@@ -1,4 +1,4 @@
-import {colorElementMap, capitalizeString} from '../js/helpers';
+import {colorElementMap, colorNameToTintMap, capitalizeString} from '../js/helpers';
 
 export class Item {
 	constructor(itemDetails) {

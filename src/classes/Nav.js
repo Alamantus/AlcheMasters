@@ -23,7 +23,7 @@ export class Nav {
 
     this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
 
-    this.textDisplay = this.state.add.text(2, 28, 'Inititializing...', {font: 'Courier New', fontSize: '14px', fill: '#ff00ff', wordWrap: true, wordWrapWidth: this.state.game.width});
+    this.debugText = this.state.add.text(2, 28, 'Inititializing...', {font: 'Courier New', fontSize: '14px', fill: '#ff00ff', wordWrap: true, wordWrapWidth: this.state.game.width});
 
     this.initiateNav(runOnReady);
 	}
@@ -66,11 +66,11 @@ export class Nav {
   initiateCompass () {
     let self = this;
     Compass.needGPS(() => {
-      if (this.textDisplay.text !== this.messages.needGPS) {
+      if (this.debugText.text !== this.messages.needGPS) {
         this.updateMessage(this.messages.needGPS);
       }
     }).needMove(() => {
-      if (this.textDisplay.text !== this.messages.needMove) {
+      if (this.debugText.text !== this.messages.needMove) {
         this.updateMessage(this.messages.needMove);
       }
     }).init((method) => {
@@ -129,7 +129,7 @@ export class Nav {
   }
 
   updateMessage (newMessage) {
-    this.textDisplay.text = newMessage;
+    this.debugText.text = newMessage;
     console.log(newMessage);
   }
 }

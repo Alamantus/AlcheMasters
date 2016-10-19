@@ -1,20 +1,32 @@
 export const colorElementMap = {
-  red: 'fire',
-  fire: 'red',
-  orange: 'light',
-  light: 'orange',
-  yellow: 'electricity',
-  electricity: 'yellow',
-  green: 'growth',
-  growth: 'green',
-  blue: 'water',
-  water: 'blue',
-  purple: 'ice',
-  ice: 'purple',
-  white: 'wind',
-  wind: 'white',
-  black: 'darkness',
-  darkness: 'black'
+  red: 'fire'
+, fire: 'red'
+, orange: 'light'
+, light: 'orange'
+, yellow: 'electricity'
+, electricity: 'yellow'
+, green: 'growth'
+, growth: 'green'
+, blue: 'water'
+, water: 'blue'
+, purple: 'ice'
+, ice: 'purple'
+, white: 'wind'
+, wind: 'white'
+, black: 'darkness'
+, darkness: 'black'
+};
+
+// For use with sprite.tint or image.tint
+export const colorNameToTintMap = {
+  red: 0xDE0000
+, orange: 0xCBCB00
+, yellow: 0xEFEF00
+, green: 0x00DE00
+, blue: 0x0000DE
+, purple: 0xCF00DA
+, white: 0xFFFFFF
+, black: 0x303030
 };
 
 export function dynamicSort (propertiesArray) {

@@ -9,7 +9,7 @@ export class Settings {
     this.itemCheckDelayNumberOfFrames = 5;
 
     // Multiplier for converting 1000 * latlong to distance in pixels for MapSpriteControllers.
-    this.pixelScale = 60;
+    this.pixelScale = 100;
 
     // Min and max pixels that a map object can draw from the center of the circle.
     this.minPixelDistance = 16;
