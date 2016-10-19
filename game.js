@@ -834,10 +834,10 @@
 	          Compass.watch(function (heading) {
 	            _this2.lastHeading = _this2.heading;
 	
-	            if (!_this2.headingIsInsideMarginOfError) {
-	              _this2.heading = heading;
-	              // this.updateMessage(this.heading);
-	            }
+	            // if (!this.headingIsInsideMarginOfError) {
+	            _this2.heading = heading;
+	            // this.updateMessage(this.heading);
+	            // }
 	          });
 	        } else {
 	          _this2.updateMessage(_this2.messages.noCompass);
@@ -854,7 +854,7 @@
 	        _this3.lastLatitude = _this3.latitude;
 	        _this3.lastCheck = position.timestamp;
 	
-	        if (_this3.geoIsInsideMarginOfError) {
+	        if (!_this3.geoIsInsideMarginOfError) {
 	          _this3.longitude = position.coords.longitude;
 	          _this3.latitude = position.coords.latitude;
 	          _this3.updateMessage('position: ' + _this3.longitude + ', ' + _this3.latitude + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude) + ', ' + (_this3.lastLatitude - _this3.latitude));
