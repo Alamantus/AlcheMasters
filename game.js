@@ -1277,9 +1277,7 @@
 	
 	        _this.deathTime = Date.now() + _this.life * 1000;
 	
-	        setTimeout(function () {
-	            return _this.parent.destroy();
-	        }, _this.life * 1000);
+	        // setTimeout(() => this.parent.destroy(), this.life * 1000);
 	        return _this;
 	    }
 	
