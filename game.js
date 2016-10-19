@@ -663,6 +663,9 @@
 	    };
 	
 	    _this.hasGeneratedItems = false;
+	
+	    // Frames before checking the items.
+	    _this.itemCheckFrameDelay = 0;
 	    return _this;
 	  }
 	
@@ -701,10 +704,15 @@
 	    key: 'update',
 	    value: function update() {
 	      // this.updateCompassAngle();
+	      this.itemCheckFrameDelay--;
 	      if (this.hasGeneratedItems) {
-	        this.map.pickups.forEach(function (pickup) {
-	          pickup.pickup.updatePosition();
-	        });
+	        if (this.itemCheckFrameDelay <= 0) {
+	          this.map.pickups.forEach(function (pickup) {
+	            pickup.pickup.updatePosition();
+	          });
+	          // Only check items once every this number of frames.
+	          this.itemCheckFrameDelay = this.settings.itemCheckDelayNumberOfFrames;
+	        }
 	      }
 	
 	      this.drawNorth(40);
@@ -1344,7 +1352,7 @@
 	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
 	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
 	            };
-	            console.log('item geoposition = ' + itemOffset.x + ', ' + itemOffset.y);
+	            console.log('item geoposition offset = ' + itemOffset.x / LATLONGTOPIXELADJUSTMENT + ', ' + itemOffset.y / LATLONGTOPIXELADJUSTMENT);
 	
 	            // radius should be the length of the line from the center to the item.
 	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
@@ -3054,6 +3062,8 @@
 	
 	  // Set Default Settings
 	  this.sortMethod = ['name'];
+	
+	  this.itemCheckDelayNumberOfFrames = 5;
 	};
 	
 	var settings = exports.settings = new Settings();
