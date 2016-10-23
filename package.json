@@ -1,16 +1,18 @@
 {
-  "name": "potion-game",
+  "name": "alchemasters",
+  "title": "AlcheMasters",
   "version": "0.0.0",
   "description": "An attempt to make a fantasy potion-themed AR game using geolocation and compass heading in Phaser and ES6/ES2015.",
-  "main": "src/index.jsx",
+  "main": "src/index.js",
   "scripts": {
-    "install": "napa Ezelia/EZGUI",
+    "install-repos": "napa Ezelia/EZGUI",
     "start": "node start-server.js",
     "pack": "node ./node_modules/webpack/bin/webpack.js -d --progress --display-error-details",
     "watch": "node ./node_modules/webpack/bin/webpack.js -d --progress --watch",
     "build": "node ./node_modules/webpack/bin/webpack.js -p --progress"
   },
   "author": "Robbie Antenesse <gamedev@alamantus.com>",
+  "repository": "https://github.com/Alamantus/AlcheMasters",
   "license": "ISC",
   "devDependencies": {
     "babel-core": "^6.17.0",
@@ -21,9 +23,6 @@
     "file-loader": "^0.9.0",
     "html-minify-loader": "^1.1.0",
     "img-loader": "^1.3.1",
-    "le-challenge-fs": "^2.0.8",
-    "le-store-certbot": "^2.0.3",
-    "letsencrypt": "^2.1.8",
     "node-sass": "^3.10.1",
     "redirect-https": "^1.1.0",
     "sass-loader": "^4.0.2",

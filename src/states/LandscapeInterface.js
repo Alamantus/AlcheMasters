@@ -9,7 +9,7 @@ import {Inventory} from '../classes/Inventory';
 
 import {radians} from '../js/helpers';
 
-export class MainInterface extends Phaser.State {
+export class PortraitInterface extends Phaser.State {
 	constructor() {
     super();
 
@@ -45,7 +45,7 @@ export class MainInterface extends Phaser.State {
     this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
     this.compass.anchor.x = 0.5;
     this.compass.anchor.y = 0.5;
-    this.compass.nav = new Nav(this, window.settings.locationCheckDelaySeconds, () => this.generatePickups());
+    this.compass.nav = new Nav(this.compass, window.settings.locationCheckDelaySeconds, () => this.generatePickups());
     // console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
 
     // this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', {fill: 'yellow', align: 'center'});
@@ -58,7 +58,10 @@ export class MainInterface extends Phaser.State {
   }
 
   update () {
-    // this.updateCompassAngle();
+    if (this.compass.nav.type == 'test') {
+      this.compass.nav.update();
+    }
+
     this.itemCheckFrameDelay--;
     if (this.hasGeneratedItems) {
       if (this.itemCheckFrameDelay <= 0) {

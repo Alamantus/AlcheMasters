@@ -6,7 +6,8 @@ import 'p2';
 import 'phaser';
 
 import {ImageLoad} from './states/ImageLoad';
-import {MainInterface} from './states/MainInterface';
+import {PortraitInterface} from './states/PortraitInterface';
+import {LandscapeInterface} from './states/LandscapeInterface';
 
 import {Settings} from './classes/Settings';
 
@@ -18,7 +19,29 @@ const game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO,
 
 // Create the 'MainInterface' game state with autostart = false.
 game.state.add('ImageLoad', new ImageLoad(), false);
-game.state.add('MainInterface', new MainInterface(), false);
+game.state.add('PortraitInterface', new PortraitInterface(), false);
+game.state.add('LandscapeInterface', new LandscapeInterface(), false);
 
 // Launch the game state, clearWorld = true, clearCache = false, and parameter imgPaths object
 game.state.start('ImageLoad', true, false);
+
+// Listen for resize changes
+window.addEventListener("resize", function() {
+  // Get screen size (inner/outerWidth, inner/outerHeight)
+  changeScreenOnResize();
+}, false);
+
+function changeScreenOnResize () {
+  game.width = window.innerWidth;
+  game.height = window.innerHeight;
+
+  if (game.height > game.width && game.state.current !== 'PortraitInterface') {
+    // Portrait, change to Compass map
+    game.state.start('PortraitInterface', true, false);
+  }
+
+  if (game.width > game.height && game.state.current !== 'LandscapeInterface') {
+    // Portrait, change to Compass map
+    game.state.start('LandscapeInterface', true, false);
+  }
+}

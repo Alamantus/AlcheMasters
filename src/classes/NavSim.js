@@ -1,11 +1,9 @@
-import '../../node_modules/compass.js/lib/compass.js';
-
-export class Nav {
-	constructor (parent, locationCheckDelaySeconds, runOnReady) {
+export class NavSim {
+	constructor (parent, runOnReady) {
     this.parent = parent;
     this.state = parent.game.state;
 
-    this.type = 'prod';
+    this.type = 'test';
 
     this.messages = {
       geolocationReady: 'Geolocation active!'
@@ -24,21 +22,11 @@ export class Nav {
     this.heading = 0;
     this.lastHeading = null;
 
-    this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
-
+    this.testOnlyText = this.state.add.text(28, 4, 'Geolocation Not Supported: For Testing Only', {font: 'Courier New', fontSize: '14px', fill: '#ff0000', wordWrap: true, wordWrapWidth: this.state.game.width});
     this.debugText = this.state.add.text(2, 28, 'Inititializing...', {font: 'Courier New', fontSize: '14px', fill: '#ff00ff', wordWrap: true, wordWrapWidth: this.state.game.width});
 
     this.initiateNav(runOnReady);
 	}
-
-  get canUseGeolocation () {
-    if (navigator.geolocation) {
-      this.updateMessage('yes');
-      return true;
-    }
-    this.updateMessage('no');
-    return false;
-  }
 
   get positionHasChanged () {
     return this.longitude !== this.lastLongitude || this.latitude === this.lastLatitude;
@@ -88,7 +76,6 @@ export class Nav {
         });
       } else {
         this.updateMessage(this.messages.noCompass);
-        this.revertToNavSim();
       }
     });
   }
@@ -118,11 +105,6 @@ export class Nav {
       // If it fails, try again.
       setTimeout(() => this.getGeolocation(), this.locationCheckTimeout);
     }, {timeout: 5000, maximumAge: 0});
-  }
-
-  revertToNavSim () {
-    // Replace reference to self with new NavSim, effectively self-destructing.
-    this.parent.nav = new NavSim(this.parent);
   }
 
   geoIsInsideMarginOfError (latitude, longitude) {
