@@ -3,6 +3,8 @@ export class Settings {
     // Set Default Settings
     this.sortMethod = ['name'];
 
+    this.randomSeed = 'AlcheMasters';
+
     this.locationCheckDelaySeconds = 5;
 
     // Number of frames to skip before recalculating item positions.
@@ -23,7 +25,7 @@ export class Settings {
     // Meant to combat items floating/moving when the geoposition calculation is inconsistent.
     this.geoMarginOfError = 0.00009;
 
-    this.lerpPercent = 0.2;
+    this.lerpPercent = 0.09;
   }
 }
 

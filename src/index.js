@@ -17,15 +17,19 @@ window.settings = new Settings();
 // picking webGL or canvas automatically, and putting it into HTML with the id='game'.
 const game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'game');
 
-// Create the 'MainInterface' game state with autostart = false.
+// Create the game states with autostart = false.
 game.state.add('ImageLoad', new ImageLoad(), false);
 game.state.add('PortraitInterface', new PortraitInterface(), false);
 game.state.add('LandscapeInterface', new LandscapeInterface(), false);
 
+// Set the random seed for the interfaces. State.rnd.sow() accepts an array of seeds.
+// game.state.states['PortraitInterface'].rnd.sow([window.settings.randomSeed]);
+// game.state.states['LandscapeInterface'].rnd.sow([window.settings.randomSeed]);
+
 // Launch the game state, clearWorld = true, clearCache = false, and parameter imgPaths object
 game.state.start('ImageLoad', true, false);
 
-// Listen for resize changes
+/*// Listen for resize changes
 window.addEventListener("resize", function() {
   // Get screen size (inner/outerWidth, inner/outerHeight)
   changeScreenOnResize();
@@ -44,4 +48,4 @@ function changeScreenOnResize () {
     // Portrait, change to Compass map
     game.state.start('LandscapeInterface', true, false);
   }
-}
+}*/

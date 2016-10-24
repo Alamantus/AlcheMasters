@@ -1,7 +1,9 @@
+import {lerp} from '../js/helpers';
+
 export class NavSim {
-	constructor (parent, runOnReady) {
+	constructor (parent, latitude, longitude) {
     this.parent = parent;
-    this.state = parent.game.state;
+    this.state = parent.game.state.getCurrentState();
 
     this.type = 'test';
 
@@ -13,19 +15,19 @@ export class NavSim {
     , needMove: 'Hold your phone ahead of you and start walking.'
     };
 
-    this.latitude = 0;
-    this.longitude = 0;
+    // Each 0.00001 latlong difference is ~1 meter.
+    this.latitude = latitude;
+    this.longitude = longitude;
     this.lastLatitude = null;
     this.lastLongitude = null;
-    this.lastCheck = null;
-    this.lastUpdate = null;
     this.heading = 0;
     this.lastHeading = null;
 
-    this.testOnlyText = this.state.add.text(28, 4, 'Geolocation Not Supported: For Testing Only', {font: 'Courier New', fontSize: '14px', fill: '#ff0000', wordWrap: true, wordWrapWidth: this.state.game.width});
-    this.debugText = this.state.add.text(2, 28, 'Inititializing...', {font: 'Courier New', fontSize: '14px', fill: '#ff00ff', wordWrap: true, wordWrapWidth: this.state.game.width});
+    this.turnSpeed = 2;
+    this.latLongSpeed = 0.000005;
 
-    this.initiateNav(runOnReady);
+    this.state.navDebugText2 = 'Geolocation Not Supported: For Testing Only';
+    this.state.navDebugText = 'Use Arrow Keys to Move Geoposition';
 	}
 
   get positionHasChanged () {
@@ -40,87 +42,46 @@ export class NavSim {
     return this.headingHasChanged || this.positionHasChanged;
   }
 
-  initiateNav (runOnReady) {
-    if (this.canUseGeolocation) {
-      this.getGeolocation(() => {
-        this.updateMessage(`${this.messages.geolocationReady}\nGeoposition: ${this.latitude}, ${this.longitude}`);
+  update () {
+    this.lastHeading = this.heading;
+    this.lastLongitude = this.longitude;
+    this.lastLatitude = this.latitude;
 
-        runOnReady();
-
-        this.initiateCompass();
-      });
-    } else {
-      this.updateMessage(this.messages.noGeolocation);
+    let heading = this.heading,
+        coords = {latitude: this.latitude, longitude: this.longitude};
+    
+    if (this.state.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
+      heading -= this.turnSpeed;
+    } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
+      heading += this.turnSpeed;
     }
-  }
 
-  initiateCompass () {
-    let self = this;
-    Compass.needGPS(() => {
-      if (this.debugText.text !== this.messages.needGPS) {
-        this.updateMessage(this.messages.needGPS);
-      }
-    }).needMove(() => {
-      if (this.debugText.text !== this.messages.needMove) {
-        this.updateMessage(this.messages.needMove);
-      }
-    }).init((method) => {
-      if (method !== false) {
-        Compass.watch((heading) => {
-          this.lastHeading = this.heading;
+    if (heading < 0) heading += 360;
+    if (heading >= 360) heading -= 360;
 
-          if (!this.headingIsInsideMarginOfError(heading)) {
-            this.heading = heading;
-            // this.updateMessage(this.heading);
-          }
-        });
-      } else {
-        this.updateMessage(this.messages.noCompass);
-      }
-    });
-  }
+    this.heading = heading;
 
-  getGeolocation (callback) {
-    navigator.geolocation.getCurrentPosition((position) => {
-      this.lastLongitude = this.longitude;
-      this.lastLatitude = this.latitude;
-      this.lastCheck = position.timestamp;
+    this.parent.rotation = this.state.math.degToRad(this.heading);
+    this.state.worldgroup.rotation = -1 * this.state.math.degToRad(this.heading);
 
-      if (!this.geoIsInsideMarginOfError(position.coords.latitude, position.coords.longitude)) {
-        this.longitude = position.coords.longitude;
-        this.latitude = position.coords.latitude;
-        this.lastUpdate = position.timestamp;
-      }
+    if (this.state.input.keyboard.isDown(Phaser.Keyboard.UP)) {
+      coords.latitude -= this.latLongSpeed * Math.cos(this.parent.rotation);
+      coords.longitude += this.latLongSpeed * Math.sin(this.parent.rotation);
+    } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
+      coords.latitude += this.latLongSpeed * Math.cos(this.parent.rotation);
+      coords.longitude -= this.latLongSpeed * Math.sin(this.parent.rotation);
+    }
 
-      this.updateMessage(`position: ${this.longitude}, ${this.latitude}\nchanged: ${this.lastLongitude - this.longitude}, ${this.lastLatitude - this.latitude}`);
+    this.latitude = coords.latitude;
+    this.longitude = coords.longitude;
 
-      if (callback){
-        callback();
-      }
+    let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 1000000);
+    let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 1000000);
 
-      // Start the geolocation loop.
-      setTimeout(() => this.getGeolocation(), this.locationCheckTimeout);
-    }, (error) => {
-      this.updateMessage(error.message);
-      // If it fails, try again.
-      setTimeout(() => this.getGeolocation(), this.locationCheckTimeout);
-    }, {timeout: 5000, maximumAge: 0});
-  }
+    // 1000000 gives latlong change within 1/10 of a meter.
+    this.parent.x = lerp(this.parent.x, targetX, window.settings.lerpPercent);
+    this.parent.y = lerp(this.parent.y, targetY, window.settings.lerpPercent);
 
-  geoIsInsideMarginOfError (latitude, longitude) {
-    return (longitude < this.lastLongitude + window.settings.geoMarginOfError
-            && longitude > this.lastLongitude - window.settings.geoMarginOfError
-            && latitude < this.lastLatitude + window.settings.geoMarginOfError
-            && latitude > this.lastLatitude - window.settings.geoMarginOfError);
-  }
-
-  headingIsInsideMarginOfError (angle) {
-    return (angle < this.lastHeading + window.settings.angleMarginOfError
-            && angle > this.lastHeading - window.settings.angleMarginOfError);
-  }
-
-  updateMessage (newMessage) {
-    this.debugText.text = newMessage;
-    console.log(newMessage);
+    console.log(this.heading + 'degrees, ' + targetX + ', ' + targetY + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
   }
 }

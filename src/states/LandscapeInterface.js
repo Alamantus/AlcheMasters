@@ -9,7 +9,7 @@ import {Inventory} from '../classes/Inventory';
 
 import {radians} from '../js/helpers';
 
-export class PortraitInterface extends Phaser.State {
+export class LandscapeInterface extends Phaser.State {
 	constructor() {
     super();
 
@@ -29,9 +29,7 @@ export class PortraitInterface extends Phaser.State {
 	}
 
   init () {
-    // this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-    // this.scale.pageAlignHorizontally = true;
-    // this.scale.pageAlignVertically = true;
+    this.scale.scaleMode = Phaser.ScaleManager.RESIZE;
 
     // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
   }
@@ -40,6 +38,8 @@ export class PortraitInterface extends Phaser.State {
 	}
 
   create () {
+    console.log(this.game.state.current);
+
     this.game.time.advancedTiming = true;
 
     this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
@@ -53,7 +53,7 @@ export class PortraitInterface extends Phaser.State {
     // this.northMarker.anchor.y = 0.5;
   }
 
-  render() {
+  render () {
     this.game.debug.text(this.game.time.fps, 2, 14, "#00ff00");
   }
 
@@ -74,6 +74,13 @@ export class PortraitInterface extends Phaser.State {
     }
 
     // this.drawNorth(40);
+  }
+
+  resize (width, height) {
+    if (height > width) {
+      // If Portrait, change to Compass/Map
+      this.game.state.start('PortraitInterface', true, false);
+    }
   }
 
   drawNorth (pixelsFromCenter) {

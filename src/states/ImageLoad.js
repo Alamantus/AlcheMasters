@@ -19,7 +19,7 @@ export class ImageLoad extends Phaser.State {
 	}
 
   create () {
-    this.game.state.start('MainInterface', true, false);
+    this.game.state.start('PortraitInterface', true, false);
   }
 
   update () {

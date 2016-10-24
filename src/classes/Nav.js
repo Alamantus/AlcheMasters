@@ -1,9 +1,12 @@
 import '../../node_modules/compass.js/lib/compass.js';
 
+import {lerp} from '../js/helpers';
+import {NavSim} from './NavSim';
+
 export class Nav {
 	constructor (parent, locationCheckDelaySeconds, runOnReady) {
     this.parent = parent;
-    this.state = parent.game.state;
+    this.state = parent.game.state.getCurrentState();
 
     this.type = 'prod';
 
@@ -24,9 +27,12 @@ export class Nav {
     this.heading = 0;
     this.lastHeading = null;
 
+    this.targetX = this.parent.x;
+    this.targetY = this.parent.y;
+
     this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
 
-    this.debugText = this.state.add.text(2, 28, 'Inititializing...', {font: 'Courier New', fontSize: '14px', fill: '#ff00ff', wordWrap: true, wordWrapWidth: this.state.game.width});
+    this.state.navDebugText = 'Inititializing...';
 
     this.initiateNav(runOnReady);
 	}
@@ -54,13 +60,21 @@ export class Nav {
 
   initiateNav (runOnReady) {
     if (this.canUseGeolocation) {
-      this.getGeolocation(() => {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.lastLongitude = this.longitude = position.coords.longitude;
+        this.lastLatitude = this.latitude = position.coords.latitude;
+        this.lastCheck = position.timestamp;
+
         this.updateMessage(`${this.messages.geolocationReady}\nGeoposition: ${this.latitude}, ${this.longitude}`);
 
-        runOnReady();
+        if (runOnReady){
+          runOnReady();
+        }
 
         this.initiateCompass();
-      });
+      }, (error) => {
+        this.updateMessage(error.message);
+      }, {enableHighAccuracy: true, timeout: 20000, maximumAge: 0});
     } else {
       this.updateMessage(this.messages.noGeolocation);
     }
@@ -69,11 +83,11 @@ export class Nav {
   initiateCompass () {
     let self = this;
     Compass.needGPS(() => {
-      if (this.debugText.text !== this.messages.needGPS) {
+      if (this.state.navDebugText !== this.messages.needGPS) {
         this.updateMessage(this.messages.needGPS);
       }
     }).needMove(() => {
-      if (this.debugText.text !== this.messages.needMove) {
+      if (this.state.navDebugText !== this.messages.needMove) {
         this.updateMessage(this.messages.needMove);
       }
     }).init((method) => {
@@ -103,26 +117,32 @@ export class Nav {
         this.longitude = position.coords.longitude;
         this.latitude = position.coords.latitude;
         this.lastUpdate = position.timestamp;
+
+        // Set target value for lerping game world position.
+        this.targetX = this.parent.x + ((this.lastLongitude - this.longitude) * 1000000);
+        this.targetY = this.parent.y + ((this.lastLatitude - this.latitude) * 1000000);
       }
 
-      this.updateMessage(`position: ${this.longitude}, ${this.latitude}\nchanged: ${this.lastLongitude - this.longitude}, ${this.lastLatitude - this.latitude}`);
+      this.updateMessage(`position: ${this.longitude.toFixed(6)}, ${this.latitude.toFixed(6)}\nchanged: ${(this.lastLongitude - this.longitude).toFixed(6)}, ${(this.lastLatitude - this.latitude).toFixed(6)}`);
 
       if (callback){
         callback();
       }
-
-      // Start the geolocation loop.
-      setTimeout(() => this.getGeolocation(), this.locationCheckTimeout);
     }, (error) => {
       this.updateMessage(error.message);
+
       // If it fails, try again.
-      setTimeout(() => this.getGeolocation(), this.locationCheckTimeout);
-    }, {timeout: 5000, maximumAge: 0});
+      if (callback){
+        callback();
+      }
+    }, {enableHighAccuracy: true, timeout: 5000, maximumAge: 0});
   }
 
   revertToNavSim () {
     // Replace reference to self with new NavSim, effectively self-destructing.
-    this.parent.nav = new NavSim(this.parent);
+    this.updateMessage('');
+    console.log('Reverting to NavSim');
+    this.parent.nav = new NavSim(this.parent, this.latitude, this.longitude);
   }
 
   geoIsInsideMarginOfError (latitude, longitude) {
@@ -138,7 +158,18 @@ export class Nav {
   }
 
   updateMessage (newMessage) {
-    this.debugText.text = newMessage;
+    this.state.navDebugText = newMessage;
     console.log(newMessage);
+  }
+
+  update () {
+    this.parent.rotation = this.state.math.degToRad(this.heading);
+    this.state.worldgroup.rotation = -1 * this.state.math.degToRad(this.heading);
+
+    // Get the value within 500 meters (0.005 latlongs)
+    this.parent.x = lerp(this.parent.x, this.targetX, window.settings.lerpPercent);
+    this.parent.y = lerp(this.parent.y, this.targetY, window.settings.lerpPercent);
+
+    console.log(this.heading + 'degrees, ' + this.latitude + ', ' + this.longitude + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
   }
 }

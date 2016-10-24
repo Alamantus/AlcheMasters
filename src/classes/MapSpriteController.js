@@ -60,9 +60,9 @@ export class MapSpriteController {
       if (this.pixelDistance > window.settings.maxPixelDistance) {
         this.pixelDistance = window.settings.maxPixelDistance;
       }
-      if (this.pixelDistance < window.settings.minPixelDistance) {
-        this.pixelDistance = window.settings.minPixelDistance;
-      }
+      // if (this.pixelDistance < window.settings.minPixelDistance) {
+      //   this.pixelDistance = window.settings.minPixelDistance;
+      // }
     }
     // console.log('pixelDistance = ' + this.pixelDistance);
 
