@@ -811,6 +811,10 @@
 	      this.map.pickups.push(this.add.sprite(this.player.x + 180, this.player.y - 180, 'red-square'));
 	      this.map.pickups.push(this.add.sprite(this.player.x - 180, this.player.y + 180, 'red-square'));
 	      this.map.pickups.push(this.add.sprite(this.player.x - 180, this.player.y - 180, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.player.x + 180, this.player.y, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.player.x - 180, this.player.y, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.player.x, this.player.y + 180, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.player.x, this.player.y - 180, 'red-square'));
 	      // this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
 	      // this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
 	
