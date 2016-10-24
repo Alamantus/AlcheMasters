@@ -822,6 +822,7 @@
 	      this.map.pickups.push(this.add.sprite(this.player.x, this.player.y - 180, 'red-square'));
 	
 	      this.map.pickups.forEach(function (pickup) {
+	        pickup.anchor.setTo(0.5, 0.5);
 	        // pickup.pickup = new Pickup(pickup, this.player, 60, 180);
 	        // console.log(pickup.pickup.life);
 	
@@ -3422,15 +3423,18 @@
 /*!*******************************!*\
   !*** ./src/classes/NavSim.js ***!
   \*******************************/
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+	exports.NavSim = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -3501,13 +3505,14 @@
 	            this.latitude = coords.latitude;
 	            this.longitude = coords.longitude;
 	
-	            var change = { lat: this.latitude - this.lastLatitude, lon: this.longitude - this.lastLongitude };
+	            var targetX = this.parent.x + (this.longitude - this.lastLongitude) * 1000000;
+	            var targetY = this.parent.y + (this.latitude - this.lastLatitude) * 1000000;
 	
 	            // 1000000 gives latlong change within 1/10 of a meter.
-	            this.parent.x += change.lon * 1000000;
-	            this.parent.y += change.lat * 1000000;
+	            this.parent.x = (0, _helpers.lerp)(this.parent.x, targetX, window.settings.lerpPercent);
+	            this.parent.y = (0, _helpers.lerp)(this.parent.y, targetY, window.settings.lerpPercent);
 	
-	            console.log(this.heading + 'degrees, ' + change.lat + ', ' + change.lon + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
+	            console.log(this.heading + 'degrees, ' + targetX + ', ' + targetY + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
 	        }
 	    }, {
 	        key: 'positionHasChanged',
