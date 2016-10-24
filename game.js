@@ -894,13 +894,21 @@
 	      var _this = this;
 	
 	      if (this.canUseGeolocation) {
-	        this.getGeolocation(function () {
+	        navigator.geolocation.getCurrentPosition(function (position) {
+	          _this.lastLongitude = _this.longitude = position.coords.longitude;
+	          _this.lastLatitude = _this.latitude = position.coords.latitude;
+	          _this.lastCheck = position.timestamp;
+	
 	          _this.updateMessage(_this.messages.geolocationReady + '\nGeoposition: ' + _this.latitude + ', ' + _this.longitude);
 	
-	          runOnReady();
+	          if (runOnReady) {
+	            runOnReady();
+	          }
 	
 	          _this.initiateCompass();
-	        });
+	        }, function (error) {
+	          _this.updateMessage(error.message);
+	        }, { timeout: 20000, maximumAge: 0 });
 	      } else {
 	        this.updateMessage(this.messages.noGeolocation);
 	      }
@@ -951,8 +959,8 @@
 	          _this3.lastUpdate = position.timestamp;
 	
 	          // Set target value for lerping game world position.
-	          _this3.targetX = _this3.parent.x + (_this3.lastLatitude - _this3.latitude);
-	          _this3.targetY = _this3.parent.y + (_this3.lastLongitude - _this3.longitude);
+	          _this3.targetX = _this3.parent.x + (_this3.lastLatitude - _this3.latitude) * 1000000;
+	          _this3.targetY = _this3.parent.y + (_this3.lastLongitude - _this3.longitude) * 1000000;
 	        }
 	
 	        _this3.updateMessage('position: ' + _this3.longitude + ', ' + _this3.latitude + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude) + ', ' + (_this3.lastLatitude - _this3.latitude));
@@ -974,6 +982,7 @@
 	    value: function revertToNavSim() {
 	      // Replace reference to self with new NavSim, effectively self-destructing.
 	      this.updateMessage('');
+	      console.log('Reverting to NavSim');
 	      this.parent.nav = new _NavSim.NavSim(this.parent, this.latitude, this.longitude);
 	    }
 	  }, {
@@ -3444,7 +3453,7 @@
 	        this.lastHeading = null;
 	
 	        this.turnSpeed = 2;
-	        this.moveSpeed = 0.000005;
+	        this.latLongSpeed = 0.000005;
 	
 	        this.testOnlyText = this.state.game.add.text(28, 4, 'Geolocation Not Supported: For Testing Only', { font: 'Courier New', fontSize: '14px', fill: '#ff0000', wordWrap: true, wordWrapWidth: this.state.game.width });
 	        this.debugText = this.state.game.add.text(2, 28, 'Use Arrow Keys to Move Geoposition', { font: 'Courier New', fontSize: '14px', fill: '#ff00ff', wordWrap: true, wordWrapWidth: this.state.game.width });
@@ -3475,11 +3484,11 @@
 	            this.state.worldgroup.rotation = -1 * this.state.math.degToRad(this.heading);
 	
 	            if (this.state.input.keyboard.isDown(Phaser.Keyboard.UP)) {
-	                coords.latitude -= this.moveSpeed * Math.cos(this.parent.rotation);
-	                coords.longitude += this.moveSpeed * Math.sin(this.parent.rotation);
+	                coords.latitude -= this.latLongSpeed * Math.cos(this.parent.rotation);
+	                coords.longitude += this.latLongSpeed * Math.sin(this.parent.rotation);
 	            } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-	                coords.latitude += this.moveSpeed * Math.cos(this.parent.rotation);
-	                coords.longitude -= this.moveSpeed * Math.sin(this.parent.rotation);
+	                coords.latitude += this.latLongSpeed * Math.cos(this.parent.rotation);
+	                coords.longitude -= this.latLongSpeed * Math.sin(this.parent.rotation);
 	            }
 	
 	            this.latitude = coords.latitude;
@@ -3487,9 +3496,9 @@
 	
 	            var change = { lat: this.latitude - this.lastLatitude, lon: this.longitude - this.lastLongitude };
 	
-	            // Get the value within 500 meters (0.005 latlongs)
-	            this.parent.x += change.lon / this.moveSpeed * 10;
-	            this.parent.y += change.lat / this.moveSpeed * 10;
+	            // 1000000 gives latlong change within 1/10 of a meter.
+	            this.parent.x += change.lon * 1000000;
+	            this.parent.y += change.lat * 1000000;
 	
 	            console.log(this.heading + 'degrees, ' + change.lat + ', ' + change.lon + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
 	        }
