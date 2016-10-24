@@ -694,6 +694,9 @@
 	    _this.canCheckNav = false;
 	    _this.navCheckDelay = 0;
 	
+	    _this.navDebugText = '';
+	    _this.navDebugText2 = '';
+	
 	    // Frames before checking the items.
 	    _this.itemCheckFrameDelay = 0;
 	    return _this;
@@ -744,6 +747,8 @@
 	    key: 'render',
 	    value: function render() {
 	      this.game.debug.text(this.game.time.fps, 2, 14, "#00ff00");
+	      this.game.debug.text(this.navDebugText, 2, 28, "#ff00ff");
+	      this.game.debug.text(this.navDebugText2, 28, 14, "#ff0000");
 	    }
 	  }, {
 	    key: 'update',
@@ -815,8 +820,6 @@
 	      this.map.pickups.push(this.add.sprite(this.player.x - 180, this.player.y, 'red-square'));
 	      this.map.pickups.push(this.add.sprite(this.player.x, this.player.y + 180, 'red-square'));
 	      this.map.pickups.push(this.add.sprite(this.player.x, this.player.y - 180, 'red-square'));
-	      // this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
-	      // this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
 	
 	      this.map.pickups.forEach(function (pickup) {
 	        // pickup.pickup = new Pickup(pickup, this.player, 60, 180);
@@ -887,7 +890,7 @@
 	
 	    this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
 	
-	    this.debugText = this.state.add.text(2, 28, 'Inititializing...', { font: 'Courier New', fontSize: '14px', fill: '#ff00ff', wordWrap: true, wordWrapWidth: this.state.game.width });
+	    this.state.navDebugText = 'Inititializing...';
 	
 	    this.initiateNav(runOnReady);
 	  }
@@ -912,7 +915,7 @@
 	          _this.initiateCompass();
 	        }, function (error) {
 	          _this.updateMessage(error.message);
-	        }, { timeout: 20000, maximumAge: 0 });
+	        }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
 	      } else {
 	        this.updateMessage(this.messages.noGeolocation);
 	      }
@@ -924,11 +927,11 @@
 	
 	      var self = this;
 	      Compass.needGPS(function () {
-	        if (_this2.debugText.text !== _this2.messages.needGPS) {
+	        if (_this2.state.navDebugText !== _this2.messages.needGPS) {
 	          _this2.updateMessage(_this2.messages.needGPS);
 	        }
 	      }).needMove(function () {
-	        if (_this2.debugText.text !== _this2.messages.needMove) {
+	        if (_this2.state.navDebugText !== _this2.messages.needMove) {
 	          _this2.updateMessage(_this2.messages.needMove);
 	        }
 	      }).init(function (method) {
@@ -963,11 +966,11 @@
 	          _this3.lastUpdate = position.timestamp;
 	
 	          // Set target value for lerping game world position.
-	          _this3.targetX = _this3.parent.x + (_this3.lastLatitude - _this3.latitude) * 1000000;
-	          _this3.targetY = _this3.parent.y + (_this3.lastLongitude - _this3.longitude) * 1000000;
+	          _this3.targetX = _this3.parent.x + (_this3.lastLongitude - _this3.longitude) * 1000000;
+	          _this3.targetY = _this3.parent.y + (_this3.lastLatitude - _this3.latitude) * 1000000;
 	        }
 	
-	        _this3.updateMessage('position: ' + _this3.longitude + ', ' + _this3.latitude + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude) + ', ' + (_this3.lastLatitude - _this3.latitude));
+	        _this3.updateMessage('position: ' + _this3.longitude.toFixed(6) + ', ' + _this3.latitude.toFixed(6) + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude).toFixed(6) + ', ' + (_this3.lastLatitude - _this3.latitude).toFixed(6));
 	
 	        if (callback) {
 	          callback();
@@ -979,7 +982,7 @@
 	        if (callback) {
 	          callback();
 	        }
-	      }, { timeout: 5000, maximumAge: 0 });
+	      }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
 	    }
 	  }, {
 	    key: 'revertToNavSim',
@@ -1002,7 +1005,7 @@
 	  }, {
 	    key: 'updateMessage',
 	    value: function updateMessage(newMessage) {
-	      this.debugText.text = newMessage;
+	      this.state.navDebugText = newMessage;
 	      console.log(newMessage);
 	    }
 	  }, {
@@ -3409,7 +3412,7 @@
 	    // Meant to combat items floating/moving when the geoposition calculation is inconsistent.
 	    this.geoMarginOfError = 0.00009;
 	
-	    this.lerpPercent = 0.2;
+	    this.lerpPercent = 0.09;
 	};
 	
 	var settings = exports.settings = new Settings();
@@ -3459,8 +3462,8 @@
 	        this.turnSpeed = 2;
 	        this.latLongSpeed = 0.000005;
 	
-	        this.testOnlyText = this.state.game.add.text(28, 4, 'Geolocation Not Supported: For Testing Only', { font: 'Courier New', fontSize: '14px', fill: '#ff0000', wordWrap: true, wordWrapWidth: this.state.game.width });
-	        this.debugText = this.state.game.add.text(2, 28, 'Use Arrow Keys to Move Geoposition', { font: 'Courier New', fontSize: '14px', fill: '#ff00ff', wordWrap: true, wordWrapWidth: this.state.game.width });
+	        this.state.navDebugText2 = 'Geolocation Not Supported: For Testing Only';
+	        this.state.navDebugText = 'Use Arrow Keys to Move Geoposition';
 	    }
 	
 	    _createClass(NavSim, [{
