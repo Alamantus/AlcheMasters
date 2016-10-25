@@ -4,6 +4,7 @@ export class NavSim {
 	constructor (parent, latitude, longitude) {
     this.parent = parent;
     this.state = parent.game.state.getCurrentState();
+    this.state.isUsingNavSim = true;
 
     this.type = 'test';
 
@@ -75,12 +76,12 @@ export class NavSim {
     this.latitude = coords.latitude;
     this.longitude = coords.longitude;
 
-    let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 1000000);
-    let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 1000000);
+    let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 100000);
+    let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 100000);
 
     // 1000000 gives latlong change within 1/10 of a meter.
-    this.parent.x = lerp(this.parent.x, targetX, window.settings.lerpPercent);
-    this.parent.y = lerp(this.parent.y, targetY, window.settings.lerpPercent);
+    this.parent.x = targetX;
+    this.parent.y = targetY;
 
     console.log(this.heading + 'degrees, ' + targetX + ', ' + targetY + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
   }

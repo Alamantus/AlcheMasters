@@ -3,6 +3,7 @@ import 'p2';
 import 'phaser';
 
 import {Nav} from '../classes/Nav';
+import {NavSim} from '../classes/NavSim';
 import {Pickup} from '../classes/Pickup';
 import {Character} from '../classes/Character';
 import {Inventory} from '../classes/Inventory';
@@ -23,7 +24,7 @@ export class PortraitInterface extends Phaser.State {
     }
 
     this.hasGeneratedItems = false;
-    this.canCheckNav = false;
+    this.isUsingNavSim = false;
     this.navCheckDelay = 0;
 
     this.navDebugText = '';
@@ -39,15 +40,14 @@ export class PortraitInterface extends Phaser.State {
     // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
   }
 
-	preload () {
+  preload () {
     this.scale.scaleMode = Phaser.ScaleManager.RESIZE;
-    // this.scale.setResizeCallback(() => this.scale.setMaximum());
-	}
-
-  create () {
-    console.log(this.game.state.current);
 
     this.game.time.advancedTiming = true;
+  }
+
+  create () {
+    console.log(this.game.state.current + ', isUsingNavSim: ' + this.isUsingNavSim);
 
     this.game.world.setBounds(-2500, -2500, 5000, 5000);
     this.worldgroup = this.game.add.group();
@@ -55,11 +55,17 @@ export class PortraitInterface extends Phaser.State {
     // this.worldgroup.add(this.backdrop);
     this.player = this.add.sprite(0, 0, 'compass');
     this.player.anchor.setTo(0.5, 0.5);
-    this.player.nav = new Nav(this.player, window.settings.locationCheckDelaySeconds,
-      () => {
-        this.canCheckNav = true;
+    if (this.isUsingNavSim) {
+      this.player.nav = new NavSim(this.player, 0, 0);
+      if (this.map.pickups.length === 0) {
         this.generatePickups();
-      });
+      }
+    } else {
+      this.player.nav = new Nav(this.player, window.settings.locationCheckDelaySeconds,
+        () => {
+          this.generatePickups();
+        });
+    }
     this.worldgroup.add(this.player);
     this.cursors = this.game.input.keyboard.createCursorKeys();
 
@@ -80,24 +86,18 @@ export class PortraitInterface extends Phaser.State {
   update () {
     this.player.nav.update();
     if (this.player.nav.type == 'prod') {
-      this.navCheckDelay--;
-      if (this.canCheckNav && this.navCheckDelay <= 0) {
-        this.canCheckNav = false;
-        this.navCheckDelay = window.settings.locationCheckDelaySeconds * this.game.time.fps;
-        this.player.nav.getGeolocation(() => this.canCheckNav = true);
-      }
     }
 
-    /*this.itemCheckFrameDelay--;
+    this.itemCheckFrameDelay--;
     if (this.hasGeneratedItems) {
       if (this.itemCheckFrameDelay <= 0) {
         this.map.pickups.forEach((pickup) => {
-          pickup.pickup.updatePosition();
+          pickup.pickup.updateScaleByDistance();
         });
         // Only check items once every this number of frames.
         this.itemCheckFrameDelay = window.settings.itemCheckDelayNumberOfFrames;
       }
-    }*/
+    }
 
     this.worldgroup.pivot.x = this.player.x;
     this.worldgroup.pivot.y = this.player.y;
@@ -118,6 +118,13 @@ export class PortraitInterface extends Phaser.State {
     }
   }
 
+  shutdown () {
+    this.map = {
+      pickups: []
+    , places: []
+    }
+  }
+
   drawNorth (pixelsFromCenter) {
     let angle = -radians(this.player.nav.heading + 90);
 
@@ -128,18 +135,18 @@ export class PortraitInterface extends Phaser.State {
 
   generatePickups () {
     console.log('generating pickups');
-    this.map.pickups.push(this.add.sprite(this.player.x + 180, this.player.y + 180, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x + 180, this.player.y - 180, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x - 180, this.player.y + 180, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x - 180, this.player.y - 180, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x + 180, this.player.y, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x - 180, this.player.y, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x, this.player.y + 180, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x, this.player.y - 180, 'red-square'));
+    this.map.pickups.push(this.add.sprite(this.player.x + 90, this.player.y + 90, 'red-square'));
+    this.map.pickups.push(this.add.sprite(this.player.x + 90, this.player.y - 90, 'red-square'));
+    this.map.pickups.push(this.add.sprite(this.player.x - 90, this.player.y + 90, 'red-square'));
+    this.map.pickups.push(this.add.sprite(this.player.x - 90, this.player.y - 90, 'red-square'));
+    this.map.pickups.push(this.add.sprite(this.player.x + 90, this.player.y, 'red-square'));
+    this.map.pickups.push(this.add.sprite(this.player.x - 90, this.player.y, 'red-square'));
+    this.map.pickups.push(this.add.sprite(this.player.x, this.player.y + 90, 'red-square'));
+    this.map.pickups.push(this.add.sprite(this.player.x, this.player.y - 90, 'red-square'));
 
     this.map.pickups.forEach((pickup) => {
       pickup.anchor.setTo(0.5, 0.5);
-      // pickup.pickup = new Pickup(pickup, this.player, 60, 180);
+      pickup.pickup = new Pickup(pickup, this.player, 60, 180);
       // console.log(pickup.pickup.life);
 
       this.worldgroup.add(pickup);

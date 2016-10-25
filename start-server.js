@@ -3,9 +3,9 @@ var app = express();
 
 app.use(express.static('../gh-pages/'));
 
-app.listen(80, function () {
-  setTerminalTitle('localhost:80');
-  console.log('Express listening on port 80!');
+app.listen(3013, function () {
+  setTerminalTitle('localhost:3013');
+  console.log('Express listening on port 3013!');
 });
 
 function setTerminalTitle(title)

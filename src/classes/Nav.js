@@ -27,6 +27,11 @@ export class Nav {
     this.heading = 0;
     this.lastHeading = null;
 
+    this.geoWatcherIsActive = false;
+    this.geoWatcher = null;
+    this.compasWatcherIsActive = false;
+    this.compasWatcher = null;
+
     this.targetX = this.parent.x;
     this.targetY = this.parent.y;
 
@@ -71,6 +76,8 @@ export class Nav {
           runOnReady();
         }
 
+        this.startGeoWatcher();
+
         this.initiateCompass();
       }, (error) => {
         this.updateMessage(error.message);
@@ -81,7 +88,6 @@ export class Nav {
   }
 
   initiateCompass () {
-    let self = this;
     Compass.needGPS(() => {
       if (this.state.navDebugText !== this.messages.needGPS) {
         this.updateMessage(this.messages.needGPS);
@@ -92,7 +98,9 @@ export class Nav {
       }
     }).init((method) => {
       if (method !== false) {
-        Compass.watch((heading) => {
+        this.compassWatcher = Compass.watch((heading) => {
+          if (!this.compasWatcherIsActive) this.compasWatcherIsActive = true;
+
           this.lastHeading = this.heading;
 
           if (!this.headingIsInsideMarginOfError(heading)) {
@@ -107,8 +115,10 @@ export class Nav {
     });
   }
 
-  getGeolocation (callback) {
-    navigator.geolocation.getCurrentPosition((position) => {
+  startGeoWatcher () {
+    this.geoWatcher = navigator.geolocation.watchPosition((position) => {
+      if (!this.geoWatcherIsActive) this.geoWatcherIsActive = true;
+
       this.lastLongitude = this.longitude;
       this.lastLatitude = this.latitude;
       this.lastCheck = position.timestamp;
@@ -119,28 +129,30 @@ export class Nav {
         this.lastUpdate = position.timestamp;
 
         // Set target value for lerping game world position.
-        this.targetX = this.parent.x + ((this.lastLongitude - this.longitude) * 1000000);
-        this.targetY = this.parent.y + ((this.lastLatitude - this.latitude) * 1000000);
+        this.targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 100000);
+        this.targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 100000);
       }
 
       this.updateMessage(`position: ${this.longitude.toFixed(6)}, ${this.latitude.toFixed(6)}\nchanged: ${(this.lastLongitude - this.longitude).toFixed(6)}, ${(this.lastLatitude - this.latitude).toFixed(6)}`);
 
-      if (callback){
-        callback();
-      }
     }, (error) => {
       this.updateMessage(error.message);
-
-      // If it fails, try again.
-      if (callback){
-        callback();
-      }
     }, {enableHighAccuracy: true, timeout: 5000, maximumAge: 0});
+  }
+
+  stopNav () {
+    if (this.geoWatcherIsActive) {
+      navigator.geowatcher.clearWatch(this.geoWatcher);
+    }
+    if (this.compassWatcherIsActive) {
+      Compass.unwatch(this.compassWatcher);
+    }
   }
 
   revertToNavSim () {
     // Replace reference to self with new NavSim, effectively self-destructing.
     this.updateMessage('');
+    this.stopNav();
     console.log('Reverting to NavSim');
     this.parent.nav = new NavSim(this.parent, this.latitude, this.longitude);
   }
@@ -164,11 +176,13 @@ export class Nav {
 
   update () {
     this.parent.rotation = this.state.math.degToRad(this.heading);
-    this.state.worldgroup.rotation = -1 * this.state.math.degToRad(this.heading);
+    this.state.worldgroup.rotation = -1 * this.parent.rotation;
 
     // Get the value within 500 meters (0.005 latlongs)
-    this.parent.x = lerp(this.parent.x, this.targetX, window.settings.lerpPercent);
-    this.parent.y = lerp(this.parent.y, this.targetY, window.settings.lerpPercent);
+    // this.parent.x = lerp(this.parent.x, this.targetX, window.settings.lerpPercent);
+    // this.parent.y = lerp(this.parent.y, this.targetY, window.settings.lerpPercent);
+    this.parent.x = this.state.math.linear(this.parent.x, this.targetX, window.settings.lerpPercent);
+    this.parent.y = this.state.math.linear(this.parent.y, this.targetY, window.settings.lerpPercent);
 
     console.log(this.heading + 'degrees, ' + this.latitude + ', ' + this.longitude + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
   }

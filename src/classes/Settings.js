@@ -25,7 +25,7 @@ export class Settings {
     // Meant to combat items floating/moving when the geoposition calculation is inconsistent.
     this.geoMarginOfError = 0.00009;
 
-    this.lerpPercent = 0.09;
+    this.lerpPercent = 0.01;
   }
 }
 

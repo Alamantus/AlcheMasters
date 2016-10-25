@@ -5,20 +5,40 @@ export class MapSpriteController {
     this.parent = parentObject;
     this.parent.anchor.x = 0.5;
     this.parent.anchor.y = 0.5;
+    this.parent.scale.setTo(0, 0);
+
+    this.state = parentObject.game.state.getCurrentState();
 
     this.compass = compassObject;
 
     // I belive this will only be used for testing! LatLong will likely be distributed based on positions
     // at regular 0.005 (or something like that) global latlong intervals that the player is closest to.
-    const LATLONGMAXDISTANCE = 0.002;
-    this.longitude = this.compass.nav.longitude + getRandom(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-    this.latitude = this.compass.nav.latitude + getRandom(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+    // const LATLONGMAXDISTANCE = 0.002;
+    // this.longitude = this.compass.nav.longitude + getRandom(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+    // this.latitude = this.compass.nav.latitude + getRandom(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
     // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
 
-    this.updatePosition();
+    // this.updatePosition();
   }
 
-  calcPosition (pixelScale) {
+  updateScaleByDistance () {
+    let distance = this.state.math.distance(this.compass.x, this.compass.y, this.parent.x, this.parent.y),
+        halfSprite = this.compass.width * 0.75;
+
+    if (distance > halfSprite) {
+      let targetScale = halfSprite / distance;
+      let targetLerp = this.state.math.linear(this.parent.scale.x, targetScale, 0.5);
+
+      this.parent.scale.setTo(targetLerp, targetLerp);
+      // this.parent.scale.setTo(targetScale, targetScale);
+    } else {
+      if (this.parent.scale.x !== 1) {
+        this.parent.scale.setTo(1, 1);
+      }
+    }
+  }
+
+  /*calcPosition (pixelScale) {
     // console.log('pixelScale = ' + pixelScale);
     const LATLONGTOPIXELADJUSTMENT = 1000;
     // console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
@@ -81,5 +101,5 @@ export class MapSpriteController {
       this.parent.x = lerp(this.parent.x, positionOnScreen.x, window.settings.lerpPercent);
       this.parent.y = lerp(this.parent.y, positionOnScreen.y, window.settings.lerpPercent);
     }
-  }
+  }*/
 }
