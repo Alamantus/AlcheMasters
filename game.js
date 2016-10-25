@@ -1013,11 +1013,13 @@
 	    key: 'update',
 	    value: function update() {
 	      this.parent.rotation = this.state.math.degToRad(this.heading);
-	      this.state.worldgroup.rotation = -1 * this.state.math.degToRad(this.heading);
+	      this.state.worldgroup.rotation = -1 * this.parent.rotation;
 	
 	      // Get the value within 500 meters (0.005 latlongs)
-	      this.parent.x = (0, _helpers.lerp)(this.parent.x, this.targetX, window.settings.lerpPercent);
-	      this.parent.y = (0, _helpers.lerp)(this.parent.y, this.targetY, window.settings.lerpPercent);
+	      // this.parent.x = lerp(this.parent.x, this.targetX, window.settings.lerpPercent);
+	      // this.parent.y = lerp(this.parent.y, this.targetY, window.settings.lerpPercent);
+	      this.parent.x = this.state.math.linear(this.parent.x, this.targetX, window.settings.lerpPercent);
+	      this.parent.y = this.state.math.linear(this.parent.y, this.targetY, window.settings.lerpPercent);
 	
 	      console.log(this.heading + 'degrees, ' + this.latitude + ', ' + this.longitude + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
 	    }
