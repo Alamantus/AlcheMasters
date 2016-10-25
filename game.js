@@ -965,8 +965,8 @@
 	          _this3.lastUpdate = position.timestamp;
 	
 	          // Set target value for lerping game world position.
-	          _this3.targetX = _this3.parent.x + (_this3.lastLongitude - _this3.longitude) * 100000;
-	          _this3.targetY = _this3.parent.y + (_this3.lastLatitude - _this3.latitude) * 100000;
+	          _this3.targetX = _this3.parent.x + (_this3.longitude - _this3.lastLongitude) * 100000;
+	          _this3.targetY = _this3.parent.y + (_this3.latitude - _this3.lastLatitude) * 100000;
 	        }
 	
 	        _this3.updateMessage('position: ' + _this3.longitude.toFixed(6) + ', ' + _this3.latitude.toFixed(6) + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude).toFixed(6) + ', ' + (_this3.lastLatitude - _this3.latitude).toFixed(6));
@@ -1603,8 +1603,8 @@
 	            this.latitude = coords.latitude;
 	            this.longitude = coords.longitude;
 	
-	            var targetX = this.parent.x + (this.longitude - this.lastLongitude) * 1000000;
-	            var targetY = this.parent.y + (this.latitude - this.lastLatitude) * 1000000;
+	            var targetX = this.parent.x + (this.longitude - this.lastLongitude) * 100000;
+	            var targetY = this.parent.y + (this.latitude - this.lastLatitude) * 100000;
 	
 	            // 1000000 gives latlong change within 1/10 of a meter.
 	            this.parent.x = (0, _helpers.lerp)(this.parent.x, targetX, window.settings.lerpPercent);
