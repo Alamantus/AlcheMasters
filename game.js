@@ -73,6 +73,8 @@
 	// picking webGL or canvas automatically, and putting it into HTML with the id='game'.
 	var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'game');
 	
+	game.time.advancedTiming = true;
+	
 	// Create the game states with autostart = false.
 	game.state.add('ImageLoad', new _ImageLoad.ImageLoad(), false);
 	game.state.add('PortraitInterface', new _PortraitInterface.PortraitInterface(), false);
@@ -3363,15 +3365,7 @@
 	
 	__webpack_require__(/*! phaser */ 11);
 	
-	var _Nav = __webpack_require__(/*! ../classes/Nav */ 17);
-	
-	var _Pickup = __webpack_require__(/*! ../classes/Pickup */ 21);
-	
-	var _Character = __webpack_require__(/*! ../classes/Character */ 23);
-	
 	var _Inventory = __webpack_require__(/*! ../classes/Inventory */ 24);
-	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 19);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -3387,19 +3381,9 @@
 	
 	    var _this = _possibleConstructorReturn(this, (LandscapeInterface.__proto__ || Object.getPrototypeOf(LandscapeInterface)).call(this));
 	
-	    _this.character = new _Character.Character();
+	    _this.character = new Character();
 	
 	    _this.inventory = new _Inventory.Inventory();
-	
-	    _this.map = {
-	      pickups: [],
-	      places: []
-	    };
-	
-	    _this.hasGeneratedItems = false;
-	
-	    // Frames before checking the items.
-	    _this.itemCheckFrameDelay = 0;
 	    return _this;
 	  }
 	
@@ -3415,50 +3399,16 @@
 	    value: function preload() {}
 	  }, {
 	    key: 'create',
-	    value: function create() {
-	      var _this2 = this;
-	
-	      console.log(this.game.state.current);
-	
-	      this.game.time.advancedTiming = true;
-	
-	      this.compass = this.add.sprite(Math.round(this.game.width / 2), Math.round(this.game.height / 4), 'compass');
-	      this.compass.anchor.x = 0.5;
-	      this.compass.anchor.y = 0.5;
-	      this.compass.nav = new _Nav.Nav(this.compass, window.settings.locationCheckDelaySeconds, function () {
-	        return _this2.generatePickups();
-	      });
-	      // console.log('compass at: ' + this.compass.x + ', ' + this.compass.y);
-	
-	      // this.northMarker = this.add.text(this.compass.x, this.compass.y - 40, 'N', {fill: 'yellow', align: 'center'});
-	      // this.northMarker.anchor.x = 0.5;
-	      // this.northMarker.anchor.y = 0.5;
-	    }
+	    value: function create() {}
 	  }, {
 	    key: 'render',
 	    value: function render() {
 	      this.game.debug.text(this.game.time.fps, 2, 14, "#00ff00");
+	      this.game.debug.text('Inventory screen', 2, 28, "#ffffff");
 	    }
 	  }, {
 	    key: 'update',
-	    value: function update() {
-	      if (this.compass.nav.type == 'test') {
-	        this.compass.nav.update();
-	      }
-	
-	      this.itemCheckFrameDelay--;
-	      if (this.hasGeneratedItems) {
-	        if (this.itemCheckFrameDelay <= 0) {
-	          this.map.pickups.forEach(function (pickup) {
-	            pickup.pickup.updatePosition();
-	          });
-	          // Only check items once every this number of frames.
-	          this.itemCheckFrameDelay = window.settings.itemCheckDelayNumberOfFrames;
-	        }
-	      }
-	
-	      // this.drawNorth(40);
-	    }
+	    value: function update() {}
 	  }, {
 	    key: 'resize',
 	    value: function resize(width, height) {
@@ -3466,32 +3416,6 @@
 	        // If Portrait, change to Compass/Map
 	        this.game.state.start('PortraitInterface', true, false);
 	      }
-	    }
-	  }, {
-	    key: 'drawNorth',
-	    value: function drawNorth(pixelsFromCenter) {
-	      var angle = -(0, _helpers.radians)(this.compass.nav.heading + 90);
-	
-	      this.northMarker.x = Math.round(this.compass.x + pixelsFromCenter * Math.cos(angle));
-	      this.northMarker.y = Math.round(this.compass.y + pixelsFromCenter * Math.sin(angle));
-	      this.northMarker.bringToTop();
-	    }
-	  }, {
-	    key: 'generatePickups',
-	    value: function generatePickups() {
-	      var _this3 = this;
-	
-	      console.log('generating pickups');
-	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.game.width / 2, this.game.height / 4, 'red-square'));
-	
-	      this.map.pickups.forEach(function (pickup) {
-	        pickup.pickup = new _Pickup.Pickup(pickup, _this3.compass, 60, 180);
-	        // console.log(pickup.pickup.life);
-	      });
-	
-	      this.hasGeneratedItems = true;
 	    }
 	  }]);
 	
