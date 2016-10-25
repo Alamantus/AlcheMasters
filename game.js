@@ -707,15 +707,14 @@
 	    value: function init() {
 	      this.rnd.sow([window.settings.randomSeed]);
 	
-	      this.game.time.advancedTiming = true;
-	
 	      // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 	    }
 	  }, {
 	    key: 'preload',
 	    value: function preload() {
 	      this.scale.scaleMode = Phaser.ScaleManager.RESIZE;
-	      // this.scale.setResizeCallback(() => this.scale.setMaximum());
+	
+	      this.game.time.advancedTiming = true;
 	    }
 	  }, {
 	    key: 'create',
@@ -3382,13 +3381,13 @@
 	    value: function init() {
 	      this.scale.scaleMode = Phaser.ScaleManager.RESIZE;
 	
-	      this.game.time.advancedTiming = true;
-	
 	      // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 	    }
 	  }, {
 	    key: 'preload',
-	    value: function preload() {}
+	    value: function preload() {
+	      this.game.time.advancedTiming = true;
+	    }
 	  }, {
 	    key: 'create',
 	    value: function create() {}
