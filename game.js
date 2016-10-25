@@ -73,8 +73,6 @@
 	// picking webGL or canvas automatically, and putting it into HTML with the id='game'.
 	var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'game');
 	
-	game.time.advancedTiming = true;
-	
 	// Create the game states with autostart = false.
 	game.state.add('ImageLoad', new _ImageLoad.ImageLoad(), false);
 	game.state.add('PortraitInterface', new _PortraitInterface.PortraitInterface(), false);
@@ -709,6 +707,8 @@
 	    value: function init() {
 	      this.rnd.sow([window.settings.randomSeed]);
 	
+	      this.game.time.advancedTiming = true;
+	
 	      // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 	    }
 	  }, {
@@ -723,8 +723,6 @@
 	      var _this2 = this;
 	
 	      console.log(this.game.state.current);
-	
-	      this.game.time.advancedTiming = true;
 	
 	      this.game.world.setBounds(-2500, -2500, 5000, 5000);
 	      this.worldgroup = this.game.add.group();
@@ -1732,7 +1730,7 @@
 	      if (distance > halfSprite) {
 	        var targetScale = halfSprite / distance;
 	        var targetLerp = this.state.math.linear(this.parent.scale.x, targetScale, 0.5);
-	        console.log(targetLerp);
+	
 	        this.parent.scale.setTo(targetLerp, targetLerp);
 	        // this.parent.scale.setTo(targetScale, targetScale);
 	      } else {
@@ -1740,7 +1738,6 @@
 	          this.parent.scale.setTo(1, 1);
 	        }
 	      }
-	      console.log('scale: ' + this.parent.scale.x + '\ndistance: ' + distance);
 	    }
 	
 	    /*calcPosition (pixelScale) {
@@ -3365,8 +3362,6 @@
 	
 	__webpack_require__(/*! phaser */ 11);
 	
-	var _Inventory = __webpack_require__(/*! ../classes/Inventory */ 24);
-	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -3379,18 +3374,15 @@
 	  function LandscapeInterface() {
 	    _classCallCheck(this, LandscapeInterface);
 	
-	    var _this = _possibleConstructorReturn(this, (LandscapeInterface.__proto__ || Object.getPrototypeOf(LandscapeInterface)).call(this));
-	
-	    _this.character = new Character();
-	
-	    _this.inventory = new _Inventory.Inventory();
-	    return _this;
+	    return _possibleConstructorReturn(this, (LandscapeInterface.__proto__ || Object.getPrototypeOf(LandscapeInterface)).call(this));
 	  }
 	
 	  _createClass(LandscapeInterface, [{
 	    key: 'init',
 	    value: function init() {
 	      this.scale.scaleMode = Phaser.ScaleManager.RESIZE;
+	
+	      this.game.time.advancedTiming = true;
 	
 	      // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 	    }
