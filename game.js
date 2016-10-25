@@ -63,9 +63,9 @@
 	
 	var _PortraitInterface = __webpack_require__(/*! ./states/PortraitInterface */ 16);
 	
-	var _LandscapeInterface = __webpack_require__(/*! ./states/LandscapeInterface */ 25);
+	var _LandscapeInterface = __webpack_require__(/*! ./states/LandscapeInterface */ 26);
 	
-	var _Settings = __webpack_require__(/*! ./classes/Settings */ 26);
+	var _Settings = __webpack_require__(/*! ./classes/Settings */ 27);
 	
 	window.settings = new _Settings.Settings();
 	
@@ -659,13 +659,13 @@
 	
 	var _Nav = __webpack_require__(/*! ../classes/Nav */ 17);
 	
-	var _Pickup = __webpack_require__(/*! ../classes/Pickup */ 19);
+	var _Pickup = __webpack_require__(/*! ../classes/Pickup */ 21);
 	
-	var _Character = __webpack_require__(/*! ../classes/Character */ 22);
+	var _Character = __webpack_require__(/*! ../classes/Character */ 23);
 	
-	var _Inventory = __webpack_require__(/*! ../classes/Inventory */ 23);
+	var _Inventory = __webpack_require__(/*! ../classes/Inventory */ 24);
 	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 19);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -731,7 +731,6 @@
 	      this.player = this.add.sprite(0, 0, 'compass');
 	      this.player.anchor.setTo(0.5, 0.5);
 	      this.player.nav = new _Nav.Nav(this.player, window.settings.locationCheckDelaySeconds, function () {
-	        _this2.canCheckNav = true;
 	        _this2.generatePickups();
 	      });
 	      this.worldgroup.add(this.player);
@@ -753,19 +752,8 @@
 	  }, {
 	    key: 'update',
 	    value: function update() {
-	      var _this3 = this;
-	
 	      this.player.nav.update();
-	      if (this.player.nav.type == 'prod') {
-	        this.navCheckDelay--;
-	        if (this.canCheckNav && this.navCheckDelay <= 0) {
-	          this.canCheckNav = false;
-	          this.navCheckDelay = window.settings.locationCheckDelaySeconds * this.game.time.fps;
-	          this.player.nav.getGeolocation(function () {
-	            return _this3.canCheckNav = true;
-	          });
-	        }
-	      }
+	      if (this.player.nav.type == 'prod') {}
 	
 	      /*this.itemCheckFrameDelay--;
 	      if (this.hasGeneratedItems) {
@@ -809,7 +797,7 @@
 	  }, {
 	    key: 'generatePickups',
 	    value: function generatePickups() {
-	      var _this4 = this;
+	      var _this3 = this;
 	
 	      console.log('generating pickups');
 	      this.map.pickups.push(this.add.sprite(this.player.x + 180, this.player.y + 180, 'red-square'));
@@ -826,7 +814,7 @@
 	        // pickup.pickup = new Pickup(pickup, this.player, 60, 180);
 	        // console.log(pickup.pickup.life);
 	
-	        _this4.worldgroup.add(pickup);
+	        _this3.worldgroup.add(pickup);
 	      });
 	
 	      this.hasGeneratedItems = true;
@@ -854,9 +842,9 @@
 	
 	__webpack_require__(/*! ../../~/compass.js/lib/compass.js */ 18);
 	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 19);
 	
-	var _NavSim = __webpack_require__(/*! ./NavSim */ 27);
+	var _NavSim = __webpack_require__(/*! ./NavSim */ 20);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -886,6 +874,11 @@
 	    this.heading = 0;
 	    this.lastHeading = null;
 	
+	    this.geoWatcherIsActive = false;
+	    this.geoWatcher = null;
+	    this.compasWatcherIsActive = false;
+	    this.compasWatcher = null;
+	
 	    this.targetX = this.parent.x;
 	    this.targetY = this.parent.y;
 	
@@ -913,6 +906,8 @@
 	            runOnReady();
 	          }
 	
+	          _this.startGeoWatcher();
+	
 	          _this.initiateCompass();
 	        }, function (error) {
 	          _this.updateMessage(error.message);
@@ -926,7 +921,6 @@
 	    value: function initiateCompass() {
 	      var _this2 = this;
 	
-	      var self = this;
 	      Compass.needGPS(function () {
 	        if (_this2.state.navDebugText !== _this2.messages.needGPS) {
 	          _this2.updateMessage(_this2.messages.needGPS);
@@ -937,7 +931,9 @@
 	        }
 	      }).init(function (method) {
 	        if (method !== false) {
-	          Compass.watch(function (heading) {
+	          _this2.compassWatcher = Compass.watch(function (heading) {
+	            if (!_this2.compasWatcherIsActive) _this2.compasWatcherIsActive = true;
+	
 	            _this2.lastHeading = _this2.heading;
 	
 	            if (!_this2.headingIsInsideMarginOfError(heading)) {
@@ -952,11 +948,13 @@
 	      });
 	    }
 	  }, {
-	    key: 'getGeolocation',
-	    value: function getGeolocation(callback) {
+	    key: 'startGeoWatcher',
+	    value: function startGeoWatcher() {
 	      var _this3 = this;
 	
-	      navigator.geolocation.getCurrentPosition(function (position) {
+	      this.geoWatcher = navigator.geolocation.watchPosition(function (position) {
+	        if (!_this3.geoWatcherIsActive) _this3.geoWatcherIsActive = true;
+	
 	        _this3.lastLongitude = _this3.longitude;
 	        _this3.lastLatitude = _this3.latitude;
 	        _this3.lastCheck = position.timestamp;
@@ -967,29 +965,31 @@
 	          _this3.lastUpdate = position.timestamp;
 	
 	          // Set target value for lerping game world position.
-	          _this3.targetX = _this3.parent.x + (_this3.lastLongitude - _this3.longitude) * 1000000;
-	          _this3.targetY = _this3.parent.y + (_this3.lastLatitude - _this3.latitude) * 1000000;
+	          _this3.targetX = _this3.parent.x + (_this3.lastLongitude - _this3.longitude) * 100000;
+	          _this3.targetY = _this3.parent.y + (_this3.lastLatitude - _this3.latitude) * 100000;
 	        }
 	
 	        _this3.updateMessage('position: ' + _this3.longitude.toFixed(6) + ', ' + _this3.latitude.toFixed(6) + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude).toFixed(6) + ', ' + (_this3.lastLatitude - _this3.latitude).toFixed(6));
-	
-	        if (callback) {
-	          callback();
-	        }
 	      }, function (error) {
 	        _this3.updateMessage(error.message);
-	
-	        // If it fails, try again.
-	        if (callback) {
-	          callback();
-	        }
 	      }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+	    }
+	  }, {
+	    key: 'stopNav',
+	    value: function stopNav() {
+	      if (this.geoWatcherIsActive) {
+	        navigator.geowatcher.clearWatch(this.geoWatcher);
+	      }
+	      if (this.compassWatcherIsActive) {
+	        Compass.unwatch(this.compassWatcher);
+	      }
 	    }
 	  }, {
 	    key: 'revertToNavSim',
 	    value: function revertToNavSim() {
 	      // Replace reference to self with new NavSim, effectively self-destructing.
 	      this.updateMessage('');
+	      this.stopNav();
 	      console.log('Reverting to NavSim');
 	      this.parent.nav = new _NavSim.NavSim(this.parent, this.latitude, this.longitude);
 	    }
@@ -1420,162 +1420,6 @@
 
 /***/ },
 /* 19 */
-/*!*******************************!*\
-  !*** ./src/classes/Pickup.js ***!
-  \*******************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.Pickup = undefined;
-	
-	var _MapSpriteController2 = __webpack_require__(/*! ./MapSpriteController */ 20);
-	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var Pickup = exports.Pickup = function (_MapSpriteController) {
-	    _inherits(Pickup, _MapSpriteController);
-	
-	    function Pickup(parentObject, compassObject, minLife, maxLife) {
-	        _classCallCheck(this, Pickup);
-	
-	        // Time before destruction in seconds.
-	        var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject));
-	
-	        _this.life = (0, _helpers.getRandomInt)(minLife, maxLife);
-	
-	        _this.deathTime = Date.now() + _this.life * 1000;
-	
-	        // setTimeout(() => this.parent.destroy(), this.life * 1000);
-	        return _this;
-	    }
-	
-	    return Pickup;
-	}(_MapSpriteController2.MapSpriteController);
-
-/***/ },
-/* 20 */
-/*!********************************************!*\
-  !*** ./src/classes/MapSpriteController.js ***!
-  \********************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.MapSpriteController = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var MapSpriteController = exports.MapSpriteController = function () {
-	    function MapSpriteController(parentObject, compassObject) {
-	        _classCallCheck(this, MapSpriteController);
-	
-	        this.parent = parentObject;
-	        this.parent.anchor.x = 0.5;
-	        this.parent.anchor.y = 0.5;
-	
-	        this.compass = compassObject;
-	
-	        // I belive this will only be used for testing! LatLong will likely be distributed based on positions
-	        // at regular 0.005 (or something like that) global latlong intervals that the player is closest to.
-	        var LATLONGMAXDISTANCE = 0.002;
-	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	        // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
-	
-	        this.updatePosition();
-	    }
-	
-	    _createClass(MapSpriteController, [{
-	        key: 'calcPosition',
-	        value: function calcPosition(pixelScale) {
-	            // console.log('pixelScale = ' + pixelScale);
-	            var LATLONGTOPIXELADJUSTMENT = 1000;
-	            // console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
-	
-	            var itemOffset = {
-	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
-	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
-	            };
-	            // console.log('item geoposition offset = ' + (itemOffset.x / LATLONGTOPIXELADJUSTMENT) + ', ' + (itemOffset.y / LATLONGTOPIXELADJUSTMENT));
-	
-	            // radius should be the length of the line from the center to the item.
-	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
-	            // console.log('radius = ' + radius);
-	
-	            // Calculate the distance between forward point and item position.
-	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
-	            // console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
-	
-	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
-	            // console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
-	
-	            var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
-	            // console.log('insideArcCos = ' + insideArcCos);
-	
-	            if (this.compass.nav.headingHasChanged) {
-	                this.displayAngle = Math.acos(insideArcCos) - (0, _helpers.radians)(this.compass.nav.heading - 90);
-	            }
-	            // console.log('this.displayAngle = ' + this.displayAngle);
-	
-	            // The xAdjustmentvalues equate to the itemOffset and radius values so we can use inverseLerp.
-	            var minAdjustmentValue = window.settings.minPixelDistance / pixelScale;
-	            var maxAdjustmentValue = window.settings.maxPixelDistance / pixelScale;
-	
-	            if (this.compass.nav.positionHasChanged) {
-	                // This returns a distance scaled by a scaled pixelScale. The closer the object is, the lower the pixelScale, and the farther something is, the larger the pixelScale.
-	                // This makes the object display farther away when it's farther away but approach quickly as you get closer by reducing the radius scale.
-	                // The pixelDistance is then controlled by the max and min pixelDistance settings.
-	                this.pixelDistance = radius * (pixelScale * (0, _helpers.inverseLerp)(minAdjustmentValue, maxAdjustmentValue, radius));
-	                if (this.pixelDistance > window.settings.maxPixelDistance) {
-	                    this.pixelDistance = window.settings.maxPixelDistance;
-	                }
-	                // if (this.pixelDistance < window.settings.minPixelDistance) {
-	                //   this.pixelDistance = window.settings.minPixelDistance;
-	                // }
-	            }
-	            // console.log('pixelDistance = ' + this.pixelDistance);
-	
-	            var result = {
-	                x: Math.round(this.compass.x + this.pixelDistance * Math.cos(this.displayAngle)),
-	                y: Math.round(this.compass.y + this.pixelDistance * Math.sin(this.displayAngle))
-	            };
-	            // console.log('item at: ' + result.x + ', ' + result.y);
-	
-	            return result;
-	        }
-	    }, {
-	        key: 'updatePosition',
-	        value: function updatePosition() {
-	            if (this.compass.nav.hasChanged) {
-	                var positionOnScreen = this.calcPosition(window.settings.pixelScale);
-	                this.parent.x = (0, _helpers.lerp)(this.parent.x, positionOnScreen.x, window.settings.lerpPercent);
-	                this.parent.y = (0, _helpers.lerp)(this.parent.y, positionOnScreen.y, window.settings.lerpPercent);
-	            }
-	        }
-	    }]);
-
-	    return MapSpriteController;
-	}();
-
-/***/ },
-/* 21 */
 /*!***************************!*\
   !*** ./src/js/helpers.js ***!
   \***************************/
@@ -1673,7 +1517,279 @@
 	}
 
 /***/ },
+/* 20 */
+/*!*******************************!*\
+  !*** ./src/classes/NavSim.js ***!
+  \*******************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.NavSim = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 19);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var NavSim = exports.NavSim = function () {
+	    function NavSim(parent, latitude, longitude) {
+	        _classCallCheck(this, NavSim);
+	
+	        this.parent = parent;
+	        this.state = parent.game.state.getCurrentState();
+	
+	        this.type = 'test';
+	
+	        this.messages = {
+	            geolocationReady: 'Geolocation active!',
+	            noGeolocation: 'Your device does not support geolocation! Please try playing again on a device that does.',
+	            noCompass: 'Your device does not support compass facing! Please try playing again on a device that does.',
+	            needGPS: 'No GPS Signal found. Go outside and get some signal!',
+	            needMove: 'Hold your phone ahead of you and start walking.'
+	        };
+	
+	        // Each 0.00001 latlong difference is ~1 meter.
+	        this.latitude = latitude;
+	        this.longitude = longitude;
+	        this.lastLatitude = null;
+	        this.lastLongitude = null;
+	        this.heading = 0;
+	        this.lastHeading = null;
+	
+	        this.turnSpeed = 2;
+	        this.latLongSpeed = 0.000005;
+	
+	        this.state.navDebugText2 = 'Geolocation Not Supported: For Testing Only';
+	        this.state.navDebugText = 'Use Arrow Keys to Move Geoposition';
+	    }
+	
+	    _createClass(NavSim, [{
+	        key: 'update',
+	        value: function update() {
+	            this.lastHeading = this.heading;
+	            this.lastLongitude = this.longitude;
+	            this.lastLatitude = this.latitude;
+	
+	            var heading = this.heading,
+	                coords = { latitude: this.latitude, longitude: this.longitude };
+	
+	            if (this.state.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
+	                heading -= this.turnSpeed;
+	            } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
+	                heading += this.turnSpeed;
+	            }
+	
+	            if (heading < 0) heading += 360;
+	            if (heading >= 360) heading -= 360;
+	
+	            this.heading = heading;
+	
+	            this.parent.rotation = this.state.math.degToRad(this.heading);
+	            this.state.worldgroup.rotation = -1 * this.state.math.degToRad(this.heading);
+	
+	            if (this.state.input.keyboard.isDown(Phaser.Keyboard.UP)) {
+	                coords.latitude -= this.latLongSpeed * Math.cos(this.parent.rotation);
+	                coords.longitude += this.latLongSpeed * Math.sin(this.parent.rotation);
+	            } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
+	                coords.latitude += this.latLongSpeed * Math.cos(this.parent.rotation);
+	                coords.longitude -= this.latLongSpeed * Math.sin(this.parent.rotation);
+	            }
+	
+	            this.latitude = coords.latitude;
+	            this.longitude = coords.longitude;
+	
+	            var targetX = this.parent.x + (this.longitude - this.lastLongitude) * 1000000;
+	            var targetY = this.parent.y + (this.latitude - this.lastLatitude) * 1000000;
+	
+	            // 1000000 gives latlong change within 1/10 of a meter.
+	            this.parent.x = (0, _helpers.lerp)(this.parent.x, targetX, window.settings.lerpPercent);
+	            this.parent.y = (0, _helpers.lerp)(this.parent.y, targetY, window.settings.lerpPercent);
+	
+	            console.log(this.heading + 'degrees, ' + targetX + ', ' + targetY + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
+	        }
+	    }, {
+	        key: 'positionHasChanged',
+	        get: function get() {
+	            return this.longitude !== this.lastLongitude || this.latitude === this.lastLatitude;
+	        }
+	    }, {
+	        key: 'headingHasChanged',
+	        get: function get() {
+	            return this.heading !== this.lastHeading;
+	        }
+	    }, {
+	        key: 'hasChanged',
+	        get: function get() {
+	            return this.headingHasChanged || this.positionHasChanged;
+	        }
+	    }]);
+
+	    return NavSim;
+	}();
+
+/***/ },
+/* 21 */
+/*!*******************************!*\
+  !*** ./src/classes/Pickup.js ***!
+  \*******************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.Pickup = undefined;
+	
+	var _MapSpriteController2 = __webpack_require__(/*! ./MapSpriteController */ 22);
+	
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 19);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Pickup = exports.Pickup = function (_MapSpriteController) {
+	    _inherits(Pickup, _MapSpriteController);
+	
+	    function Pickup(parentObject, compassObject, minLife, maxLife) {
+	        _classCallCheck(this, Pickup);
+	
+	        // Time before destruction in seconds.
+	        var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject));
+	
+	        _this.life = (0, _helpers.getRandomInt)(minLife, maxLife);
+	
+	        _this.deathTime = Date.now() + _this.life * 1000;
+	
+	        // setTimeout(() => this.parent.destroy(), this.life * 1000);
+	        return _this;
+	    }
+	
+	    return Pickup;
+	}(_MapSpriteController2.MapSpriteController);
+
+/***/ },
 /* 22 */
+/*!********************************************!*\
+  !*** ./src/classes/MapSpriteController.js ***!
+  \********************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.MapSpriteController = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 19);
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var MapSpriteController = exports.MapSpriteController = function () {
+	    function MapSpriteController(parentObject, compassObject) {
+	        _classCallCheck(this, MapSpriteController);
+	
+	        this.parent = parentObject;
+	        this.parent.anchor.x = 0.5;
+	        this.parent.anchor.y = 0.5;
+	
+	        this.compass = compassObject;
+	
+	        // I belive this will only be used for testing! LatLong will likely be distributed based on positions
+	        // at regular 0.005 (or something like that) global latlong intervals that the player is closest to.
+	        var LATLONGMAXDISTANCE = 0.002;
+	        this.longitude = this.compass.nav.longitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+	        this.latitude = this.compass.nav.latitude + (0, _helpers.getRandom)(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
+	        // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
+	
+	        this.updatePosition();
+	    }
+	
+	    _createClass(MapSpriteController, [{
+	        key: 'calcPosition',
+	        value: function calcPosition(pixelScale) {
+	            // console.log('pixelScale = ' + pixelScale);
+	            var LATLONGTOPIXELADJUSTMENT = 1000;
+	            // console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
+	
+	            var itemOffset = {
+	                x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT,
+	                y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
+	            };
+	            // console.log('item geoposition offset = ' + (itemOffset.x / LATLONGTOPIXELADJUSTMENT) + ', ' + (itemOffset.y / LATLONGTOPIXELADJUSTMENT));
+	
+	            // radius should be the length of the line from the center to the item.
+	            var radius = Math.sqrt(itemOffset.x * itemOffset.x + itemOffset.y * itemOffset.y);
+	            // console.log('radius = ' + radius);
+	
+	            // Calculate the distance between forward point and item position.
+	            var distanceBetweenPoints = Math.sqrt((0, _helpers.square)(0 - itemOffset.x) + (0, _helpers.square)(radius - itemOffset.y));
+	            // console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
+	
+	            var doubleRadiusSquared = 2 * (0, _helpers.square)(radius);
+	            // console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
+	
+	            var insideArcCos = (doubleRadiusSquared - (0, _helpers.square)(distanceBetweenPoints)) / doubleRadiusSquared;
+	            // console.log('insideArcCos = ' + insideArcCos);
+	
+	            if (this.compass.nav.headingHasChanged) {
+	                this.displayAngle = Math.acos(insideArcCos) - (0, _helpers.radians)(this.compass.nav.heading - 90);
+	            }
+	            // console.log('this.displayAngle = ' + this.displayAngle);
+	
+	            // The xAdjustmentvalues equate to the itemOffset and radius values so we can use inverseLerp.
+	            var minAdjustmentValue = window.settings.minPixelDistance / pixelScale;
+	            var maxAdjustmentValue = window.settings.maxPixelDistance / pixelScale;
+	
+	            if (this.compass.nav.positionHasChanged) {
+	                // This returns a distance scaled by a scaled pixelScale. The closer the object is, the lower the pixelScale, and the farther something is, the larger the pixelScale.
+	                // This makes the object display farther away when it's farther away but approach quickly as you get closer by reducing the radius scale.
+	                // The pixelDistance is then controlled by the max and min pixelDistance settings.
+	                this.pixelDistance = radius * (pixelScale * (0, _helpers.inverseLerp)(minAdjustmentValue, maxAdjustmentValue, radius));
+	                if (this.pixelDistance > window.settings.maxPixelDistance) {
+	                    this.pixelDistance = window.settings.maxPixelDistance;
+	                }
+	                // if (this.pixelDistance < window.settings.minPixelDistance) {
+	                //   this.pixelDistance = window.settings.minPixelDistance;
+	                // }
+	            }
+	            // console.log('pixelDistance = ' + this.pixelDistance);
+	
+	            var result = {
+	                x: Math.round(this.compass.x + this.pixelDistance * Math.cos(this.displayAngle)),
+	                y: Math.round(this.compass.y + this.pixelDistance * Math.sin(this.displayAngle))
+	            };
+	            // console.log('item at: ' + result.x + ', ' + result.y);
+	
+	            return result;
+	        }
+	    }, {
+	        key: 'updatePosition',
+	        value: function updatePosition() {
+	            if (this.compass.nav.hasChanged) {
+	                var positionOnScreen = this.calcPosition(window.settings.pixelScale);
+	                this.parent.x = (0, _helpers.lerp)(this.parent.x, positionOnScreen.x, window.settings.lerpPercent);
+	                this.parent.y = (0, _helpers.lerp)(this.parent.y, positionOnScreen.y, window.settings.lerpPercent);
+	            }
+	        }
+	    }]);
+
+	    return MapSpriteController;
+	}();
+
+/***/ },
+/* 23 */
 /*!**********************************!*\
   !*** ./src/classes/Character.js ***!
   \**********************************/
@@ -1699,7 +1815,7 @@
 	var character = exports.character = new Character();
 
 /***/ },
-/* 23 */
+/* 24 */
 /*!**********************************!*\
   !*** ./src/classes/Inventory.js ***!
   \**********************************/
@@ -1714,9 +1830,9 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	__webpack_require__(/*! idb-wrapper */ 24);
+	__webpack_require__(/*! idb-wrapper */ 25);
 	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 19);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -1800,7 +1916,7 @@
 	var inventory = exports.inventory = new Inventory();
 
 /***/ },
-/* 24 */
+/* 25 */
 /*!***********************************!*\
   !*** ./~/idb-wrapper/idbstore.js ***!
   \***********************************/
@@ -3214,7 +3330,7 @@
 
 
 /***/ },
-/* 25 */
+/* 26 */
 /*!******************************************!*\
   !*** ./src/states/LandscapeInterface.js ***!
   \******************************************/
@@ -3237,13 +3353,13 @@
 	
 	var _Nav = __webpack_require__(/*! ../classes/Nav */ 17);
 	
-	var _Pickup = __webpack_require__(/*! ../classes/Pickup */ 19);
+	var _Pickup = __webpack_require__(/*! ../classes/Pickup */ 21);
 	
-	var _Character = __webpack_require__(/*! ../classes/Character */ 22);
+	var _Character = __webpack_require__(/*! ../classes/Character */ 23);
 	
-	var _Inventory = __webpack_require__(/*! ../classes/Inventory */ 23);
+	var _Inventory = __webpack_require__(/*! ../classes/Inventory */ 24);
 	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 19);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -3371,7 +3487,7 @@
 	}(Phaser.State);
 
 /***/ },
-/* 26 */
+/* 27 */
 /*!*********************************!*\
   !*** ./src/classes/Settings.js ***!
   \*********************************/
@@ -3413,126 +3529,10 @@
 	    // Meant to combat items floating/moving when the geoposition calculation is inconsistent.
 	    this.geoMarginOfError = 0.00009;
 	
-	    this.lerpPercent = 0.09;
+	    this.lerpPercent = 0.01;
 	};
 	
 	var settings = exports.settings = new Settings();
-
-/***/ },
-/* 27 */
-/*!*******************************!*\
-  !*** ./src/classes/NavSim.js ***!
-  \*******************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.NavSim = undefined;
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var NavSim = exports.NavSim = function () {
-	    function NavSim(parent, latitude, longitude) {
-	        _classCallCheck(this, NavSim);
-	
-	        this.parent = parent;
-	        this.state = parent.game.state.getCurrentState();
-	
-	        this.type = 'test';
-	
-	        this.messages = {
-	            geolocationReady: 'Geolocation active!',
-	            noGeolocation: 'Your device does not support geolocation! Please try playing again on a device that does.',
-	            noCompass: 'Your device does not support compass facing! Please try playing again on a device that does.',
-	            needGPS: 'No GPS Signal found. Go outside and get some signal!',
-	            needMove: 'Hold your phone ahead of you and start walking.'
-	        };
-	
-	        // Each 0.00001 latlong difference is ~1 meter.
-	        this.latitude = latitude;
-	        this.longitude = longitude;
-	        this.lastLatitude = null;
-	        this.lastLongitude = null;
-	        this.heading = 0;
-	        this.lastHeading = null;
-	
-	        this.turnSpeed = 2;
-	        this.latLongSpeed = 0.000005;
-	
-	        this.state.navDebugText2 = 'Geolocation Not Supported: For Testing Only';
-	        this.state.navDebugText = 'Use Arrow Keys to Move Geoposition';
-	    }
-	
-	    _createClass(NavSim, [{
-	        key: 'update',
-	        value: function update() {
-	            this.lastHeading = this.heading;
-	            this.lastLongitude = this.longitude;
-	            this.lastLatitude = this.latitude;
-	
-	            var heading = this.heading,
-	                coords = { latitude: this.latitude, longitude: this.longitude };
-	
-	            if (this.state.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
-	                heading -= this.turnSpeed;
-	            } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
-	                heading += this.turnSpeed;
-	            }
-	
-	            if (heading < 0) heading += 360;
-	            if (heading >= 360) heading -= 360;
-	
-	            this.heading = heading;
-	
-	            this.parent.rotation = this.state.math.degToRad(this.heading);
-	            this.state.worldgroup.rotation = -1 * this.state.math.degToRad(this.heading);
-	
-	            if (this.state.input.keyboard.isDown(Phaser.Keyboard.UP)) {
-	                coords.latitude -= this.latLongSpeed * Math.cos(this.parent.rotation);
-	                coords.longitude += this.latLongSpeed * Math.sin(this.parent.rotation);
-	            } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-	                coords.latitude += this.latLongSpeed * Math.cos(this.parent.rotation);
-	                coords.longitude -= this.latLongSpeed * Math.sin(this.parent.rotation);
-	            }
-	
-	            this.latitude = coords.latitude;
-	            this.longitude = coords.longitude;
-	
-	            var targetX = this.parent.x + (this.longitude - this.lastLongitude) * 1000000;
-	            var targetY = this.parent.y + (this.latitude - this.lastLatitude) * 1000000;
-	
-	            // 1000000 gives latlong change within 1/10 of a meter.
-	            this.parent.x = (0, _helpers.lerp)(this.parent.x, targetX, window.settings.lerpPercent);
-	            this.parent.y = (0, _helpers.lerp)(this.parent.y, targetY, window.settings.lerpPercent);
-	
-	            console.log(this.heading + 'degrees, ' + targetX + ', ' + targetY + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
-	        }
-	    }, {
-	        key: 'positionHasChanged',
-	        get: function get() {
-	            return this.longitude !== this.lastLongitude || this.latitude === this.lastLatitude;
-	        }
-	    }, {
-	        key: 'headingHasChanged',
-	        get: function get() {
-	            return this.heading !== this.lastHeading;
-	        }
-	    }, {
-	        key: 'hasChanged',
-	        get: function get() {
-	            return this.headingHasChanged || this.positionHasChanged;
-	        }
-	    }]);
-
-	    return NavSim;
-	}();
 
 /***/ }
 /******/ ]);
