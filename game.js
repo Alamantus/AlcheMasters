@@ -800,14 +800,14 @@
 	      var _this3 = this;
 	
 	      console.log('generating pickups');
-	      this.map.pickups.push(this.add.sprite(this.player.x + 180, this.player.y + 180, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x + 180, this.player.y - 180, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x - 180, this.player.y + 180, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x - 180, this.player.y - 180, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x + 180, this.player.y, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x - 180, this.player.y, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x, this.player.y + 180, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x, this.player.y - 180, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.player.x + 90, this.player.y + 90, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.player.x + 90, this.player.y - 90, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.player.x - 90, this.player.y + 90, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.player.x - 90, this.player.y - 90, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.player.x + 90, this.player.y, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.player.x - 90, this.player.y, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.player.x, this.player.y + 90, 'red-square'));
+	      this.map.pickups.push(this.add.sprite(this.player.x, this.player.y - 90, 'red-square'));
 	
 	      this.map.pickups.forEach(function (pickup) {
 	        pickup.anchor.setTo(0.5, 0.5);
