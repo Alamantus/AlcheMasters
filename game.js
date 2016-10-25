@@ -659,6 +659,8 @@
 	
 	var _Nav = __webpack_require__(/*! ../classes/Nav */ 17);
 	
+	var _NavSim = __webpack_require__(/*! ../classes/NavSim */ 20);
+	
 	var _Pickup = __webpack_require__(/*! ../classes/Pickup */ 21);
 	
 	var _Character = __webpack_require__(/*! ../classes/Character */ 23);
@@ -691,7 +693,7 @@
 	    };
 	
 	    _this.hasGeneratedItems = false;
-	    _this.canCheckNav = false;
+	    _this.isUsingNavSim = false;
 	    _this.navCheckDelay = 0;
 	
 	    _this.navDebugText = '';
@@ -721,7 +723,7 @@
 	    value: function create() {
 	      var _this2 = this;
 	
-	      console.log(this.game.state.current);
+	      console.log(this.game.state.current + ', isUsingNavSim: ' + this.isUsingNavSim);
 	
 	      this.game.world.setBounds(-2500, -2500, 5000, 5000);
 	      this.worldgroup = this.game.add.group();
@@ -729,9 +731,16 @@
 	      // this.worldgroup.add(this.backdrop);
 	      this.player = this.add.sprite(0, 0, 'compass');
 	      this.player.anchor.setTo(0.5, 0.5);
-	      this.player.nav = new _Nav.Nav(this.player, window.settings.locationCheckDelaySeconds, function () {
-	        _this2.generatePickups();
-	      });
+	      if (this.isUsingNavSim) {
+	        this.player.nav = new _NavSim.NavSim(this.player, 0, 0);
+	        if (this.map.pickups.length === 0) {
+	          this.generatePickups();
+	        }
+	      } else {
+	        this.player.nav = new _Nav.Nav(this.player, window.settings.locationCheckDelaySeconds, function () {
+	          _this2.generatePickups();
+	        });
+	      }
 	      this.worldgroup.add(this.player);
 	      this.cursors = this.game.input.keyboard.createCursorKeys();
 	
@@ -783,6 +792,14 @@
 	        // If Landscape, change to Item management
 	        this.game.state.start('LandscapeInterface', true, false);
 	      }
+	    }
+	  }, {
+	    key: 'shutdown',
+	    value: function shutdown() {
+	      this.map = {
+	        pickups: [],
+	        places: []
+	      };
 	    }
 	  }, {
 	    key: 'drawNorth',
@@ -1543,6 +1560,7 @@
 	
 	        this.parent = parent;
 	        this.state = parent.game.state.getCurrentState();
+	        this.state.isUsingNavSim = true;
 	
 	        this.type = 'test';
 	
