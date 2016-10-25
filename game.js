@@ -1609,8 +1609,8 @@
 	            var targetY = this.parent.y + (this.latitude - this.lastLatitude) * 100000;
 	
 	            // 1000000 gives latlong change within 1/10 of a meter.
-	            this.parent.x = (0, _helpers.lerp)(this.parent.x, targetX, window.settings.lerpPercent);
-	            this.parent.y = (0, _helpers.lerp)(this.parent.y, targetY, window.settings.lerpPercent);
+	            this.parent.x = targetX;
+	            this.parent.y = targetY;
 	
 	            console.log(this.heading + 'degrees, ' + targetX + ', ' + targetY + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
 	        }
@@ -1705,6 +1705,7 @@
 	    this.parent = parentObject;
 	    this.parent.anchor.x = 0.5;
 	    this.parent.anchor.y = 0.5;
+	    this.parent.scale.setTo(0, 0);
 	
 	    this.state = parentObject.game.state.getCurrentState();
 	
@@ -1721,19 +1722,23 @@
 	  }
 	
 	  _createClass(MapSpriteController, [{
-	    key: 'updateScale',
-	    value: function updateScale() {
+	    key: 'updateScaleByDistance',
+	    value: function updateScaleByDistance() {
 	      var distance = this.state.math.distance(this.compass.x, this.compass.y, this.parent.x, this.parent.y),
-	          halfSprite = this.compass.width / 2;
+	          halfSprite = this.compass.width * 0.75;
 	
 	      if (distance > halfSprite) {
 	        var targetScale = halfSprite / distance;
-	        this.parent.scale = this.state.math.linear(this.parent.scale, this.targetScale, window.settings.lerpPercent);
+	        var targetLerp = this.state.math.linear(this.parent.scale.x, targetScale, 0.5);
+	        console.log(targetLerp);
+	        this.parent.scale.setTo(targetLerp, targetLerp);
+	        // this.parent.scale.setTo(targetScale, targetScale);
 	      } else {
-	        if (this.parent.scale !== 1) {
-	          this.parent.scale = 1;
+	        if (this.parent.scale.x !== 1) {
+	          this.parent.scale.setTo(1, 1);
 	        }
 	      }
+	      console.log('scale: ' + this.parent.scale.x + '\ndistance: ' + distance);
 	    }
 	
 	    /*calcPosition (pixelScale) {
