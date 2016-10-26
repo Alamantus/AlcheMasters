@@ -691,6 +691,9 @@
 	    _this.isUsingNavSim = false;
 	    _this.navCheckDelay = 0;
 	
+	    _this.lastIntermediateAnchorLatitude = 0;
+	    _this.lastIntermediateAnchorLongitude = 0;
+	
 	    _this.navDebugText = '';
 	    _this.navDebugText2 = '';
 	
@@ -702,8 +705,6 @@
 	  _createClass(PortraitInterface, [{
 	    key: 'init',
 	    value: function init() {
-	      this.rnd.sow([window.settings.randomSeed]);
-	
 	      // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 	    }
 	  }, {
@@ -725,7 +726,10 @@
 	
 	      console.log(this.game.state.current + ', isUsingNavSim: ' + this.isUsingNavSim);
 	
-	      this.game.world.setBounds(-2500, -2500, 5000, 5000);
+	      // World is ~5x5 km, the distance of 1 Geo Anchor
+	      var geoAnchorWidth = window.settings.geoAnchorPlacement * window.settings.geoToPixelScale;
+	
+	      this.world.setBounds(-(geoAnchorWidth * 0.5), -(geoAnchorWidth * 0.5), geoAnchorWidth, geoAnchorWidth);
 	      this.worldgroup = this.game.add.group();
 	      // this.backdrop = this.game.add.sprite(0,0,'backdrop');
 	      // this.worldgroup.add(this.backdrop);
@@ -733,11 +737,22 @@
 	      this.player.anchor.setTo(0.5, 0.5);
 	      if (this.isUsingNavSim) {
 	        this.player.nav = new _NavSim.NavSim(this.player, 0, 0);
+	
+	        this.setNewSeedFromGeoAnchor(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.longitude);
+	
+	        this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
+	        this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
+	
 	        if (this.map.pickups.length === 0) {
 	          this.generatePickups();
 	        }
 	      } else {
-	        this.player.nav = new _Nav.Nav(this.player, window.settings.locationCheckDelaySeconds, function () {
+	        this.player.nav = new _Nav.Nav(this.player, window.settings.locationCheckDelaySeconds, function (anchorLatitude, anchorLongitude) {
+	          _this2.setNewSeedFromGeoAnchor(anchorLatitude, anchorLongitude);
+	
+	          _this2.lastIntermediateAnchorLatitude = _this2.player.nav.currentGeoAnchor.intermediateLatitude;
+	          _this2.lastIntermediateAnchorLongitude = _this2.player.nav.currentGeoAnchor.intermediateLongitude;
+	
 	          _this2.generatePickups();
 	        });
 	      }
@@ -783,7 +798,7 @@
 	      // this.game.camera.focusOnXY(this.player.x, this.player.y + this.player.height - this.camera.view.halfHeight);
 	      this.game.camera.focusOnXY(this.player.x, this.player.y);
 	
-	      // this.drawNorth(40);
+	      this.moveWorldgroupIfPast();
 	    }
 	  }, {
 	    key: 'resize',
@@ -802,6 +817,60 @@
 	      };
 	    }
 	  }, {
+	    key: 'moveWorldgroupIfPast',
+	    value: function moveWorldgroupIfPast() {
+	      var _this3 = this;
+	
+	      if (this.lastIntermediateAnchorLatitude !== this.player.nav.currentGeoAnchor.intermediateLatitude || this.lastIntermediateAnchorLongitude !== this.player.nav.currentGeoAnchor.intermediateLongitude) {
+	        if (!(this.lastIntermediateAnchorLatitude === this.player.nav.currentGeoAnchor.latitude && this.lastIntermediateAnchorLongitude === this.player.nav.currentGeoAnchor.longitude)) {
+	          (function () {
+	            var offsetX = 0,
+	                offsetY = 0;
+	
+	            if (_this3.lastIntermediateAnchorLatitude > _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude === _this3.player.nav.currentGeoAnchor.longitude) {
+	              // East
+	              offsetX = 2500;
+	            } else if (_this3.lastIntermediateAnchorLatitude > _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude > _this3.player.nav.currentGeoAnchor.longitude) {
+	              // NorthEast
+	              offsetX = 2500;
+	              offsetY = 2500;
+	            } else if (_this3.lastIntermediateAnchorLatitude === _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude > _this3.player.nav.currentGeoAnchor.longitude) {
+	              // North
+	              offsetY = 2500;
+	            } else if (_this3.lastIntermediateAnchorLatitude < _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude > _this3.player.nav.currentGeoAnchor.longitude) {
+	              // NorthWest
+	              offsetX = -2500;
+	              offsetY = 2500;
+	            } else if (_this3.lastIntermediateAnchorLatitude < _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude === _this3.player.nav.currentGeoAnchor.longitude) {
+	              // West
+	              offsetX = -2500;
+	            } else if (_this3.lastIntermediateAnchorLatitude < _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude < _this3.player.nav.currentGeoAnchor.longitude) {
+	              // SouthWest
+	              offsetX = -2500;
+	              offsetY = -2500;
+	            } else if (_this3.lastIntermediateAnchorLatitude === _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude < _this3.player.nav.currentGeoAnchor.longitude) {
+	              // South
+	              offsetY = -2500;
+	            } else if (_this3.lastIntermediateAnchorLatitude === _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude < _this3.player.nav.currentGeoAnchor.longitude) {
+	              // SouthEast
+	              offsetX = 2500;
+	              offsetY = -2500;
+	            }
+	
+	            _this3.worldgroup.children.forEach(function (child) {
+	              child.x += offsetX;
+	              child.y += offsetY;
+	            });
+	
+	            console.log('objects moved by ' + offsetX + ', ' + offsetY);
+	          })();
+	        }
+	
+	        this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
+	        this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
+	      }
+	    }
+	  }, {
 	    key: 'drawNorth',
 	    value: function drawNorth(pixelsFromCenter) {
 	      var angle = -(0, _helpers.radians)(this.player.nav.heading + 90);
@@ -811,27 +880,68 @@
 	      this.northMarker.bringToTop();
 	    }
 	  }, {
+	    key: 'setNewSeedFromGeoAnchor',
+	    value: function setNewSeedFromGeoAnchor(anchorLatitude, anchorLongitude) {
+	      // Produces a predictable seed based on the current Geo Anchor and minute.
+	      return Math.abs(anchorLatitude) + Math.abs(anchorLongitude) + Math.floor(Date.now() / 60000) * 60000;
+	    }
+	  }, {
 	    key: 'generatePickups',
 	    value: function generatePickups() {
-	      var _this3 = this;
+	      var _this4 = this;
 	
 	      console.log('generating pickups');
 	
-	      for (var x = -Math.floor(this.world.width / 2); x < this.world.width; x += Math.floor(this.world.width / 50)) {
-	        for (var y = -Math.floor(this.world.width / 2); y < this.world.height; y += Math.floor(this.world.width / 50)) {
-	          if (!(x === 0 && y === 0)) {
-	            this.map.pickups.push(this.add.sprite(x, y, 'red-square'));
-	          }
+	      // for (let x = -Math.floor(this.world.width * 0.5); x < this.world.width; x += Math.floor(this.world.width / 50)) {
+	      //   for (let y = -Math.floor(this.world.width * 0.5); y < this.world.height; y += Math.floor(this.world.width / 50)) {
+	      //     if (!(x === 0 && y === 0)) {
+	      //       this.map.pickups.push(this.add.sprite(x, y, 'red-square'));
+	      //     }
+	      //   }
+	      // }
+	
+	      var numberOfItems = this.rnd.integerInRange(Math.floor(this.world.width * 0.01), Math.ceil(this.world.width * 0.1));
+	      var halfWorld = this.world.width * 0.5;
+	
+	      var _loop = function _loop(i) {
+	        var position = {
+	          x: _this4.rnd.integerInRange(-halfWorld, halfWorld),
+	          y: _this4.rnd.integerInRange(-halfWorld, halfWorld)
+	        };
+	
+	        var timesRegenerated = 0;
+	
+	        // While the generated values are within range of another item, keep regenerating,
+	        // but only a limited number of times.
+	        while (timesRegenerated < window.settings.regeneratePositionTries && _this4.map.pickups.some(function (element) {
+	          return position.x < element.x + element.width && position.x > element.x - element.width && position.y < element.y + element.height && position.y > element.y - element.height;
+	        })) {
+	          position.x = _this4.rnd.integerInRange(-halfWorld, halfWorld);
+	          position.y = _this4.rnd.integerInRange(-halfWorld, halfWorld);
+	
+	          timesRegenerated++;
 	        }
+	
+	        _this4.map.pickups.push(_this4.add.sprite(position.x, position.y, 'red-square'));
+	        // this.map.pickups[i].anchor.setTo(0.5, 0.5);
+	        // this.map.pickups[i].pickup = new Pickup(pickup, this.player, 60, 180);
+	
+	        // this.worldgroup.add(this.map.pickups[i]);
+	      };
+	
+	      for (var i = 0; i < numberOfItems; i++) {
+	        _loop(i);
 	      }
 	
 	      this.map.pickups.forEach(function (pickup) {
-	        pickup.anchor.setTo(0.5, 0.5);
-	        pickup.pickup = new _Pickup.Pickup(pickup, _this3.player, 60, 180);
+	        pickup.anchor.setTo(0.5, 1);
+	        pickup.pickup = new _Pickup.Pickup(pickup, _this4.player, 60, 180);
 	        // console.log(pickup.pickup.life);
 	
-	        _this3.worldgroup.add(pickup);
+	        _this4.worldgroup.add(pickup);
 	      });
+	
+	      console.log(this.map.pickups.length + ' items generated');
 	
 	      this.hasGeneratedItems = true;
 	    }
@@ -890,6 +1000,13 @@
 	    this.heading = 0;
 	    this.lastHeading = null;
 	
+	    this.currentGeoAnchor = {
+	      latitude: 0,
+	      longitude: 0,
+	      intermediateLatitude: 0,
+	      intermediateLongitude: 0
+	    };
+	
 	    this.geoWatcherIsActive = false;
 	    this.geoWatcher = null;
 	    this.compasWatcherIsActive = false;
@@ -914,12 +1031,19 @@
 	        navigator.geolocation.getCurrentPosition(function (position) {
 	          _this.lastLongitude = _this.longitude = position.coords.longitude;
 	          _this.lastLatitude = _this.latitude = position.coords.latitude;
+	          _this.currentGeoAnchor.latitude = (0, _helpers.closestMultipleOf)(window.settings.geoAnchorPlacement, _this.latitude);
+	          _this.currentGeoAnchor.longitude = (0, _helpers.closestMultipleOf)(window.settings.geoAnchorPlacement, _this.longitude);
+	          _this.currentGeoAnchor.intermediateLatitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, _this.latitude);
+	          _this.currentGeoAnchor.intermediateLongitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, _this.longitude);
 	          _this.lastCheck = position.timestamp;
+	
+	          _this.parent.x = (0, _helpers.pixelCoordFromGeoCoord)(_this.currentGeoAnchor.longitude, _this.longitude);
+	          _this.parent.y = (0, _helpers.pixelCoordFromGeoCoord)(_this.currentGeoAnchor.latitude, _this.latitude);
 	
 	          _this.updateMessage(_this.messages.geolocationReady + '\nGeoposition: ' + _this.latitude + ', ' + _this.longitude);
 	
 	          if (runOnReady) {
-	            runOnReady();
+	            runOnReady(_this.currentGeoAnchor.latitude, _this.currentGeoAnchor.longitude);
 	          }
 	
 	          _this.startGeoWatcher();
@@ -980,8 +1104,11 @@
 	          _this3.latitude = position.coords.latitude;
 	          _this3.lastUpdate = position.timestamp;
 	
-	          var changeLatitude = Math.abs(_this3.longitude) - Math.abs(_this3.lastLongitude),
-	              changeLongidude = Math.abs(_this3.latitude) - Math.abs(_this3.lastLatitude);
+	          _this3.currentGeoAnchor.latitude = (0, _helpers.closestMultipleOf)(window.settings.geoAnchorPlacement, _this3.latitude);
+	          _this3.currentGeoAnchor.longitude = (0, _helpers.closestMultipleOf)(window.settings.geoAnchorPlacement, _this3.longitude);
+	          _this3.currentGeoAnchor.intermediateLatitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, _this3.latitude);
+	          _this3.currentGeoAnchor.intermediateLongitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, _this3.longitude);
+	
 	          // Set target value for lerping game world position.
 	          _this3.targetX = _this3.parent.x + changeLatitude * 100000;
 	          _this3.targetY = _this3.parent.y + changeLongidude * 100000;
@@ -1034,8 +1161,6 @@
 	      this.state.worldgroup.rotation = -1 * this.parent.rotation;
 	
 	      // Get the value within 500 meters (0.005 latlongs)
-	      // this.parent.x = lerp(this.parent.x, this.targetX, window.settings.lerpPercent);
-	      // this.parent.y = lerp(this.parent.y, this.targetY, window.settings.lerpPercent);
 	      this.parent.x = this.state.math.linear(this.parent.x, this.targetX, window.settings.lerpPercent);
 	      this.parent.y = this.state.math.linear(this.parent.y, this.targetY, window.settings.lerpPercent);
 	
@@ -1458,6 +1583,8 @@
 	exports.radians = radians;
 	exports.lerp = lerp;
 	exports.inverseLerp = inverseLerp;
+	exports.closestMultipleOf = closestMultipleOf;
+	exports.pixelCoordFromGeoCoord = pixelCoordFromGeoCoord;
 	var colorElementMap = exports.colorElementMap = {
 	  red: 'fire',
 	  fire: 'red',
@@ -1535,6 +1662,17 @@
 	function inverseLerp(start, end, current) {
 	  return (current - start) / (end - start);
 	}
+	
+	function closestMultipleOf(multiple, number) {
+	  return Math.round(number / multiple) * multiple;
+	}
+	
+	function pixelCoordFromGeoCoord(closestAnchorCoord, targetGeoCoord) {
+	  // Assuming closestAnchorCoord is world coord 0, 0, return the offset in pixels.
+	  // And assuming offset is between ~1 and ~10 meters (0.00001 and 0.0001 latlongs)
+	  var offset = targetGeoCoord - closestAnchorCoord;
+	  return offset * window.settings.geoToPixelScale;
+	}
 
 /***/ },
 /* 20 */
@@ -1582,6 +1720,13 @@
 	        this.heading = 0;
 	        this.lastHeading = null;
 	
+	        this.currentGeoAnchor = {
+	            latitude: 0,
+	            longitude: 0,
+	            intermediateLatitude: 0,
+	            intermediateLongitude: 0
+	        };
+	
 	        this.turnSpeed = 2;
 	        this.latLongSpeed = 0.000005;
 	
@@ -1593,8 +1738,13 @@
 	        key: 'update',
 	        value: function update() {
 	            this.lastHeading = this.heading;
-	            this.lastLongitude = this.longitude;
 	            this.lastLatitude = this.latitude;
+	            this.lastLongitude = this.longitude;
+	
+	            this.currentGeoAnchor.latitude = (0, _helpers.closestMultipleOf)(window.settings.geoAnchorPlacement, this.latitude);
+	            this.currentGeoAnchor.longitude = (0, _helpers.closestMultipleOf)(window.settings.geoAnchorPlacement, this.longitude);
+	            this.currentGeoAnchor.intermediateLatitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, this.latitude);
+	            this.currentGeoAnchor.intermediateLongitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, this.longitude);
 	
 	            var heading = this.heading,
 	                coords = { latitude: this.latitude, longitude: this.longitude };
@@ -1611,7 +1761,7 @@
 	            this.heading = heading;
 	
 	            this.parent.rotation = this.state.math.degToRad(this.heading);
-	            this.state.worldgroup.rotation = -1 * this.state.math.degToRad(this.heading);
+	            this.state.worldgroup.rotation = -this.state.math.degToRad(this.heading);
 	
 	            if (this.state.input.keyboard.isDown(Phaser.Keyboard.UP)) {
 	                coords.latitude -= this.latLongSpeed * Math.cos(this.parent.rotation);
@@ -1631,7 +1781,7 @@
 	            this.parent.x = targetX;
 	            this.parent.y = targetY;
 	
-	            console.log(this.heading + 'degrees, ' + targetX + ', ' + targetY + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
+	            console.log('Player position: ' + this.parent.x + ', ' + this.parent.y + '\nPlayer coords: ' + this.latitude + ', ' + this.longitude + '\nAnchor: ' + this.currentGeoAnchor.latitude + ', ' + this.currentGeoAnchor.longitude + '\nIntermediate Anchor: ' + this.currentGeoAnchor.intermediateLatitude + ', ' + this.currentGeoAnchor.intermediateLongitude);
 	        }
 	    }, {
 	        key: 'positionHasChanged',
@@ -3461,12 +3611,24 @@
 	    // Number of frames to skip before recalculating item positions.
 	    this.itemCheckDelayNumberOfFrames = 5;
 	
+	    // The number of times to retry generating a position that is not within range of another item.
+	    this.regeneratePositionTries = 10;
+	
 	    // Multiplier for converting 1000 * latlong to distance in pixels for MapSpriteControllers.
 	    this.pixelScale = 100;
 	
 	    // Min and max pixels that a map object can draw from the center of the circle.
 	    this.minPixelDistance = 16;
 	    this.maxPixelDistance = 180;
+	
+	    // Geo Anchors are placed every x * 111000 meters.
+	    this.geoAnchorPlacement = 0.05;
+	    this.halfGeoAnchorPlacement = this.geoAnchorPlacement / 2;
+	
+	    // 1 latlong is ~111 km (~111000 m), so each 0.00001 latlong difference is ~1 meter.
+	    // Using 1 pixel = ~1 meter, means multiplying the below value by a geocoordinate offset
+	    // produces its pixel position!
+	    this.geoToPixelScale = 100000;
 	
 	    // The margin range within which an item's position will not update if the player's compass heading.
 	    // Meant to combat items floating/moving when the heading change is very small.
