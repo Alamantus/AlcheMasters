@@ -18,14 +18,12 @@ export class PortraitInterface extends Phaser.State {
 
     this.inventory = new Inventory();
 
-    this.map = {
-      pickups: []
-    , places: []
-    }
-
     this.hasGeneratedItems = false;
     this.isUsingNavSim = false;
     this.navCheckDelay = 0;
+
+    this.lastIntermediateAnchorLatitude = 0;
+    this.lastIntermediateAnchorLongitude = 0;
 
     this.navDebugText = '';
     this.navDebugText2 = '';
@@ -35,8 +33,6 @@ export class PortraitInterface extends Phaser.State {
 	}
 
   init () {
-    this.rnd.sow([window.settings.randomSeed]);
-
     // Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
   }
 
@@ -47,9 +43,17 @@ export class PortraitInterface extends Phaser.State {
   }
 
   create () {
+    this.map = {
+      pickups: []
+    , places: []
+    }
+
     console.log(this.game.state.current + ', isUsingNavSim: ' + this.isUsingNavSim);
 
-    this.game.world.setBounds(-2500, -2500, 5000, 5000);
+    // World is ~5x5 km, the distance of 1 Geo Anchor
+    let geoAnchorWidth = window.settings.geoAnchorPlacement * window.settings.geoToPixelScale;
+
+    this.world.setBounds(-(geoAnchorWidth * 0.5), -(geoAnchorWidth * 0.5), geoAnchorWidth, geoAnchorWidth);
     this.worldgroup = this.game.add.group();
     // this.backdrop = this.game.add.sprite(0,0,'backdrop');
     // this.worldgroup.add(this.backdrop);
@@ -57,12 +61,23 @@ export class PortraitInterface extends Phaser.State {
     this.player.anchor.setTo(0.5, 0.5);
     if (this.isUsingNavSim) {
       this.player.nav = new NavSim(this.player, 0, 0);
+
+      this.setNewSeedFromGeoAnchor(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.longitude);
+
+      this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
+      this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
+
       if (this.map.pickups.length === 0) {
         this.generatePickups();
       }
     } else {
       this.player.nav = new Nav(this.player, window.settings.locationCheckDelaySeconds,
-        () => {
+        (anchorLatitude, anchorLongitude) => {
+          this.setNewSeedFromGeoAnchor(anchorLatitude, anchorLongitude);
+
+          this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
+          this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
+
           this.generatePickups();
         });
     }
@@ -108,7 +123,7 @@ export class PortraitInterface extends Phaser.State {
     // this.game.camera.focusOnXY(this.player.x, this.player.y + this.player.height - this.camera.view.halfHeight);
     this.game.camera.focusOnXY(this.player.x, this.player.y);
 
-    // this.drawNorth(40);
+    this.moveWorldgroupIfPast();
   }
 
   resize (width, height) {
@@ -125,6 +140,75 @@ export class PortraitInterface extends Phaser.State {
     }
   }
 
+  moveWorldgroupIfPast () {
+    if (this.lastIntermediateAnchorLatitude !== this.player.nav.currentGeoAnchor.intermediateLatitude
+        || this.lastIntermediateAnchorLongitude !== this.player.nav.currentGeoAnchor.intermediateLongitude)
+    {
+      if (!(this.lastIntermediateAnchorLatitude === this.player.nav.currentGeoAnchor.latitude
+            && this.lastIntermediateAnchorLongitude === this.player.nav.currentGeoAnchor.longitude))
+      {
+        let offsetX = 0,
+            offsetY = 0;
+
+        if (this.lastIntermediateAnchorLatitude > this.player.nav.currentGeoAnchor.latitude
+            && this.lastIntermediateAnchorLongitude === this.player.nav.currentGeoAnchor.longitude)
+        {
+          // East
+          offsetX = 2500;
+        } else if (this.lastIntermediateAnchorLatitude > this.player.nav.currentGeoAnchor.latitude
+            && this.lastIntermediateAnchorLongitude > this.player.nav.currentGeoAnchor.longitude)
+        {
+          // NorthEast
+          offsetX = 2500;
+          offsetY = 2500;
+        } else if (this.lastIntermediateAnchorLatitude === this.player.nav.currentGeoAnchor.latitude
+            && this.lastIntermediateAnchorLongitude > this.player.nav.currentGeoAnchor.longitude)
+        {
+          // North
+          offsetY = 2500;
+        } else if (this.lastIntermediateAnchorLatitude < this.player.nav.currentGeoAnchor.latitude
+            && this.lastIntermediateAnchorLongitude > this.player.nav.currentGeoAnchor.longitude)
+        {
+          // NorthWest
+          offsetX = -2500;
+          offsetY = 2500;
+        } else if (this.lastIntermediateAnchorLatitude < this.player.nav.currentGeoAnchor.latitude
+            && this.lastIntermediateAnchorLongitude === this.player.nav.currentGeoAnchor.longitude)
+        {
+          // West
+          offsetX = -2500;
+        } else if (this.lastIntermediateAnchorLatitude < this.player.nav.currentGeoAnchor.latitude
+            && this.lastIntermediateAnchorLongitude < this.player.nav.currentGeoAnchor.longitude)
+        {
+          // SouthWest
+          offsetX = -2500;
+          offsetY = -2500;
+        } else if (this.lastIntermediateAnchorLatitude === this.player.nav.currentGeoAnchor.latitude
+            && this.lastIntermediateAnchorLongitude < this.player.nav.currentGeoAnchor.longitude)
+        {
+          // South
+          offsetY = -2500;
+        } else if (this.lastIntermediateAnchorLatitude === this.player.nav.currentGeoAnchor.latitude
+            && this.lastIntermediateAnchorLongitude < this.player.nav.currentGeoAnchor.longitude)
+        {
+          // SouthEast
+          offsetX = 2500;
+          offsetY = -2500;
+        }
+
+        this.worldgroup.children.forEach((child) => {
+          child.x += offsetX;
+          child.y += offsetY;
+        })
+
+        console.log('objects moved by ' + offsetX + ', ' + offsetY);
+      }
+
+      this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
+      this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
+    }
+  }
+
   drawNorth (pixelsFromCenter) {
     let angle = -radians(this.player.nav.heading + 90);
 
@@ -133,24 +217,62 @@ export class PortraitInterface extends Phaser.State {
     this.northMarker.bringToTop();
   }
 
+  setNewSeedFromGeoAnchor (anchorLatitude, anchorLongitude) {
+    // Produces a predictable seed based on the current Geo Anchor and minute.
+    return Math.abs(anchorLatitude) + Math.abs(anchorLongitude) + (Math.floor(Date.now() / 60000) * 60000);
+  }
+
   generatePickups () {
     console.log('generating pickups');
-    this.map.pickups.push(this.add.sprite(this.player.x + 90, this.player.y + 90, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x + 90, this.player.y - 90, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x - 90, this.player.y + 90, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x - 90, this.player.y - 90, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x + 90, this.player.y, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x - 90, this.player.y, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x, this.player.y + 90, 'red-square'));
-    this.map.pickups.push(this.add.sprite(this.player.x, this.player.y - 90, 'red-square'));
+
+    // for (let x = -Math.floor(this.world.width * 0.5); x < this.world.width; x += Math.floor(this.world.width / 50)) {
+    //   for (let y = -Math.floor(this.world.width * 0.5); y < this.world.height; y += Math.floor(this.world.width / 50)) {
+    //     if (!(x === 0 && y === 0)) {
+    //       this.map.pickups.push(this.add.sprite(x, y, 'red-square'));
+    //     }
+    //   }
+    // }
+
+    let numberOfItems = this.rnd.integerInRange(Math.floor(this.world.width * 0.01), Math.ceil(this.world.width * 0.1));
+    let halfWorld = this.world.width * 0.5;
+
+    for (let i = 0; i < numberOfItems; i++) {
+      let position = {
+        x: this.rnd.integerInRange(-halfWorld, halfWorld)
+      , y: this.rnd.integerInRange(-halfWorld, halfWorld)
+      };
+
+      let timesRegenerated = 0;
+
+      // While the generated values are within range of another item, keep regenerating,
+      // but only a limited number of times.
+      while (timesRegenerated < window.settings.regeneratePositionTries && (this.map.pickups.some((element) => {
+              return (position.x < element.x + element.width && position.x > element.x - element.width
+                      && position.y < element.y + element.height && position.y > element.y - element.height);
+            })))
+      {
+        position.x = this.rnd.integerInRange(-halfWorld, halfWorld);
+        position.y = this.rnd.integerInRange(-halfWorld, halfWorld);
+
+        timesRegenerated++;
+      }
+
+      this.map.pickups.push(this.add.sprite(position.x, position.y, 'red-square'));
+      // this.map.pickups[i].anchor.setTo(0.5, 0.5);
+      // this.map.pickups[i].pickup = new Pickup(pickup, this.player, 60, 180);
+
+      // this.worldgroup.add(this.map.pickups[i]);
+    }
 
     this.map.pickups.forEach((pickup) => {
-      pickup.anchor.setTo(0.5, 0.5);
+      pickup.anchor.setTo(0.5, 1);
       pickup.pickup = new Pickup(pickup, this.player, 60, 180);
       // console.log(pickup.pickup.life);
 
       this.worldgroup.add(pickup);
     });
+
+    console.log(this.map.pickups.length + ' items generated');
 
     this.hasGeneratedItems = true;
   }

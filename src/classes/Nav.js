@@ -1,6 +1,6 @@
 import '../../node_modules/compass.js/lib/compass.js';
 
-import {lerp} from '../js/helpers';
+import {closestMultipleOf, pixelCoordFromGeoCoord} from '../js/helpers';
 import {NavSim} from './NavSim';
 
 export class Nav {
@@ -26,6 +26,13 @@ export class Nav {
     this.lastUpdate = null;
     this.heading = 0;
     this.lastHeading = null;
+
+    this.currentGeoAnchor = {
+      latitude: 0
+    , longitude: 0
+    , intermediateLatitude: 0
+    , intermediateLongitude: 0
+    };
 
     this.geoWatcherIsActive = false;
     this.geoWatcher = null;
@@ -68,12 +75,19 @@ export class Nav {
       navigator.geolocation.getCurrentPosition((position) => {
         this.lastLongitude = this.longitude = position.coords.longitude;
         this.lastLatitude = this.latitude = position.coords.latitude;
+        this.currentGeoAnchor.latitude = closestMultipleOf(window.settings.geoAnchorPlacement, this.latitude);
+        this.currentGeoAnchor.longitude = closestMultipleOf(window.settings.geoAnchorPlacement, this.longitude);
+        this.currentGeoAnchor.intermediateLatitude = closestMultipleOf(window.settings.halfGeoAnchorPlacement, this.latitude);
+        this.currentGeoAnchor.intermediateLongitude = closestMultipleOf(window.settings.halfGeoAnchorPlacement, this.longitude);
         this.lastCheck = position.timestamp;
+
+        this.parent.x = pixelCoordFromGeoCoord(this.currentGeoAnchor.longitude, this.longitude);
+        this.parent.y = pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
 
         this.updateMessage(`${this.messages.geolocationReady}\nGeoposition: ${this.latitude}, ${this.longitude}`);
 
         if (runOnReady){
-          runOnReady();
+          runOnReady(this.currentGeoAnchor.latitude, this.currentGeoAnchor.longitude);
         }
 
         this.startGeoWatcher();
@@ -128,9 +142,14 @@ export class Nav {
         this.latitude = position.coords.latitude;
         this.lastUpdate = position.timestamp;
 
+        this.currentGeoAnchor.latitude = closestMultipleOf(window.settings.geoAnchorPlacement, this.latitude);
+        this.currentGeoAnchor.longitude = closestMultipleOf(window.settings.geoAnchorPlacement, this.longitude);
+        this.currentGeoAnchor.intermediateLatitude = closestMultipleOf(window.settings.halfGeoAnchorPlacement, this.latitude);
+        this.currentGeoAnchor.intermediateLongitude = closestMultipleOf(window.settings.halfGeoAnchorPlacement, this.longitude);
+
         // Set target value for lerping game world position.
-        this.targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 100000);
-        this.targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 100000);
+        this.targetX = this.parent.x + (changeLatitude * 100000);
+        this.targetY = this.parent.y + (changeLongidude * 100000);
       }
 
       this.updateMessage(`position: ${this.longitude.toFixed(6)}, ${this.latitude.toFixed(6)}\nchanged: ${(this.lastLongitude - this.longitude).toFixed(6)}, ${(this.lastLatitude - this.latitude).toFixed(6)}`);
@@ -179,8 +198,6 @@ export class Nav {
     this.state.worldgroup.rotation = -1 * this.parent.rotation;
 
     // Get the value within 500 meters (0.005 latlongs)
-    // this.parent.x = lerp(this.parent.x, this.targetX, window.settings.lerpPercent);
-    // this.parent.y = lerp(this.parent.y, this.targetY, window.settings.lerpPercent);
     this.parent.x = this.state.math.linear(this.parent.x, this.targetX, window.settings.lerpPercent);
     this.parent.y = this.state.math.linear(this.parent.y, this.targetY, window.settings.lerpPercent);
 

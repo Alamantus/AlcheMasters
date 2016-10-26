@@ -77,3 +77,14 @@ export function lerp (start, end, percent) {
 export function inverseLerp (start, end, current) {
   return (current - start) / (end - start);
 }
+
+export function closestMultipleOf(multiple, number) {
+  return Math.round(number / multiple) * multiple;
+}
+
+export function pixelCoordFromGeoCoord (closestAnchorCoord, targetGeoCoord) {
+  // Assuming closestAnchorCoord is world coord 0, 0, return the offset in pixels.
+  // And assuming offset is between ~1 and ~10 meters (0.00001 and 0.0001 latlongs)
+  let offset = targetGeoCoord - closestAnchorCoord;
+  return offset * window.settings.geoToPixelScale;
+}

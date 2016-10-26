@@ -27,7 +27,7 @@ export class MapSpriteController {
 
     if (distance > halfSprite) {
       let targetScale = halfSprite / distance;
-      let targetLerp = this.state.math.linear(this.parent.scale.x, targetScale, 0.5);
+      let targetLerp = this.state.math.linear(this.parent.scale.x, targetScale, 0.25);
 
       this.parent.scale.setTo(targetLerp, targetLerp);
       // this.parent.scale.setTo(targetScale, targetScale);

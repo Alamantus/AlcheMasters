@@ -1,4 +1,4 @@
-import {lerp} from '../js/helpers';
+import {closestMultipleOf} from '../js/helpers';
 
 export class NavSim {
 	constructor (parent, latitude, longitude) {
@@ -24,6 +24,13 @@ export class NavSim {
     this.heading = 0;
     this.lastHeading = null;
 
+    this.currentGeoAnchor = {
+      latitude: 0
+    , longitude: 0
+    , intermediateLatitude: 0
+    , intermediateLongitude: 0
+    };
+
     this.turnSpeed = 2;
     this.latLongSpeed = 0.000005;
 
@@ -45,8 +52,13 @@ export class NavSim {
 
   update () {
     this.lastHeading = this.heading;
-    this.lastLongitude = this.longitude;
     this.lastLatitude = this.latitude;
+    this.lastLongitude = this.longitude;
+
+    this.currentGeoAnchor.latitude = closestMultipleOf(window.settings.geoAnchorPlacement, this.latitude);
+    this.currentGeoAnchor.longitude = closestMultipleOf(window.settings.geoAnchorPlacement, this.longitude);
+    this.currentGeoAnchor.intermediateLatitude = closestMultipleOf(window.settings.halfGeoAnchorPlacement, this.latitude);
+    this.currentGeoAnchor.intermediateLongitude = closestMultipleOf(window.settings.halfGeoAnchorPlacement, this.longitude);
 
     let heading = this.heading,
         coords = {latitude: this.latitude, longitude: this.longitude};
@@ -63,7 +75,7 @@ export class NavSim {
     this.heading = heading;
 
     this.parent.rotation = this.state.math.degToRad(this.heading);
-    this.state.worldgroup.rotation = -1 * this.state.math.degToRad(this.heading);
+    this.state.worldgroup.rotation = -this.state.math.degToRad(this.heading);
 
     if (this.state.input.keyboard.isDown(Phaser.Keyboard.UP)) {
       coords.latitude -= this.latLongSpeed * Math.cos(this.parent.rotation);
@@ -76,13 +88,14 @@ export class NavSim {
     this.latitude = coords.latitude;
     this.longitude = coords.longitude;
 
-    let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 100000);
-    let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 100000);
+    let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 1000000);
+    let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 1000000);
 
     // 1000000 gives latlong change within 1/10 of a meter.
     this.parent.x = targetX;
     this.parent.y = targetY;
 
-    console.log(this.heading + 'degrees, ' + targetX + ', ' + targetY + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
+    console.log('Player position: ' + this.parent.x + ', ' + this.parent.y + '\nPlayer coords: ' + this.latitude + ', ' + this.longitude + '\nAnchor: ' + this.currentGeoAnchor.latitude + ', ' + this.currentGeoAnchor.longitude
+                + '\nIntermediate Anchor: ' + this.currentGeoAnchor.intermediateLatitude + ', ' + this.currentGeoAnchor.intermediateLongitude);
   }
 }
