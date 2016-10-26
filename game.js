@@ -687,11 +687,6 @@
 	
 	    _this.inventory = new _Inventory.Inventory();
 	
-	    _this.map = {
-	      pickups: [],
-	      places: []
-	    };
-	
 	    _this.hasGeneratedItems = false;
 	    _this.isUsingNavSim = false;
 	    _this.navCheckDelay = 0;
@@ -722,6 +717,11 @@
 	    key: 'create',
 	    value: function create() {
 	      var _this2 = this;
+	
+	      this.map = {
+	        pickups: [],
+	        places: []
+	      };
 	
 	      console.log(this.game.state.current + ', isUsingNavSim: ' + this.isUsingNavSim);
 	
@@ -816,14 +816,14 @@
 	      var _this3 = this;
 	
 	      console.log('generating pickups');
-	      this.map.pickups.push(this.add.sprite(this.player.x + 90, this.player.y + 90, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x + 90, this.player.y - 90, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x - 90, this.player.y + 90, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x - 90, this.player.y - 90, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x + 90, this.player.y, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x - 90, this.player.y, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x, this.player.y + 90, 'red-square'));
-	      this.map.pickups.push(this.add.sprite(this.player.x, this.player.y - 90, 'red-square'));
+	
+	      for (var x = -Math.floor(this.world.width / 2); x < this.world.width; x += Math.floor(this.world.width / 50)) {
+	        for (var y = -Math.floor(this.world.width / 2); y < this.world.height; y += Math.floor(this.world.width / 50)) {
+	          if (!(x === 0 && y === 0)) {
+	            this.map.pickups.push(this.add.sprite(x, y, 'red-square'));
+	          }
+	        }
+	      }
 	
 	      this.map.pickups.forEach(function (pickup) {
 	        pickup.anchor.setTo(0.5, 0.5);
@@ -980,9 +980,11 @@
 	          _this3.latitude = position.coords.latitude;
 	          _this3.lastUpdate = position.timestamp;
 	
+	          var changeLatitude = Math.abs(_this3.longitude) - Math.abs(_this3.lastLongitude),
+	              changeLongidude = Math.abs(_this3.latitude) - Math.abs(_this3.lastLatitude);
 	          // Set target value for lerping game world position.
-	          _this3.targetX = _this3.parent.x + (_this3.longitude - _this3.lastLongitude) * 100000;
-	          _this3.targetY = _this3.parent.y + (_this3.latitude - _this3.lastLatitude) * 100000;
+	          _this3.targetX = _this3.parent.x + changeLatitude * 100000;
+	          _this3.targetY = _this3.parent.y + changeLongidude * 100000;
 	        }
 	
 	        _this3.updateMessage('position: ' + _this3.longitude.toFixed(6) + ', ' + _this3.latitude.toFixed(6) + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude).toFixed(6) + ', ' + (_this3.lastLatitude - _this3.latitude).toFixed(6));
@@ -1622,8 +1624,8 @@
 	            this.latitude = coords.latitude;
 	            this.longitude = coords.longitude;
 	
-	            var targetX = this.parent.x + (this.longitude - this.lastLongitude) * 100000;
-	            var targetY = this.parent.y + (this.latitude - this.lastLatitude) * 100000;
+	            var targetX = this.parent.x + (this.longitude - this.lastLongitude) * 1000000;
+	            var targetY = this.parent.y + (this.latitude - this.lastLatitude) * 1000000;
 	
 	            // 1000000 gives latlong change within 1/10 of a meter.
 	            this.parent.x = targetX;
@@ -1746,7 +1748,7 @@
 	
 	      if (distance > halfSprite) {
 	        var targetScale = halfSprite / distance;
-	        var targetLerp = this.state.math.linear(this.parent.scale.x, targetScale, 0.5);
+	        var targetLerp = this.state.math.linear(this.parent.scale.x, targetScale, 0.25);
 	
 	        this.parent.scale.setTo(targetLerp, targetLerp);
 	        // this.parent.scale.setTo(targetScale, targetScale);
