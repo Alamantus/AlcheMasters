@@ -753,7 +753,8 @@
 	          _this2.lastIntermediateAnchorLatitude = _this2.player.nav.currentGeoAnchor.intermediateLatitude;
 	          _this2.lastIntermediateAnchorLongitude = _this2.player.nav.currentGeoAnchor.intermediateLongitude;
 	
-	          _this2.generatePickups();
+	          // this.generatePickups();
+	          _this2.generatePickupsGrid();
 	        });
 	      }
 	      this.worldgroup.add(this.player);
@@ -894,14 +895,6 @@
 	
 	      console.log('generating pickups');
 	
-	      // for (let x = -Math.floor(this.world.width * 0.5); x < this.world.width; x += Math.floor(this.world.width / 50)) {
-	      //   for (let y = -Math.floor(this.world.width * 0.5); y < this.world.height; y += Math.floor(this.world.width / 50)) {
-	      //     if (!(x === 0 && y === 0)) {
-	      //       this.map.pickups.push(this.add.sprite(x, y, 'red-square'));
-	      //     }
-	      //   }
-	      // }
-	
 	      var numberOfItems = this.rnd.integerInRange(Math.floor(this.world.width * 0.05), Math.ceil(this.world.width * 0.1));
 	      var halfWorld = this.world.width * 0.5;
 	
@@ -944,6 +937,28 @@
 	
 	      for (var i = 0; i < numberOfItems; i++) {
 	        _loop(i);
+	      }
+	
+	      console.log(this.map.pickups.length + ' items generated');
+	
+	      this.hasGeneratedItems = true;
+	    }
+	  }, {
+	    key: 'generatePickupsGrid',
+	    value: function generatePickupsGrid() {
+	      console.log('generating pickups in a grid');
+	
+	      for (var x = -Math.floor(this.world.width * 0.5); x < this.world.width; x += Math.floor(this.world.width / 50)) {
+	        for (var y = -Math.floor(this.world.width * 0.5); y < this.world.height; y += Math.floor(this.world.width / 50)) {
+	          if (!(x === 0 && y === 0)) {
+	            var pickup = this.add.sprite(x, y, 'red-square');
+	            pickup.anchor.setTo(0.5, 1);
+	            pickup.pickup = new _Pickup.Pickup(pickup, this.player, 0, 0);
+	            // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
+	            this.worldgroup.add(pickup);
+	            this.map.pickups.push(pickup);
+	          }
+	        }
 	      }
 	
 	      console.log(this.map.pickups.length + ' items generated');
