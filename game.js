@@ -1057,8 +1057,8 @@
 	          _this.currentGeoAnchor.intermediateLongitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, _this.longitude);
 	          _this.lastCheck = position.timestamp;
 	
-	          _this.parent.x = (0, _helpers.pixelCoordFromGeoCoord)(_this.currentGeoAnchor.longitude, _this.longitude);
-	          _this.parent.y = (0, _helpers.pixelCoordFromGeoCoord)(_this.currentGeoAnchor.latitude, _this.latitude);
+	          _this.parent.x = _this.targetX = (0, _helpers.pixelCoordFromGeoCoord)(_this.currentGeoAnchor.longitude, _this.longitude);
+	          _this.parent.y = _this.targetY = (0, _helpers.pixelCoordFromGeoCoord)(_this.currentGeoAnchor.latitude, _this.latitude);
 	
 	          _this.updateMessage(_this.messages.geolocationReady + '\nGeoposition: ' + _this.latitude + ', ' + _this.longitude);
 	
