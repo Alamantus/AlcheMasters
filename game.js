@@ -782,7 +782,7 @@
 	      if (this.hasGeneratedItems) {
 	        if (this.itemCheckFrameDelay <= 0) {
 	          this.map.pickups.forEach(function (pickup) {
-	            pickup.pickup.updateScaleByDistance();
+	            pickup.pickup.update();
 	          });
 	          // Only check items once every this number of frames.
 	          this.itemCheckFrameDelay = window.settings.itemCheckDelayNumberOfFrames;
@@ -883,7 +883,9 @@
 	    key: 'setNewSeedFromGeoAnchor',
 	    value: function setNewSeedFromGeoAnchor(anchorLatitude, anchorLongitude) {
 	      // Produces a predictable seed based on the current Geo Anchor and minute.
-	      return Math.abs(anchorLatitude) + Math.abs(anchorLongitude) + Math.floor(Date.now() / 60000) * 60000;
+	      var seed = Math.abs(anchorLatitude) + Math.abs(anchorLongitude) + Math.floor(Date.now() / 60000) * 60000;
+	      console.log(seed);
+	      this.rnd.sow([seed]);
 	    }
 	  }, {
 	    key: 'generatePickups',
@@ -900,13 +902,21 @@
 	      //   }
 	      // }
 	
-	      var numberOfItems = this.rnd.integerInRange(Math.floor(this.world.width * 0.01), Math.ceil(this.world.width * 0.1));
+	      var numberOfItems = this.rnd.integerInRange(Math.floor(this.world.width * 0.05), Math.ceil(this.world.width * 0.1));
 	      var halfWorld = this.world.width * 0.5;
 	
+	      var anchorMinX = this.player.nav.currentGeoAnchor.longitude - window.settings.geoAnchorPlacement,
+	          anchorMaxX = this.player.nav.currentGeoAnchor.longitude + window.settings.geoAnchorPlacement,
+	          anchorMinY = this.player.nav.currentGeoAnchor.latitude - window.settings.geoAnchorPlacement,
+	          anchorMaxY = this.player.nav.currentGeoAnchor.latitude + window.settings.geoAnchorPlacement;
+	
 	      var _loop = function _loop(i) {
+	        var randomLatitude = _this4.rnd.realInRange(anchorMinY, anchorMaxY),
+	            randomLongitude = _this4.rnd.realInRange(anchorMinX, anchorMaxX);
+	
 	        var position = {
-	          x: _this4.rnd.integerInRange(-halfWorld, halfWorld),
-	          y: _this4.rnd.integerInRange(-halfWorld, halfWorld)
+	          x: (0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.longitude, randomLongitude),
+	          y: (0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.latitude, randomLatitude)
 	        };
 	
 	        var timesRegenerated = 0;
@@ -916,30 +926,25 @@
 	        while (timesRegenerated < window.settings.regeneratePositionTries && _this4.map.pickups.some(function (element) {
 	          return position.x < element.x + element.width && position.x > element.x - element.width && position.y < element.y + element.height && position.y > element.y - element.height;
 	        })) {
-	          position.x = _this4.rnd.integerInRange(-halfWorld, halfWorld);
-	          position.y = _this4.rnd.integerInRange(-halfWorld, halfWorld);
+	          randomLatitude = _this4.rnd.realInRange(anchorMinY, anchorMaxY);
+	          randomLongitude = _this4.rnd.realInRange(anchorMinX, anchorMaxX);
+	          position.x = (0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.longitude, randomLongitude);
+	          position.y = (0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.latitude, randomLatitude);
 	
 	          timesRegenerated++;
 	        }
 	
-	        _this4.map.pickups.push(_this4.add.sprite(position.x, position.y, 'red-square'));
-	        // this.map.pickups[i].anchor.setTo(0.5, 0.5);
-	        // this.map.pickups[i].pickup = new Pickup(pickup, this.player, 60, 180);
-	
-	        // this.worldgroup.add(this.map.pickups[i]);
+	        var pickup = _this4.add.sprite(position.x, position.y, 'red-square');
+	        pickup.anchor.setTo(0.5, 1);
+	        pickup.pickup = new _Pickup.Pickup(pickup, _this4.player, randomLatitude, randomLongitude);
+	        // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
+	        _this4.worldgroup.add(pickup);
+	        _this4.map.pickups.push(pickup);
 	      };
 	
 	      for (var i = 0; i < numberOfItems; i++) {
 	        _loop(i);
 	      }
-	
-	      this.map.pickups.forEach(function (pickup) {
-	        pickup.anchor.setTo(0.5, 1);
-	        pickup.pickup = new _Pickup.Pickup(pickup, _this4.player, 60, 180);
-	        // console.log(pickup.pickup.life);
-	
-	        _this4.worldgroup.add(pickup);
-	      });
 	
 	      console.log(this.map.pickups.length + ' items generated');
 	
@@ -1671,7 +1676,7 @@
 	  // Assuming closestAnchorCoord is world coord 0, 0, return the offset in pixels.
 	  // And assuming offset is between ~1 and ~10 meters (0.00001 and 0.0001 latlongs)
 	  var offset = targetGeoCoord - closestAnchorCoord;
-	  return offset * window.settings.geoToPixelScale;
+	  return Math.round(offset * window.settings.geoToPixelScale);
 	}
 
 /***/ },
@@ -1781,7 +1786,8 @@
 	            this.parent.x = targetX;
 	            this.parent.y = targetY;
 	
-	            console.log('Player position: ' + this.parent.x + ', ' + this.parent.y + '\nPlayer coords: ' + this.latitude + ', ' + this.longitude + '\nAnchor: ' + this.currentGeoAnchor.latitude + ', ' + this.currentGeoAnchor.longitude + '\nIntermediate Anchor: ' + this.currentGeoAnchor.intermediateLatitude + ', ' + this.currentGeoAnchor.intermediateLongitude);
+	            // console.log('Player position: ' + this.parent.x + ', ' + this.parent.y + '\nPlayer coords: ' + this.latitude + ', ' + this.longitude + '\nAnchor: ' + this.currentGeoAnchor.latitude + ', ' + this.currentGeoAnchor.longitude
+	            //             + '\nIntermediate Anchor: ' + this.currentGeoAnchor.intermediateLatitude + ', ' + this.currentGeoAnchor.intermediateLongitude);
 	        }
 	    }, {
 	        key: 'positionHasChanged',
@@ -1830,13 +1836,13 @@
 	var Pickup = exports.Pickup = function (_MapSpriteController) {
 	    _inherits(Pickup, _MapSpriteController);
 	
-	    function Pickup(parentObject, compassObject, minLife, maxLife) {
+	    function Pickup(parentObject, compassObject, latitude, longitude) {
 	        _classCallCheck(this, Pickup);
 	
 	        // Time before destruction in seconds.
-	        var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject));
+	        var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject, latitude, longitude));
 	
-	        _this.life = (0, _helpers.getRandomInt)(minLife, maxLife);
+	        _this.life = (0, _helpers.getRandomInt)(window.settings.pickupLife.min, window.settings.pickupLife.max);
 	
 	        _this.deathTime = Date.now() + _this.life * 1000;
 	
@@ -1868,12 +1874,10 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var MapSpriteController = exports.MapSpriteController = function () {
-	  function MapSpriteController(parentObject, compassObject) {
+	  function MapSpriteController(parentObject, compassObject, latitude, longitude) {
 	    _classCallCheck(this, MapSpriteController);
 	
 	    this.parent = parentObject;
-	    this.parent.anchor.x = 0.5;
-	    this.parent.anchor.y = 0.5;
 	    this.parent.scale.setTo(0, 0);
 	
 	    this.state = parentObject.game.state.getCurrentState();
@@ -1883,9 +1887,12 @@
 	    // I belive this will only be used for testing! LatLong will likely be distributed based on positions
 	    // at regular 0.005 (or something like that) global latlong intervals that the player is closest to.
 	    // const LATLONGMAXDISTANCE = 0.002;
-	    // this.longitude = this.compass.nav.longitude + getRandom(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	    // this.latitude = this.compass.nav.latitude + getRandom(-LATLONGMAXDISTANCE, LATLONGMAXDISTANCE);
-	    // console.log('item latlong: ' + this.longitude + ', ' + this.latitude);
+	    this.latitude = latitude;
+	    this.longitude = longitude;
+	
+	    // this.parent.x = pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.longitude, this.longitude);
+	    // this.parent.y = pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.latitude, this.latitude);
+	    // console.log('item latlong: ' + this.longitude + ', ' + this.latitude + '\nitem coords: ' + this.parent.x + ', ' + this.parent.y);
 	
 	    // this.updatePosition();
 	  }
@@ -1900,69 +1907,20 @@
 	        var targetScale = halfSprite / distance;
 	        var targetLerp = this.state.math.linear(this.parent.scale.x, targetScale, 0.25);
 	
-	        this.parent.scale.setTo(targetLerp, targetLerp);
-	        // this.parent.scale.setTo(targetScale, targetScale);
+	        // this.parent.scale.setTo(targetLerp, targetLerp);
+	        this.parent.scale.setTo(targetScale, targetScale);
 	      } else {
 	        if (this.parent.scale.x !== 1) {
 	          this.parent.scale.setTo(1, 1);
 	        }
 	      }
 	    }
-	
-	    /*calcPosition (pixelScale) {
-	      // console.log('pixelScale = ' + pixelScale);
-	      const LATLONGTOPIXELADJUSTMENT = 1000;
-	      // console.log('LATLONGTOPIXELADJUSTMENT = ' + LATLONGTOPIXELADJUSTMENT);
-	        let itemOffset = {
-	        x: (this.compass.nav.longitude - this.longitude) * LATLONGTOPIXELADJUSTMENT
-	      , y: (this.compass.nav.latitude - this.latitude) * LATLONGTOPIXELADJUSTMENT
-	      }
-	      // console.log('item geoposition offset = ' + (itemOffset.x / LATLONGTOPIXELADJUSTMENT) + ', ' + (itemOffset.y / LATLONGTOPIXELADJUSTMENT));
-	        // radius should be the length of the line from the center to the item.
-	      let radius = Math.sqrt((itemOffset.x * itemOffset.x) + (itemOffset.y * itemOffset.y));
-	      // console.log('radius = ' + radius);
-	        // Calculate the distance between forward point and item position.
-	      let distanceBetweenPoints = Math.sqrt(square(0 - (itemOffset.x)) + square(radius - (itemOffset.y)))
-	      // console.log('distanceBetweenPoints = ' + distanceBetweenPoints);
-	        let doubleRadiusSquared = 2 * square(radius);
-	      // console.log('doubleRadiusSquared = ' + doubleRadiusSquared);
-	        let insideArcCos = (doubleRadiusSquared - square(distanceBetweenPoints)) / doubleRadiusSquared;
-	      // console.log('insideArcCos = ' + insideArcCos);
-	        if (this.compass.nav.headingHasChanged) {
-	        this.displayAngle = Math.acos(insideArcCos) - radians(this.compass.nav.heading - 90);
-	      }
-	      // console.log('this.displayAngle = ' + this.displayAngle);
-	        // The xAdjustmentvalues equate to the itemOffset and radius values so we can use inverseLerp.
-	      let minAdjustmentValue = window.settings.minPixelDistance / pixelScale;
-	      let maxAdjustmentValue = window.settings.maxPixelDistance / pixelScale;
-	        if (this.compass.nav.positionHasChanged) {
-	        // This returns a distance scaled by a scaled pixelScale. The closer the object is, the lower the pixelScale, and the farther something is, the larger the pixelScale.
-	        // This makes the object display farther away when it's farther away but approach quickly as you get closer by reducing the radius scale.
-	        // The pixelDistance is then controlled by the max and min pixelDistance settings.
-	        this.pixelDistance = radius * (pixelScale * inverseLerp(minAdjustmentValue, maxAdjustmentValue, radius));
-	        if (this.pixelDistance > window.settings.maxPixelDistance) {
-	          this.pixelDistance = window.settings.maxPixelDistance;
-	        }
-	        // if (this.pixelDistance < window.settings.minPixelDistance) {
-	        //   this.pixelDistance = window.settings.minPixelDistance;
-	        // }
-	      }
-	      // console.log('pixelDistance = ' + this.pixelDistance);
-	        let result = {
-	        x: Math.round(this.compass.x + (this.pixelDistance * Math.cos(this.displayAngle)))
-	      , y: Math.round(this.compass.y + (this.pixelDistance * Math.sin(this.displayAngle)))
-	      }
-	      // console.log('item at: ' + result.x + ', ' + result.y);
-	        return result;
+	  }, {
+	    key: 'update',
+	    value: function update() {
+	      this.parent.rotation = this.compass.rotation;
+	      this.updateScaleByDistance();
 	    }
-	      updatePosition () {
-	      if (this.compass.nav.hasChanged) {
-	        let positionOnScreen = this.calcPosition(window.settings.pixelScale);
-	        this.parent.x = lerp(this.parent.x, positionOnScreen.x, window.settings.lerpPercent);
-	        this.parent.y = lerp(this.parent.y, positionOnScreen.y, window.settings.lerpPercent);
-	      }
-	    }*/
-
 	  }]);
 
 	  return MapSpriteController;
@@ -3639,6 +3597,11 @@
 	    this.geoMarginOfError = 0.00009;
 	
 	    this.lerpPercent = 0.01;
+	
+	    this.pickupLife = {
+	        min: 60,
+	        max: 180
+	    };
 	};
 	
 	var settings = exports.settings = new Settings();
