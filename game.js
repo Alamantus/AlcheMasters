@@ -1104,7 +1104,8 @@
 	            _this2.lastHeading = _this2.heading;
 	
 	            if (!_this2.headingIsInsideMarginOfError(heading)) {
-	              _this2.heading = heading;
+	              // this.heading = heading;
+	              _this2.heading = heading - 180;
 	              // this.updateMessage(this.heading);
 	            }
 	          });
@@ -1137,8 +1138,8 @@
 	          _this3.currentGeoAnchor.intermediateLongitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, _this3.longitude);
 	
 	          // Set target value for lerping game world position.
-	          _this3.targetX = _this3.parent.x + changeLatitude * 100000;
-	          _this3.targetY = _this3.parent.y + changeLongidude * 100000;
+	          _this3.targetX = (0, _helpers.pixelCoordFromGeoCoord)(_this3.currentGeoAnchor.longitude, _this3.longitude);
+	          _this3.targetY = (0, _helpers.pixelCoordFromGeoCoord)(_this3.currentGeoAnchor.latitude, _this3.latitude);
 	        }
 	
 	        _this3.updateMessage('position: ' + _this3.longitude.toFixed(6) + ', ' + _this3.latitude.toFixed(6) + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude).toFixed(6) + ', ' + (_this3.lastLatitude - _this3.latitude).toFixed(6));
@@ -1184,7 +1185,8 @@
 	  }, {
 	    key: 'update',
 	    value: function update() {
-	      this.parent.rotation = this.state.math.degToRad(this.heading);
+	      // this.parent.rotation = this.state.math.degToRad(this.heading);
+	      this.parent.rotation = this.state.math.degToRad(this.state.math.wrapAngle(this.heading) + 180);
 	      this.state.worldgroup.rotation = -1 * this.parent.rotation;
 	
 	      // Get the value within 500 meters (0.005 latlongs)
