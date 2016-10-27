@@ -13,4 +13,12 @@ export class Pickup extends MapSpriteController {
 
     // setTimeout(() => this.parent.destroy(), this.life * 1000);
 	}
+
+  update () {
+    super.update();
+    if (Date.now() > this.deathTime) {
+      console.log('destroying!');
+      this.parent.destroy();
+    }
+  }
 }

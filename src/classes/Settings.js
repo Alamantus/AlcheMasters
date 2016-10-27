@@ -40,8 +40,8 @@ export class Settings {
     this.lerpPercent = 0.01;
 
     this.pickupLife = {
-      min: 60
-    , max: 180
+      min: 120
+    , max: 300
     }
   }
 }

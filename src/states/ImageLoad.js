@@ -4,6 +4,8 @@ import 'phaser';
 
 import redSquareImagePath from '../images/ui/red-square.png';
 import compassImagePath from '../images/ui/compass.png';
+import shadowImagePath from '../images/ui/shadow.png';
+import pinImagePath from '../images/ui/pin_neutral.png';
 
 export class ImageLoad extends Phaser.State {
 	constructor() {
@@ -16,6 +18,8 @@ export class ImageLoad extends Phaser.State {
 	preload () {
     this.load.spritesheet('red-square', redSquareImagePath, 32, 32);
     this.load.spritesheet('compass', compassImagePath, 32, 32);
+    this.load.spritesheet('shadow', shadowImagePath, 32, 32);
+    this.load.spritesheet('pin_neutral', pinImagePath, 32, 32);
 	}
 
   create () {

@@ -16,7 +16,7 @@ export class MapSpriteController {
     this.longitude = longitude;
 
     // this.parent.x = pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.longitude, this.longitude);
-    // this.parent.y = pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.latitude, this.latitude);
+    // this.parent.y = -pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.latitude, this.latitude);
     // console.log('item latlong: ' + this.longitude + ', ' + this.latitude + '\nitem coords: ' + this.parent.x + ', ' + this.parent.y);
 
     // this.updatePosition();
@@ -37,6 +37,8 @@ export class MapSpriteController {
         this.parent.scale.setTo(1, 1);
       }
     }
+    
+    // this.parent.shadow.scale.setTo(this.parent.scale.x, this.parent.scale.y);
   }
 
   update () {

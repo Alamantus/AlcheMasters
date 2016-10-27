@@ -43,6 +43,8 @@ export class PortraitInterface extends Phaser.State {
   }
 
   create () {
+    this.stage.backgroundColor = 0x4488aa;
+
     this.map = {
       pickups: []
     , places: []
@@ -67,7 +69,7 @@ export class PortraitInterface extends Phaser.State {
       this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
       this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
 
-      if (this.map.pickups.length === 0) {
+      if (this.worldgroup.children.filter((child) => {return (typeof child.pickup !== 'undefined')}).length === 0) {
         this.generatePickups();
       }
 
@@ -110,9 +112,13 @@ export class PortraitInterface extends Phaser.State {
     this.itemCheckFrameDelay--;
     if (this.hasGeneratedItems) {
       if (this.itemCheckFrameDelay <= 0) {
-        this.map.pickups.forEach((pickup) => {
-          pickup.pickup.update();
+        this.worldgroup.children.forEach((child) => {
+          // If it's a pickup, run the update method.
+          if (child.pickup) {
+            child.pickup.update();
+          }
         });
+
         // Only check items once every this number of frames.
         this.itemCheckFrameDelay = window.settings.itemCheckDelayNumberOfFrames;
       }
@@ -145,10 +151,11 @@ export class PortraitInterface extends Phaser.State {
   }
 
   moveWorldgroupIfPast () {
-    console.log('Last Intermediate Latitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, this.lastIntermediateAnchorLatitude)
-                + '\nCurrent Intermediate Latitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.intermediateLatitude)
-                + '\n\nLast Intermediate Longitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, this.lastIntermediateAnchorLongitude)
-                + '\nCurrent Intermediate Longitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, this.player.nav.currentGeoAnchor.intermediateLongitude))
+    // console.log('Last Intermediate Latitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, this.lastIntermediateAnchorLatitude)
+    //             + '\nCurrent Intermediate Latitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.intermediateLatitude)
+    //             + '\n\nLast Intermediate Longitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, this.lastIntermediateAnchorLongitude)
+    //             + '\nCurrent Intermediate Longitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, this.player.nav.currentGeoAnchor.intermediateLongitude))
+
     if (this.lastIntermediateAnchorLatitude !== this.player.nav.currentGeoAnchor.intermediateLatitude
         || this.lastIntermediateAnchorLongitude !== this.player.nav.currentGeoAnchor.intermediateLongitude)
     {
@@ -259,9 +266,10 @@ export class PortraitInterface extends Phaser.State {
 
       // While the generated values are within range of another item, keep regenerating,
       // but only a limited number of times.
-      while (timesRegenerated < window.settings.regeneratePositionTries && (this.map.pickups.some((element) => {
-              return (position.x < element.x + element.width && position.x > element.x - element.width
-                      && position.y < element.y + element.height && position.y > element.y - element.height);
+      while (timesRegenerated < window.settings.regeneratePositionTries && (this.worldgroup.children.some((element) => {
+              return ((element.pickup)
+                      && (position.x < element.x + element.width && position.x > element.x - element.width
+                          && position.y < element.y + element.height && position.y > element.y - element.height));
             })))
       {
         randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY);
@@ -275,12 +283,12 @@ export class PortraitInterface extends Phaser.State {
       let pickup = this.add.sprite(position.x, position.y, 'red-square');
       pickup.anchor.setTo(0.5, 1);
       pickup.pickup = new Pickup(pickup, this.player, randomLatitude, randomLongitude);
+      pickup.onDestroy = () => pickup.pickup = null;
       // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
       this.worldgroup.add(pickup);
-      this.map.pickups.push(pickup);
     }
 
-    console.log(this.map.pickups.length + ' items generated');
+    console.log(this.worldgroup.children.filter((child) => {return child.pickup}).length + ' items generated');
 
     this.hasGeneratedItems = true;
   }
@@ -288,20 +296,30 @@ export class PortraitInterface extends Phaser.State {
   generatePickupsGrid () {
     console.log('generating pickups in a grid');
 
-    for (let x = -Math.floor(this.world.width * 0.5); x < this.world.width; x += Math.floor(this.world.width / 50)) {
-      for (let y = -Math.floor(this.world.width * 0.5); y < this.world.height; y += Math.floor(this.world.width / 50)) {
+    for (let x = -Math.floor(this.world.width * 0.5); x < this.world.width; x += Math.floor(this.world.width / 30)) {
+      for (let y = -Math.floor(this.world.width * 0.5); y < this.world.height; y += Math.floor(this.world.width / 30)) {
         if (!(x === 0 && y === 0)) {
-          let pickup = this.add.sprite(x, y, 'red-square');
-          pickup.anchor.setTo(0.5, 1);
-          pickup.pickup = new Pickup(pickup, this.player, 0, 0);
+          // let shadow = this.add.image(x, y, 'shadow');
+          // shadow.anchor.setTo(0.1, 0.5);
+          // shadow.tint = 0xaaaaaa;
+          // this.worldgroup.add(shadow);
           // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
+          
+          let pickup = this.add.sprite(x, y, 'pin_neutral');
+          pickup.tint = 0x74de70;
+          pickup.anchor.setTo(0.5, 0.9);
+          pickup.pickup = new Pickup(pickup, this.player, 0, 0);
+          // pickup.shadow = shadow;
+          pickup.events.onDestroy.add(() => {
+            // pickup.shadow.destroy();
+            pickup.pickup = null;
+          });
           this.worldgroup.add(pickup);
-          this.map.pickups.push(pickup);
         }
       }
     }
 
-    console.log(this.map.pickups.length + ' items generated');
+    console.log(this.worldgroup.children.filter((child) => {return child.pickup}).length + ' items generated');
 
     this.hasGeneratedItems = true;
   }
