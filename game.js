@@ -1065,7 +1065,7 @@
 	          _this.lastCheck = position.timestamp;
 	
 	          _this.parent.x = _this.targetX = (0, _helpers.pixelCoordFromGeoCoord)(_this.currentGeoAnchor.longitude, _this.longitude);
-	          _this.parent.y = _this.targetY = (0, _helpers.pixelCoordFromGeoCoord)(_this.currentGeoAnchor.latitude, _this.latitude);
+	          _this.parent.y = _this.targetY = -(0, _helpers.pixelCoordFromGeoCoord)(_this.currentGeoAnchor.latitude, _this.latitude);
 	
 	          _this.updateMessage(_this.messages.geolocationReady + '\nGeoposition: ' + _this.latitude + ', ' + _this.longitude);
 	
@@ -1138,7 +1138,7 @@
 	
 	          // Set target value for lerping game world position.
 	          _this3.targetX = (0, _helpers.pixelCoordFromGeoCoord)(_this3.currentGeoAnchor.longitude, _this3.longitude);
-	          _this3.targetY = (0, _helpers.pixelCoordFromGeoCoord)(_this3.currentGeoAnchor.latitude, _this3.latitude);
+	          _this3.targetY = -(0, _helpers.pixelCoordFromGeoCoord)(_this3.currentGeoAnchor.latitude, _this3.latitude);
 	        }
 	
 	        _this3.updateMessage('position: ' + _this3.longitude.toFixed(6) + ', ' + _this3.latitude.toFixed(6) + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude).toFixed(6) + ', ' + (_this3.lastLatitude - _this3.latitude).toFixed(6));
@@ -1793,10 +1793,10 @@
 	            this.state.worldgroup.rotation = -this.state.math.degToRad(this.heading);
 	
 	            if (this.state.input.keyboard.isDown(Phaser.Keyboard.UP)) {
-	                coords.latitude -= this.latLongSpeed * Math.cos(this.parent.rotation);
+	                coords.latitude += this.latLongSpeed * Math.cos(this.parent.rotation);
 	                coords.longitude += this.latLongSpeed * Math.sin(this.parent.rotation);
 	            } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-	                coords.latitude += this.latLongSpeed * Math.cos(this.parent.rotation);
+	                coords.latitude -= this.latLongSpeed * Math.cos(this.parent.rotation);
 	                coords.longitude -= this.latLongSpeed * Math.sin(this.parent.rotation);
 	            }
 	
@@ -1806,7 +1806,7 @@
 	            // let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 1000000);
 	            // let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 1000000);
 	            var targetX = (0, _helpers.pixelCoordFromGeoCoord)(this.currentGeoAnchor.longitude, this.longitude);
-	            var targetY = (0, _helpers.pixelCoordFromGeoCoord)(this.currentGeoAnchor.latitude, this.latitude);
+	            var targetY = -(0, _helpers.pixelCoordFromGeoCoord)(this.currentGeoAnchor.latitude, this.latitude);
 	
 	            // 1000000 gives latlong change within 1/10 of a meter.
 	            this.parent.x = targetX;
