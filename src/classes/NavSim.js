@@ -78,10 +78,10 @@ export class NavSim {
     this.state.worldgroup.rotation = -this.state.math.degToRad(this.heading);
 
     if (this.state.input.keyboard.isDown(Phaser.Keyboard.UP)) {
-      coords.latitude -= this.latLongSpeed * Math.cos(this.parent.rotation);
+      coords.latitude += this.latLongSpeed * Math.cos(this.parent.rotation);
       coords.longitude += this.latLongSpeed * Math.sin(this.parent.rotation);
     } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-      coords.latitude += this.latLongSpeed * Math.cos(this.parent.rotation);
+      coords.latitude -= this.latLongSpeed * Math.cos(this.parent.rotation);
       coords.longitude -= this.latLongSpeed * Math.sin(this.parent.rotation);
     }
 
@@ -91,7 +91,7 @@ export class NavSim {
     // let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 1000000);
     // let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 1000000);
     let targetX = pixelCoordFromGeoCoord(this.currentGeoAnchor.longitude, this.longitude);
-    let targetY = pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
+    let targetY = -pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
 
     // 1000000 gives latlong change within 1/10 of a meter.
     this.parent.x = targetX;

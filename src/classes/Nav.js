@@ -82,7 +82,7 @@ export class Nav {
         this.lastCheck = position.timestamp;
 
         this.parent.x = this.targetX = pixelCoordFromGeoCoord(this.currentGeoAnchor.longitude, this.longitude);
-        this.parent.y = this.targetY = pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
+        this.parent.y = this.targetY = -pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
 
         this.updateMessage(`${this.messages.geolocationReady}\nGeoposition: ${this.latitude}, ${this.longitude}`);
 
@@ -149,7 +149,7 @@ export class Nav {
 
         // Set target value for lerping game world position.
         this.targetX = pixelCoordFromGeoCoord(this.currentGeoAnchor.longitude, this.longitude);
-        this.targetY = pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
+        this.targetY = -pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
       }
 
       this.updateMessage(`position: ${this.longitude.toFixed(6)}, ${this.latitude.toFixed(6)}\nchanged: ${(this.lastLongitude - this.longitude).toFixed(6)}, ${(this.lastLatitude - this.latitude).toFixed(6)}`);
