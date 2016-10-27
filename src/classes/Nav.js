@@ -148,8 +148,8 @@ export class Nav {
         this.currentGeoAnchor.intermediateLongitude = closestMultipleOf(window.settings.halfGeoAnchorPlacement, this.longitude);
 
         // Set target value for lerping game world position.
-        this.targetX = this.parent.x + (changeLatitude * 100000);
-        this.targetY = this.parent.y + (changeLongidude * 100000);
+        this.targetX = pixelCoordFromGeoCoord(this.currentGeoAnchor.longitude, this.longitude);
+        this.targetY = pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
       }
 
       this.updateMessage(`position: ${this.longitude.toFixed(6)}, ${this.latitude.toFixed(6)}\nchanged: ${(this.lastLongitude - this.longitude).toFixed(6)}, ${(this.lastLatitude - this.latitude).toFixed(6)}`);
@@ -159,19 +159,21 @@ export class Nav {
     }, {enableHighAccuracy: true, timeout: 5000, maximumAge: 0});
   }
 
-  stopNav () {
+  stopNavWatchers () {
     if (this.geoWatcherIsActive) {
       navigator.geowatcher.clearWatch(this.geoWatcher);
+      this.geoWatcherIsActive = false;
     }
     if (this.compassWatcherIsActive) {
       Compass.unwatch(this.compassWatcher);
+      this.compasWatcherIsActive = false;
     }
   }
 
   revertToNavSim () {
     // Replace reference to self with new NavSim, effectively self-destructing.
     this.updateMessage('');
-    this.stopNav();
+    this.stopNavWatchers();
     console.log('Reverting to NavSim');
     this.parent.nav = new NavSim(this.parent, this.latitude, this.longitude);
   }

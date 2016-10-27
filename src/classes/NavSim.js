@@ -1,4 +1,4 @@
-import {closestMultipleOf} from '../js/helpers';
+import {closestMultipleOf, pixelCoordFromGeoCoord} from '../js/helpers';
 
 export class NavSim {
 	constructor (parent, latitude, longitude) {
@@ -88,8 +88,10 @@ export class NavSim {
     this.latitude = coords.latitude;
     this.longitude = coords.longitude;
 
-    let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 1000000);
-    let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 1000000);
+    // let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 1000000);
+    // let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 1000000);
+    let targetX = pixelCoordFromGeoCoord(this.currentGeoAnchor.longitude, this.longitude);
+    let targetY = pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
 
     // 1000000 gives latlong change within 1/10 of a meter.
     this.parent.x = targetX;
