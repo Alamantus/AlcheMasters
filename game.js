@@ -1104,8 +1104,7 @@
 	            _this2.lastHeading = _this2.heading;
 	
 	            if (!_this2.headingIsInsideMarginOfError(heading)) {
-	              // this.heading = heading;
-	              _this2.heading = heading - 180;
+	              _this2.heading = heading;
 	              // this.updateMessage(this.heading);
 	            }
 	          });
@@ -1148,13 +1147,15 @@
 	      }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
 	    }
 	  }, {
-	    key: 'stopNav',
-	    value: function stopNav() {
+	    key: 'stopNavWatchers',
+	    value: function stopNavWatchers() {
 	      if (this.geoWatcherIsActive) {
 	        navigator.geowatcher.clearWatch(this.geoWatcher);
+	        this.geoWatcherIsActive = false;
 	      }
 	      if (this.compassWatcherIsActive) {
 	        Compass.unwatch(this.compassWatcher);
+	        this.compasWatcherIsActive = false;
 	      }
 	    }
 	  }, {
@@ -1162,7 +1163,7 @@
 	    value: function revertToNavSim() {
 	      // Replace reference to self with new NavSim, effectively self-destructing.
 	      this.updateMessage('');
-	      this.stopNav();
+	      this.stopNavWatchers();
 	      console.log('Reverting to NavSim');
 	      this.parent.nav = new _NavSim.NavSim(this.parent, this.latitude, this.longitude);
 	    }
@@ -1185,8 +1186,7 @@
 	  }, {
 	    key: 'update',
 	    value: function update() {
-	      // this.parent.rotation = this.state.math.degToRad(this.heading);
-	      this.parent.rotation = this.state.math.degToRad(this.state.math.wrapAngle(this.heading) + 180);
+	      this.parent.rotation = this.state.math.degToRad(this.heading);
 	      this.state.worldgroup.rotation = -1 * this.parent.rotation;
 	
 	      // Get the value within 500 meters (0.005 latlongs)
@@ -1803,8 +1803,10 @@
 	            this.latitude = coords.latitude;
 	            this.longitude = coords.longitude;
 	
-	            var targetX = this.parent.x + (this.longitude - this.lastLongitude) * 1000000;
-	            var targetY = this.parent.y + (this.latitude - this.lastLatitude) * 1000000;
+	            // let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 1000000);
+	            // let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 1000000);
+	            var targetX = (0, _helpers.pixelCoordFromGeoCoord)(this.currentGeoAnchor.longitude, this.longitude);
+	            var targetY = (0, _helpers.pixelCoordFromGeoCoord)(this.currentGeoAnchor.latitude, this.latitude);
 	
 	            // 1000000 gives latlong change within 1/10 of a meter.
 	            this.parent.x = targetX;
