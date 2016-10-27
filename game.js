@@ -746,6 +746,8 @@
 	        if (this.map.pickups.length === 0) {
 	          this.generatePickups();
 	        }
+	
+	        console.log('Player At: ' + this.player.x + ', ' + this.player.y);
 	      } else {
 	        this.player.nav = new _Nav.Nav(this.player, window.settings.locationCheckDelaySeconds, function (anchorLatitude, anchorLongitude) {
 	          _this2.setNewSeedFromGeoAnchor(anchorLatitude, anchorLongitude);
@@ -755,6 +757,7 @@
 	
 	          // this.generatePickups();
 	          _this2.generatePickupsGrid();
+	          console.log('Player At: ' + _this2.player.x + ', ' + _this2.player.y);
 	        });
 	      }
 	      this.worldgroup.add(this.player);
@@ -822,41 +825,44 @@
 	    value: function moveWorldgroupIfPast() {
 	      var _this3 = this;
 	
+	      console.log('Last Intermediate Latitude: ' + (0, _helpers.pixelCoordFromGeoCoord)(this.player.nav.currentGeoAnchor.latitude, this.lastIntermediateAnchorLatitude) + '\nCurrent Intermediate Latitude: ' + (0, _helpers.pixelCoordFromGeoCoord)(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.intermediateLatitude) + '\n\nLast Intermediate Longitude: ' + (0, _helpers.pixelCoordFromGeoCoord)(this.player.nav.currentGeoAnchor.longitude, this.lastIntermediateAnchorLongitude) + '\nCurrent Intermediate Longitude: ' + (0, _helpers.pixelCoordFromGeoCoord)(this.player.nav.currentGeoAnchor.longitude, this.player.nav.currentGeoAnchor.intermediateLongitude));
 	      if (this.lastIntermediateAnchorLatitude !== this.player.nav.currentGeoAnchor.intermediateLatitude || this.lastIntermediateAnchorLongitude !== this.player.nav.currentGeoAnchor.intermediateLongitude) {
 	        if (!(this.lastIntermediateAnchorLatitude === this.player.nav.currentGeoAnchor.latitude && this.lastIntermediateAnchorLongitude === this.player.nav.currentGeoAnchor.longitude)) {
 	          (function () {
 	            var offsetX = 0,
 	                offsetY = 0;
 	
-	            if (_this3.lastIntermediateAnchorLatitude > _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude === _this3.player.nav.currentGeoAnchor.longitude) {
+	            if (_this3.lastIntermediateAnchorLongitude > _this3.player.nav.currentGeoAnchor.longitude && _this3.lastIntermediateAnchorLatitude === _this3.player.nav.currentGeoAnchor.latitude) {
 	              // East
-	              offsetX = 2500;
-	            } else if (_this3.lastIntermediateAnchorLatitude > _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude > _this3.player.nav.currentGeoAnchor.longitude) {
+	              offsetX = -2500;
+	            } else if (_this3.lastIntermediateAnchorLongitude > _this3.player.nav.currentGeoAnchor.longitude && _this3.lastIntermediateAnchorLatitude > _this3.player.nav.currentGeoAnchor.latitude) {
 	              // NorthEast
-	              offsetX = 2500;
+	              offsetX = -2500;
 	              offsetY = 2500;
-	            } else if (_this3.lastIntermediateAnchorLatitude === _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude > _this3.player.nav.currentGeoAnchor.longitude) {
+	            } else if (_this3.lastIntermediateAnchorLongitude === _this3.player.nav.currentGeoAnchor.longitude && _this3.lastIntermediateAnchorLatitude > _this3.player.nav.currentGeoAnchor.latitude) {
 	              // North
 	              offsetY = 2500;
-	            } else if (_this3.lastIntermediateAnchorLatitude < _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude > _this3.player.nav.currentGeoAnchor.longitude) {
+	            } else if (_this3.lastIntermediateAnchorLongitude < _this3.player.nav.currentGeoAnchor.longitude && _this3.lastIntermediateAnchorLatitude > _this3.player.nav.currentGeoAnchor.latitude) {
 	              // NorthWest
-	              offsetX = -2500;
+	              offsetX = 2500;
 	              offsetY = 2500;
-	            } else if (_this3.lastIntermediateAnchorLatitude < _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude === _this3.player.nav.currentGeoAnchor.longitude) {
+	            } else if (_this3.lastIntermediateAnchorLongitude < _this3.player.nav.currentGeoAnchor.longitude && _this3.lastIntermediateAnchorLatitude === _this3.player.nav.currentGeoAnchor.latitude) {
 	              // West
-	              offsetX = -2500;
-	            } else if (_this3.lastIntermediateAnchorLatitude < _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude < _this3.player.nav.currentGeoAnchor.longitude) {
+	              offsetX = 2500;
+	            } else if (_this3.lastIntermediateAnchorLongitude < _this3.player.nav.currentGeoAnchor.longitude && _this3.lastIntermediateAnchorLatitude < _this3.player.nav.currentGeoAnchor.latitude) {
 	              // SouthWest
-	              offsetX = -2500;
-	              offsetY = -2500;
-	            } else if (_this3.lastIntermediateAnchorLatitude === _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude < _this3.player.nav.currentGeoAnchor.longitude) {
-	              // South
-	              offsetY = -2500;
-	            } else if (_this3.lastIntermediateAnchorLatitude === _this3.player.nav.currentGeoAnchor.latitude && _this3.lastIntermediateAnchorLongitude < _this3.player.nav.currentGeoAnchor.longitude) {
-	              // SouthEast
 	              offsetX = 2500;
 	              offsetY = -2500;
+	            } else if (_this3.lastIntermediateAnchorLongitude === _this3.player.nav.currentGeoAnchor.longitude && _this3.lastIntermediateAnchorLatitude < _this3.player.nav.currentGeoAnchor.latitude) {
+	              // South
+	              offsetY = -2500;
+	            } else if (_this3.lastIntermediateAnchorLongitude === _this3.player.nav.currentGeoAnchor.longitude && _this3.lastIntermediateAnchorLatitude < _this3.player.nav.currentGeoAnchor.latitude) {
+	              // SouthEast
+	              offsetX = -2500;
+	              offsetY = -2500;
 	            }
+	
+	            console.log('Player At Before Move: ' + _this3.player.x + ', ' + _this3.player.y);
 	
 	            _this3.worldgroup.children.forEach(function (child) {
 	              child.x += offsetX;
@@ -864,6 +870,7 @@
 	            });
 	
 	            console.log('objects moved by ' + offsetX + ', ' + offsetY);
+	            console.log('Player At After Move: ' + _this3.player.x + ', ' + _this3.player.y);
 	          })();
 	        }
 	
