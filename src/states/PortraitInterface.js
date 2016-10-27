@@ -43,7 +43,7 @@ export class PortraitInterface extends Phaser.State {
   }
 
   create () {
-    this.stage.backgroundColor = 0x4488aa;
+    // this.stage.backgroundColor = 0x4488aa;
 
     this.map = {
       pickups: []
@@ -90,6 +90,10 @@ export class PortraitInterface extends Phaser.State {
     this.worldgroup.add(this.player);
     this.cursors = this.game.input.keyboard.createCursorKeys();
 
+    let screenRotationDiameter = this.math.distance(0, 0, this.game.width, this.game.height);
+    this.bg = this.add.tileSprite(this.player.x, this.player.y, screenRotationDiameter, screenRotationDiameter, 'paper');
+    this.bg.anchor.setTo(0.5, 0.5);
+    this.worldgroup.add(this.bg);
     
     // console.log('compass at: ' + this.player.x + ', ' + this.player.y);
 
@@ -105,9 +109,16 @@ export class PortraitInterface extends Phaser.State {
   }
 
   update () {
+    this.bg.sendToBack();
+
     this.player.nav.update();
     if (this.player.nav.type == 'prod') {
     }
+    
+    this.bg.x = this.player.x;
+    this.bg.y = this.player.y;
+    this.bg.tilePosition.x = -this.player.x / this.bg.tileScale.x;
+    this.bg.tilePosition.y = -this.player.y / this.bg.tileScale.y;
 
     this.itemCheckFrameDelay--;
     if (this.hasGeneratedItems) {
@@ -306,7 +317,7 @@ export class PortraitInterface extends Phaser.State {
           // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
           
           let pickup = this.add.sprite(x, y, 'pin_neutral');
-          pickup.tint = 0x74de70;
+          pickup.tint = 0x22ac00;
           pickup.anchor.setTo(0.5, 0.9);
           pickup.pickup = new Pickup(pickup, this.player, 0, 0);
           // pickup.shadow = shadow;
