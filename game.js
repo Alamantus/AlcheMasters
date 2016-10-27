@@ -578,6 +578,14 @@
 	
 	var _compass2 = _interopRequireDefault(_compass);
 	
+	var _shadow = __webpack_require__(/*! ../images/ui/shadow.png */ 28);
+	
+	var _shadow2 = _interopRequireDefault(_shadow);
+	
+	var _pin_neutral = __webpack_require__(/*! ../images/ui/pin_neutral.png */ 30);
+	
+	var _pin_neutral2 = _interopRequireDefault(_pin_neutral);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -603,6 +611,8 @@
 	    value: function preload() {
 	      this.load.spritesheet('red-square', _redSquare2.default, 32, 32);
 	      this.load.spritesheet('compass', _compass2.default, 32, 32);
+	      this.load.spritesheet('shadow', _shadow2.default, 32, 32);
+	      this.load.spritesheet('pin_neutral', _pin_neutral2.default, 32, 32);
 	    }
 	  }, {
 	    key: 'create',
@@ -719,6 +729,8 @@
 	    value: function create() {
 	      var _this2 = this;
 	
+	      this.stage.backgroundColor = 0x4488aa;
+	
 	      this.map = {
 	        pickups: [],
 	        places: []
@@ -743,7 +755,9 @@
 	        this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
 	        this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
 	
-	        if (this.map.pickups.length === 0) {
+	        if (this.worldgroup.children.filter(function (child) {
+	          return typeof child.pickup !== 'undefined';
+	        }).length === 0) {
 	          this.generatePickups();
 	        }
 	
@@ -785,9 +799,13 @@
 	      this.itemCheckFrameDelay--;
 	      if (this.hasGeneratedItems) {
 	        if (this.itemCheckFrameDelay <= 0) {
-	          this.map.pickups.forEach(function (pickup) {
-	            pickup.pickup.update();
+	          this.worldgroup.children.forEach(function (child) {
+	            // If it's a pickup, run the update method.
+	            if (child.pickup) {
+	              child.pickup.update();
+	            }
 	          });
+	
 	          // Only check items once every this number of frames.
 	          this.itemCheckFrameDelay = window.settings.itemCheckDelayNumberOfFrames;
 	        }
@@ -825,7 +843,11 @@
 	    value: function moveWorldgroupIfPast() {
 	      var _this3 = this;
 	
-	      console.log('Last Intermediate Latitude: ' + (0, _helpers.pixelCoordFromGeoCoord)(this.player.nav.currentGeoAnchor.latitude, this.lastIntermediateAnchorLatitude) + '\nCurrent Intermediate Latitude: ' + (0, _helpers.pixelCoordFromGeoCoord)(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.intermediateLatitude) + '\n\nLast Intermediate Longitude: ' + (0, _helpers.pixelCoordFromGeoCoord)(this.player.nav.currentGeoAnchor.longitude, this.lastIntermediateAnchorLongitude) + '\nCurrent Intermediate Longitude: ' + (0, _helpers.pixelCoordFromGeoCoord)(this.player.nav.currentGeoAnchor.longitude, this.player.nav.currentGeoAnchor.intermediateLongitude));
+	      // console.log('Last Intermediate Latitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, this.lastIntermediateAnchorLatitude)
+	      //             + '\nCurrent Intermediate Latitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.intermediateLatitude)
+	      //             + '\n\nLast Intermediate Longitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, this.lastIntermediateAnchorLongitude)
+	      //             + '\nCurrent Intermediate Longitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, this.player.nav.currentGeoAnchor.intermediateLongitude))
+	
 	      if (this.lastIntermediateAnchorLatitude !== this.player.nav.currentGeoAnchor.intermediateLatitude || this.lastIntermediateAnchorLongitude !== this.player.nav.currentGeoAnchor.intermediateLongitude) {
 	        if (!(this.lastIntermediateAnchorLatitude === this.player.nav.currentGeoAnchor.latitude && this.lastIntermediateAnchorLongitude === this.player.nav.currentGeoAnchor.longitude)) {
 	          (function () {
@@ -923,8 +945,8 @@
 	
 	        // While the generated values are within range of another item, keep regenerating,
 	        // but only a limited number of times.
-	        while (timesRegenerated < window.settings.regeneratePositionTries && _this4.map.pickups.some(function (element) {
-	          return position.x < element.x + element.width && position.x > element.x - element.width && position.y < element.y + element.height && position.y > element.y - element.height;
+	        while (timesRegenerated < window.settings.regeneratePositionTries && _this4.worldgroup.children.some(function (element) {
+	          return element.pickup && position.x < element.x + element.width && position.x > element.x - element.width && position.y < element.y + element.height && position.y > element.y - element.height;
 	        })) {
 	          randomLatitude = _this4.rnd.realInRange(anchorMinY, anchorMaxY);
 	          randomLongitude = _this4.rnd.realInRange(anchorMinX, anchorMaxX);
@@ -937,38 +959,58 @@
 	        var pickup = _this4.add.sprite(position.x, position.y, 'red-square');
 	        pickup.anchor.setTo(0.5, 1);
 	        pickup.pickup = new _Pickup.Pickup(pickup, _this4.player, randomLatitude, randomLongitude);
+	        pickup.onDestroy = function () {
+	          return pickup.pickup = null;
+	        };
 	        // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
 	        _this4.worldgroup.add(pickup);
-	        _this4.map.pickups.push(pickup);
 	      };
 	
 	      for (var i = 0; i < numberOfItems; i++) {
 	        _loop(i);
 	      }
 	
-	      console.log(this.map.pickups.length + ' items generated');
+	      console.log(this.worldgroup.children.filter(function (child) {
+	        return child.pickup;
+	      }).length + ' items generated');
 	
 	      this.hasGeneratedItems = true;
 	    }
 	  }, {
 	    key: 'generatePickupsGrid',
 	    value: function generatePickupsGrid() {
+	      var _this5 = this;
+	
 	      console.log('generating pickups in a grid');
 	
-	      for (var x = -Math.floor(this.world.width * 0.5); x < this.world.width; x += Math.floor(this.world.width / 50)) {
-	        for (var y = -Math.floor(this.world.width * 0.5); y < this.world.height; y += Math.floor(this.world.width / 50)) {
+	      for (var x = -Math.floor(this.world.width * 0.5); x < this.world.width; x += Math.floor(this.world.width / 30)) {
+	        for (var y = -Math.floor(this.world.width * 0.5); y < this.world.height; y += Math.floor(this.world.width / 30)) {
 	          if (!(x === 0 && y === 0)) {
-	            var pickup = this.add.sprite(x, y, 'red-square');
-	            pickup.anchor.setTo(0.5, 1);
-	            pickup.pickup = new _Pickup.Pickup(pickup, this.player, 0, 0);
-	            // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
-	            this.worldgroup.add(pickup);
-	            this.map.pickups.push(pickup);
+	            (function () {
+	              // let shadow = this.add.image(x, y, 'shadow');
+	              // shadow.anchor.setTo(0.1, 0.5);
+	              // shadow.tint = 0xaaaaaa;
+	              // this.worldgroup.add(shadow);
+	              // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
+	
+	              var pickup = _this5.add.sprite(x, y, 'pin_neutral');
+	              pickup.tint = 0x74de70;
+	              pickup.anchor.setTo(0.5, 0.9);
+	              pickup.pickup = new _Pickup.Pickup(pickup, _this5.player, 0, 0);
+	              // pickup.shadow = shadow;
+	              pickup.events.onDestroy.add(function () {
+	                // pickup.shadow.destroy();
+	                pickup.pickup = null;
+	              });
+	              _this5.worldgroup.add(pickup);
+	            })();
 	          }
 	        }
 	      }
 	
-	      console.log(this.map.pickups.length + ' items generated');
+	      console.log(this.worldgroup.children.filter(function (child) {
+	        return child.pickup;
+	      }).length + ' items generated');
 	
 	      this.hasGeneratedItems = true;
 	    }
@@ -1845,9 +1887,13 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	exports.Pickup = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 	
 	var _MapSpriteController2 = __webpack_require__(/*! ./MapSpriteController */ 22);
 	
@@ -1860,23 +1906,34 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var Pickup = exports.Pickup = function (_MapSpriteController) {
-	    _inherits(Pickup, _MapSpriteController);
+	  _inherits(Pickup, _MapSpriteController);
 	
-	    function Pickup(parentObject, compassObject, latitude, longitude) {
-	        _classCallCheck(this, Pickup);
+	  function Pickup(parentObject, compassObject, latitude, longitude) {
+	    _classCallCheck(this, Pickup);
 	
-	        // Time before destruction in seconds.
-	        var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject, latitude, longitude));
+	    // Time before destruction in seconds.
+	    var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject, latitude, longitude));
 	
-	        _this.life = (0, _helpers.getRandomInt)(window.settings.pickupLife.min, window.settings.pickupLife.max);
+	    _this.life = (0, _helpers.getRandomInt)(window.settings.pickupLife.min, window.settings.pickupLife.max);
 	
-	        _this.deathTime = Date.now() + _this.life * 1000;
+	    _this.deathTime = Date.now() + _this.life * 1000;
 	
-	        // setTimeout(() => this.parent.destroy(), this.life * 1000);
-	        return _this;
+	    // setTimeout(() => this.parent.destroy(), this.life * 1000);
+	    return _this;
+	  }
+	
+	  _createClass(Pickup, [{
+	    key: 'update',
+	    value: function update() {
+	      _get(Pickup.prototype.__proto__ || Object.getPrototypeOf(Pickup.prototype), 'update', this).call(this);
+	      if (Date.now() > this.deathTime) {
+	        console.log('destroying!');
+	        this.parent.destroy();
+	      }
 	    }
-	
-	    return Pickup;
+	  }]);
+
+	  return Pickup;
 	}(_MapSpriteController2.MapSpriteController);
 
 /***/ },
@@ -1917,7 +1974,7 @@
 	    this.longitude = longitude;
 	
 	    // this.parent.x = pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.longitude, this.longitude);
-	    // this.parent.y = pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.latitude, this.latitude);
+	    // this.parent.y = -pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.latitude, this.latitude);
 	    // console.log('item latlong: ' + this.longitude + ', ' + this.latitude + '\nitem coords: ' + this.parent.x + ', ' + this.parent.y);
 	
 	    // this.updatePosition();
@@ -1940,6 +1997,8 @@
 	          this.parent.scale.setTo(1, 1);
 	        }
 	      }
+	
+	      // this.parent.shadow.scale.setTo(this.parent.scale.x, this.parent.scale.y);
 	    }
 	  }, {
 	    key: 'update',
@@ -3625,12 +3684,31 @@
 	    this.lerpPercent = 0.01;
 	
 	    this.pickupLife = {
-	        min: 60,
-	        max: 180
+	        min: 120,
+	        max: 300
 	    };
 	};
 	
 	var settings = exports.settings = new Settings();
+
+/***/ },
+/* 28 */
+/*!**********************************!*\
+  !*** ./src/images/ui/shadow.png ***!
+  \**********************************/
+/***/ function(module, exports) {
+
+	module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4AobETgiyCNNRQAAAYFJREFUSMfF1c1qFEEUxfFfd0dHR02EGEQJ8RNFXboQN0IeQJ/CJ3ShuHEhqAiuBEECRpRICDHgxDEaddJuTksrrULIjAdqV9X33NNV91/o1hQO4jDmcBancRLHcBR97Mv+b9jCB2zgHd7gFdYxxGeMULcLFR2Fp3ECV3AJCzGyP6tqreZ8jR18T5GvWUO8xUu8wCoG2feLgSJFFnAdV9N5Hz2Udqca2/iE93iGJzE1RF3k47O4hsXEfSQd7qVG+IjXeICn2KhSfBG3cD5dl/ZeZdKcxXwMrVW4gZs4lUtVGJ+KJDsdI4MKt3EOB0xOZer1S1yccPFGPVwo/WeVWMpTmbS2sVTl4s3nYkwqkRFWcK/KZNrB8dYTHNdLqDMFV3Afjyt8wRo2cag148sxdL2ZX34Xj5pBVAcUq1iOoV5SKH+b+bsdxYN0/RB38LxJvgtGM4HR5T/AaCqmyg4YjRLxv2D0k4rFX3Dcb+H4TAvHczHZheNBoNPgeLmF460uHP8AhndpnHETnWoAAAAASUVORK5CYII="
+
+/***/ },
+/* 29 */,
+/* 30 */
+/*!***************************************!*\
+  !*** ./src/images/ui/pin_neutral.png ***!
+  \***************************************/
+/***/ function(module, exports) {
+
+	module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4AobEh8IyxuIrwAAAUxJREFUWMPNliFPw1AURs+rwACeIEAQEiQTBAyYJdOQGRz/ADdFFhx/AYOawC0kSCwhA4cH1AyYmQEJIA6mIwXK2DLWx0le0ryXft/Xpr33BnJQ87YrwDqwDCwCM8BUevYI3AM3wDVwDpx9FQgh8CtqdpXUQ7Xj8HTSe0tZzUGN59SGf0cj1fw5SOZwR+3693RT7e8BMuZ1x0/9U4iMec3iqH2ESC/KFk9ZJaSv4hJYpViugLWgbgInxGErAarEoxrUW2AhUoC7oL4AE5ECvCZEJgHaEf3bCdCKGKCVAM2IAZrRC1HvI9yL8PR7/6MZRW/HsQaSfgHijGTRh9I+IXqrMoR5JU9jZNT1Acw3xvrzqqd9zI/HXj3UJfUtx/xZnS+khKlHOQH2C6uh6qz6lDFvq5OFFnL1IBNgu/BOok6rD+qFGoiBuquujKLxDtu10YdO57bwAAAAAElFTkSuQmCC"
 
 /***/ }
 /******/ ]);
