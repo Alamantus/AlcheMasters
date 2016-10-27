@@ -8,7 +8,7 @@ import {Pickup} from '../classes/Pickup';
 import {Character} from '../classes/Character';
 import {Inventory} from '../classes/Inventory';
 
-import {radians} from '../js/helpers';
+import {radians, pixelCoordFromGeoCoord} from '../js/helpers';
 
 export class PortraitInterface extends Phaser.State {
 	constructor() {
@@ -70,6 +70,8 @@ export class PortraitInterface extends Phaser.State {
       if (this.map.pickups.length === 0) {
         this.generatePickups();
       }
+
+      console.log('Player At: ' + this.player.x + ', ' + this.player.y);
     } else {
       this.player.nav = new Nav(this.player, window.settings.locationCheckDelaySeconds,
         (anchorLatitude, anchorLongitude) => {
@@ -78,7 +80,9 @@ export class PortraitInterface extends Phaser.State {
           this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
           this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
 
-          this.generatePickups();
+          // this.generatePickups();
+          this.generatePickupsGrid();
+          console.log('Player At: ' + this.player.x + ', ' + this.player.y);
         });
     }
     this.worldgroup.add(this.player);
@@ -107,7 +111,7 @@ export class PortraitInterface extends Phaser.State {
     if (this.hasGeneratedItems) {
       if (this.itemCheckFrameDelay <= 0) {
         this.map.pickups.forEach((pickup) => {
-          pickup.pickup.updateScaleByDistance();
+          pickup.pickup.update();
         });
         // Only check items once every this number of frames.
         this.itemCheckFrameDelay = window.settings.itemCheckDelayNumberOfFrames;
@@ -141,6 +145,10 @@ export class PortraitInterface extends Phaser.State {
   }
 
   moveWorldgroupIfPast () {
+    console.log('Last Intermediate Latitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, this.lastIntermediateAnchorLatitude)
+                + '\nCurrent Intermediate Latitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.intermediateLatitude)
+                + '\n\nLast Intermediate Longitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, this.lastIntermediateAnchorLongitude)
+                + '\nCurrent Intermediate Longitude: ' + pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, this.player.nav.currentGeoAnchor.intermediateLongitude))
     if (this.lastIntermediateAnchorLatitude !== this.player.nav.currentGeoAnchor.intermediateLatitude
         || this.lastIntermediateAnchorLongitude !== this.player.nav.currentGeoAnchor.intermediateLongitude)
     {
@@ -150,51 +158,53 @@ export class PortraitInterface extends Phaser.State {
         let offsetX = 0,
             offsetY = 0;
 
-        if (this.lastIntermediateAnchorLatitude > this.player.nav.currentGeoAnchor.latitude
-            && this.lastIntermediateAnchorLongitude === this.player.nav.currentGeoAnchor.longitude)
+        if (this.lastIntermediateAnchorLongitude > this.player.nav.currentGeoAnchor.longitude
+            && this.lastIntermediateAnchorLatitude === this.player.nav.currentGeoAnchor.latitude)
         {
           // East
-          offsetX = 2500;
-        } else if (this.lastIntermediateAnchorLatitude > this.player.nav.currentGeoAnchor.latitude
-            && this.lastIntermediateAnchorLongitude > this.player.nav.currentGeoAnchor.longitude)
+          offsetX = -2500;
+        } else if (this.lastIntermediateAnchorLongitude > this.player.nav.currentGeoAnchor.longitude
+            && this.lastIntermediateAnchorLatitude > this.player.nav.currentGeoAnchor.latitude)
         {
           // NorthEast
-          offsetX = 2500;
+          offsetX = -2500;
           offsetY = 2500;
-        } else if (this.lastIntermediateAnchorLatitude === this.player.nav.currentGeoAnchor.latitude
-            && this.lastIntermediateAnchorLongitude > this.player.nav.currentGeoAnchor.longitude)
+        } else if (this.lastIntermediateAnchorLongitude === this.player.nav.currentGeoAnchor.longitude
+            && this.lastIntermediateAnchorLatitude > this.player.nav.currentGeoAnchor.latitude)
         {
           // North
           offsetY = 2500;
-        } else if (this.lastIntermediateAnchorLatitude < this.player.nav.currentGeoAnchor.latitude
-            && this.lastIntermediateAnchorLongitude > this.player.nav.currentGeoAnchor.longitude)
+        } else if (this.lastIntermediateAnchorLongitude < this.player.nav.currentGeoAnchor.longitude
+            && this.lastIntermediateAnchorLatitude > this.player.nav.currentGeoAnchor.latitude)
         {
           // NorthWest
-          offsetX = -2500;
+          offsetX = 2500;
           offsetY = 2500;
-        } else if (this.lastIntermediateAnchorLatitude < this.player.nav.currentGeoAnchor.latitude
-            && this.lastIntermediateAnchorLongitude === this.player.nav.currentGeoAnchor.longitude)
+        } else if (this.lastIntermediateAnchorLongitude < this.player.nav.currentGeoAnchor.longitude
+            && this.lastIntermediateAnchorLatitude === this.player.nav.currentGeoAnchor.latitude)
         {
           // West
-          offsetX = -2500;
-        } else if (this.lastIntermediateAnchorLatitude < this.player.nav.currentGeoAnchor.latitude
-            && this.lastIntermediateAnchorLongitude < this.player.nav.currentGeoAnchor.longitude)
+          offsetX = 2500;
+        } else if (this.lastIntermediateAnchorLongitude < this.player.nav.currentGeoAnchor.longitude
+            && this.lastIntermediateAnchorLatitude < this.player.nav.currentGeoAnchor.latitude)
         {
           // SouthWest
-          offsetX = -2500;
+          offsetX = 2500;
           offsetY = -2500;
-        } else if (this.lastIntermediateAnchorLatitude === this.player.nav.currentGeoAnchor.latitude
-            && this.lastIntermediateAnchorLongitude < this.player.nav.currentGeoAnchor.longitude)
+        } else if (this.lastIntermediateAnchorLongitude === this.player.nav.currentGeoAnchor.longitude
+            && this.lastIntermediateAnchorLatitude < this.player.nav.currentGeoAnchor.latitude)
         {
           // South
           offsetY = -2500;
-        } else if (this.lastIntermediateAnchorLatitude === this.player.nav.currentGeoAnchor.latitude
-            && this.lastIntermediateAnchorLongitude < this.player.nav.currentGeoAnchor.longitude)
+        } else if (this.lastIntermediateAnchorLongitude === this.player.nav.currentGeoAnchor.longitude
+            && this.lastIntermediateAnchorLatitude < this.player.nav.currentGeoAnchor.latitude)
         {
           // SouthEast
-          offsetX = 2500;
+          offsetX = -2500;
           offsetY = -2500;
         }
+
+        console.log('Player At Before Move: ' + this.player.x + ', ' + this.player.y);
 
         this.worldgroup.children.forEach((child) => {
           child.x += offsetX;
@@ -202,6 +212,7 @@ export class PortraitInterface extends Phaser.State {
         })
 
         console.log('objects moved by ' + offsetX + ', ' + offsetY);
+        console.log('Player At After Move: ' + this.player.x + ', ' + this.player.y);
       }
 
       this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
@@ -219,27 +230,29 @@ export class PortraitInterface extends Phaser.State {
 
   setNewSeedFromGeoAnchor (anchorLatitude, anchorLongitude) {
     // Produces a predictable seed based on the current Geo Anchor and minute.
-    return Math.abs(anchorLatitude) + Math.abs(anchorLongitude) + (Math.floor(Date.now() / 60000) * 60000);
+    let seed = Math.abs(anchorLatitude) + Math.abs(anchorLongitude) + (Math.floor(Date.now() / 60000) * 60000);
+    console.log(seed);
+    this.rnd.sow([seed]);
   }
 
   generatePickups () {
     console.log('generating pickups');
 
-    // for (let x = -Math.floor(this.world.width * 0.5); x < this.world.width; x += Math.floor(this.world.width / 50)) {
-    //   for (let y = -Math.floor(this.world.width * 0.5); y < this.world.height; y += Math.floor(this.world.width / 50)) {
-    //     if (!(x === 0 && y === 0)) {
-    //       this.map.pickups.push(this.add.sprite(x, y, 'red-square'));
-    //     }
-    //   }
-    // }
-
-    let numberOfItems = this.rnd.integerInRange(Math.floor(this.world.width * 0.01), Math.ceil(this.world.width * 0.1));
+    let numberOfItems = this.rnd.integerInRange(Math.floor(this.world.width * 0.05), Math.ceil(this.world.width * 0.1));
     let halfWorld = this.world.width * 0.5;
 
+    let anchorMinX = this.player.nav.currentGeoAnchor.longitude - window.settings.geoAnchorPlacement,
+        anchorMaxX = this.player.nav.currentGeoAnchor.longitude + window.settings.geoAnchorPlacement,
+        anchorMinY = this.player.nav.currentGeoAnchor.latitude - window.settings.geoAnchorPlacement,
+        anchorMaxY = this.player.nav.currentGeoAnchor.latitude + window.settings.geoAnchorPlacement;
+
     for (let i = 0; i < numberOfItems; i++) {
+      let randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY),
+          randomLongitude = this.rnd.realInRange(anchorMinX, anchorMaxX);
+
       let position = {
-        x: this.rnd.integerInRange(-halfWorld, halfWorld)
-      , y: this.rnd.integerInRange(-halfWorld, halfWorld)
+        x: pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, randomLongitude)
+      , y: pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, randomLatitude)
       };
 
       let timesRegenerated = 0;
@@ -251,26 +264,42 @@ export class PortraitInterface extends Phaser.State {
                       && position.y < element.y + element.height && position.y > element.y - element.height);
             })))
       {
-        position.x = this.rnd.integerInRange(-halfWorld, halfWorld);
-        position.y = this.rnd.integerInRange(-halfWorld, halfWorld);
+        randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY);
+        randomLongitude = this.rnd.realInRange(anchorMinX, anchorMaxX);
+        position.x = pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, randomLongitude);
+        position.y = pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, randomLatitude);
 
         timesRegenerated++;
       }
 
-      this.map.pickups.push(this.add.sprite(position.x, position.y, 'red-square'));
-      // this.map.pickups[i].anchor.setTo(0.5, 0.5);
-      // this.map.pickups[i].pickup = new Pickup(pickup, this.player, 60, 180);
-
-      // this.worldgroup.add(this.map.pickups[i]);
+      let pickup = this.add.sprite(position.x, position.y, 'red-square');
+      pickup.anchor.setTo(0.5, 1);
+      pickup.pickup = new Pickup(pickup, this.player, randomLatitude, randomLongitude);
+      // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
+      this.worldgroup.add(pickup);
+      this.map.pickups.push(pickup);
     }
 
-    this.map.pickups.forEach((pickup) => {
-      pickup.anchor.setTo(0.5, 1);
-      pickup.pickup = new Pickup(pickup, this.player, 60, 180);
-      // console.log(pickup.pickup.life);
+    console.log(this.map.pickups.length + ' items generated');
 
-      this.worldgroup.add(pickup);
-    });
+    this.hasGeneratedItems = true;
+  }
+
+  generatePickupsGrid () {
+    console.log('generating pickups in a grid');
+
+    for (let x = -Math.floor(this.world.width * 0.5); x < this.world.width; x += Math.floor(this.world.width / 50)) {
+      for (let y = -Math.floor(this.world.width * 0.5); y < this.world.height; y += Math.floor(this.world.width / 50)) {
+        if (!(x === 0 && y === 0)) {
+          let pickup = this.add.sprite(x, y, 'red-square');
+          pickup.anchor.setTo(0.5, 1);
+          pickup.pickup = new Pickup(pickup, this.player, 0, 0);
+          // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
+          this.worldgroup.add(pickup);
+          this.map.pickups.push(pickup);
+        }
+      }
+    }
 
     console.log(this.map.pickups.length + ' items generated');
 

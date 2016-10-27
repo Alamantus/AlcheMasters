@@ -86,5 +86,5 @@ export function pixelCoordFromGeoCoord (closestAnchorCoord, targetGeoCoord) {
   // Assuming closestAnchorCoord is world coord 0, 0, return the offset in pixels.
   // And assuming offset is between ~1 and ~10 meters (0.00001 and 0.0001 latlongs)
   let offset = targetGeoCoord - closestAnchorCoord;
-  return offset * window.settings.geoToPixelScale;
+  return Math.round(offset * window.settings.geoToPixelScale);
 }

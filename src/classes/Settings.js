@@ -38,6 +38,11 @@ export class Settings {
     this.geoMarginOfError = 0.00009;
 
     this.lerpPercent = 0.01;
+
+    this.pickupLife = {
+      min: 60
+    , max: 180
+    }
   }
 }
 

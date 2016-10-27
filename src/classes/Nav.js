@@ -81,8 +81,8 @@ export class Nav {
         this.currentGeoAnchor.intermediateLongitude = closestMultipleOf(window.settings.halfGeoAnchorPlacement, this.longitude);
         this.lastCheck = position.timestamp;
 
-        this.parent.x = pixelCoordFromGeoCoord(this.currentGeoAnchor.longitude, this.longitude);
-        this.parent.y = pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
+        this.parent.x = this.targetX = pixelCoordFromGeoCoord(this.currentGeoAnchor.longitude, this.longitude);
+        this.parent.y = this.targetY = pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
 
         this.updateMessage(`${this.messages.geolocationReady}\nGeoposition: ${this.latitude}, ${this.longitude}`);
 
