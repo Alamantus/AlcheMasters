@@ -5,7 +5,6 @@
   "description": "An attempt to make a fantasy potion-themed AR game using geolocation and compass heading in Phaser and ES6/ES2015.",
   "main": "src/index.js",
   "scripts": {
-    "install-repos": "napa Ezelia/EZGUI",
     "start": "node start-server.js",
     "pack": "node ./node_modules/webpack/bin/webpack.js -d --progress --display-error-details",
     "watch": "node ./node_modules/webpack/bin/webpack.js -d --progress --watch",
@@ -34,6 +33,7 @@
   "dependencies": {
     "babel-polyfill": "^6.16.0",
     "compass.js": "git+https://git@github.com/ai/compass.js.git",
+    "ezgui": "git+https://git@github.com/AlamantusGameDev/EZGUI.git",
     "idb-wrapper": "^1.7.1",
     "phaser": "^2.6.2"
   }
