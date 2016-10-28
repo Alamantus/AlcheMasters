@@ -28,6 +28,13 @@ export class PortraitInterface extends Phaser.State {
     this.navDebugText = '';
     this.navDebugText2 = '';
 
+    // This object holds arrays corresponding to generated items' lifetimes
+    // When regenerating, if the seed is the same, the lifetimes will be checked,
+    // and if the item should not appear, it will not regenerate.
+    this.itemLife = {
+      pickups: []
+    }
+
     // Frames before checking the items.
     this.itemCheckFrameDelay = 0;
 	}
@@ -85,8 +92,8 @@ export class PortraitInterface extends Phaser.State {
           this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
 
           if (!this.hasGeneratedItems) {
-            // this.generatePickups();
-            this.generatePickupsGrid();
+            this.generatePickups();
+            // this.generatePickupsGrid();
           }
 
           console.log('Player At: ' + this.player.x + ', ' + this.player.y);
@@ -114,6 +121,7 @@ export class PortraitInterface extends Phaser.State {
   }
 
   update () {
+    this.player.bringToTop();
     this.bg.sendToBack();
 
     this.player.nav.update();
@@ -295,17 +303,18 @@ export class PortraitInterface extends Phaser.State {
       {
         randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY);
         randomLongitude = this.rnd.realInRange(anchorMinX, anchorMaxX);
-        position.x = pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, randomLongitude);
-        position.y = pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, randomLatitude);
 
         timesRegenerated++;
       }
 
-      let pickup = this.add.sprite(position.x, position.y, 'red-square');
-      pickup.anchor.setTo(0.5, 1);
+      // let pickup = this.add.sprite(position.x, position.y, 'red-square');
+      let pickup = this.add.sprite(0, 0, 'material');
       pickup.pickup = new Pickup(pickup, this.player, randomLatitude, randomLongitude);
-      pickup.onDestroy = () => pickup.pickup = null;
-      // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
+
+      pickup.events.onDestroy.add(() => {
+        pickup.pickup = null;
+      });
+
       this.worldgroup.add(pickup);
     }
 
@@ -326,10 +335,10 @@ export class PortraitInterface extends Phaser.State {
           // this.worldgroup.add(shadow);
           // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
           
-          let pickup = this.add.sprite(x, y, 'pin_neutral');
+          let pickup = this.add.sprite(x, y, 'material');
+          pickup.pickup = new Pickup(pickup, this.player, 0, 0);
           pickup.tint = 0x22ac00;
           pickup.anchor.setTo(0.5, 0.9);
-          pickup.pickup = new Pickup(pickup, this.player, 0, 0);
           // pickup.shadow = shadow;
           pickup.events.onDestroy.add(() => {
             // pickup.shadow.destroy();

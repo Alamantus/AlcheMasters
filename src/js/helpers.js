@@ -88,3 +88,7 @@ export function pixelCoordFromGeoCoord (closestAnchorCoord, targetGeoCoord) {
   let offset = targetGeoCoord - closestAnchorCoord;
   return Math.round(offset * window.settings.geoToPixelScale);
 }
+
+export function millisecondsSinceLastMinute () {
+  return Date.now() % (Math.floor(Date.now() / 60000) * 60000);
+}

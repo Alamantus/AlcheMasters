@@ -3,7 +3,8 @@ import {pixelCoordFromGeoCoord} from '../js/helpers';
 export class MapSpriteController {
   constructor (parentObject, compassObject, latitude, longitude) {
     this.parent = parentObject;
-    this.parent.scale.setTo(0, 0);
+    this.parent.anchor.setTo(0.5, 0.5);
+    this.parent.scale.setTo(0.5, 0.5);
 
     this.state = parentObject.game.state.getCurrentState();
 
@@ -15,8 +16,8 @@ export class MapSpriteController {
     this.latitude = latitude;
     this.longitude = longitude;
 
-    // this.parent.x = pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.longitude, this.longitude);
-    // this.parent.y = -pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.latitude, this.latitude);
+    this.parent.x = pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.longitude, this.longitude);
+    this.parent.y = -pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.latitude, this.latitude);
     // console.log('item latlong: ' + this.longitude + ', ' + this.latitude + '\nitem coords: ' + this.parent.x + ', ' + this.parent.y);
 
     // this.updatePosition();
@@ -42,7 +43,7 @@ export class MapSpriteController {
   }
 
   update () {
-    this.parent.rotation = this.compass.rotation;
-    this.updateScaleByDistance();
+    // this.parent.rotation = this.compass.rotation;
+    // this.updateScaleByDistance();
   }
 }
