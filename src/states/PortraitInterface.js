@@ -70,7 +70,9 @@ export class PortraitInterface extends Phaser.State {
       this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
 
       if (this.worldgroup.children.filter((child) => {return (typeof child.pickup !== 'undefined')}).length === 0) {
-        this.generatePickups();
+        if (!this.hasGeneratedItems) {
+          this.generatePickups();
+        }
       }
 
       console.log('Player At: ' + this.player.x + ', ' + this.player.y);
@@ -82,8 +84,11 @@ export class PortraitInterface extends Phaser.State {
           this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
           this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
 
-          // this.generatePickups();
-          this.generatePickupsGrid();
+          if (!this.hasGeneratedItems) {
+            // this.generatePickups();
+            this.generatePickupsGrid();
+          }
+
           console.log('Player At: ' + this.player.x + ', ' + this.player.y);
         });
     }
@@ -150,7 +155,8 @@ export class PortraitInterface extends Phaser.State {
   resize (width, height) {
     if (width > height) {
       // If Landscape, change to Item management
-      this.game.state.start('LandscapeInterface', true, false);
+      // this.game.state.start('LandscapeInterface', true, false);
+      this.game.state.start('LandscapeInterface', false, false);
     }
   }
 
@@ -248,9 +254,13 @@ export class PortraitInterface extends Phaser.State {
 
   setNewSeedFromGeoAnchor (anchorLatitude, anchorLongitude) {
     // Produces a predictable seed based on the current Geo Anchor and minute.
-    let seed = Math.abs(anchorLatitude) + Math.abs(anchorLongitude) + (Math.floor(Date.now() / 60000) * 60000);
-    console.log(seed);
-    this.rnd.sow([seed]);
+    this.seed = this.generateSeed(anchorLatitude, anchorLongitude);
+    console.log(this.seed);
+    this.rnd.sow([this.seed]);
+  }
+
+  generateSeed (anchorLatitude, anchorLongitude) {
+    return Math.abs(anchorLatitude) + Math.abs(anchorLongitude) + (Math.floor(Date.now() / 60000) * 60000);
   }
 
   generatePickups () {
