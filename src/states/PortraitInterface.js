@@ -19,8 +19,9 @@ export class PortraitInterface extends Phaser.State {
     this.inventory = new Inventory();
 
     this.hasGeneratedItems = false;
+    this.nextGenerationTime = Date.now();
+
     this.isUsingNavSim = false;
-    this.navCheckDelay = 0;
 
     this.lastIntermediateAnchorLatitude = 0;
     this.lastIntermediateAnchorLongitude = 0;
@@ -71,14 +72,12 @@ export class PortraitInterface extends Phaser.State {
     if (this.isUsingNavSim) {
       this.player.nav = new NavSim(this.player, 0, 0);
 
-      this.setNewSeedFromGeoAnchor(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.longitude);
-
       this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
       this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
 
       if (this.worldgroup.children.filter((child) => {return (typeof child.pickup !== 'undefined')}).length === 0) {
         if (!this.hasGeneratedItems) {
-          this.generatePickups();
+          this.retroactiveGeneratePickups();
         }
       }
 
@@ -86,13 +85,12 @@ export class PortraitInterface extends Phaser.State {
     } else {
       this.player.nav = new Nav(this.player, window.settings.locationCheckDelaySeconds,
         (anchorLatitude, anchorLongitude) => {
-          this.setNewSeedFromGeoAnchor(anchorLatitude, anchorLongitude);
 
           this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
           this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
 
           if (!this.hasGeneratedItems) {
-            this.generatePickups();
+            this.retroactiveGeneratePickups();
             // this.generatePickupsGrid();
           }
 
@@ -148,6 +146,12 @@ export class PortraitInterface extends Phaser.State {
       }
     }
 
+    if (this.hasGeneratedItems) {
+      if (this.nextGenerationTime < Date.now()) {
+        this.generatePickups(Date.now());
+      }
+    }
+
     this.worldgroup.pivot.x = this.player.x;
     this.worldgroup.pivot.y = this.player.y;
 
@@ -164,6 +168,7 @@ export class PortraitInterface extends Phaser.State {
     if (width > height) {
       // If Landscape, change to Item management
       // this.game.state.start('LandscapeInterface', true, false);
+
       this.game.state.start('LandscapeInterface', false, false);
     }
   }
@@ -238,6 +243,8 @@ export class PortraitInterface extends Phaser.State {
 
         console.log('Player At Before Move: ' + this.player.x + ', ' + this.player.y);
 
+        this.player.nav.targetX += offsetX;
+        this.player.nav.targetY += offsetY;
         this.worldgroup.children.forEach((child) => {
           child.x += offsetX;
           child.y += offsetY;
@@ -260,22 +267,52 @@ export class PortraitInterface extends Phaser.State {
     this.northMarker.bringToTop();
   }
 
-  setNewSeedFromGeoAnchor (anchorLatitude, anchorLongitude) {
+  setNewSeedFromGeoAnchor (anchorLatitude, anchorLongitude, timeReference) {
     // Produces a predictable seed based on the current Geo Anchor and minute.
-    this.seed = this.generateSeed(anchorLatitude, anchorLongitude);
-    console.log(this.seed);
+    this.seed = this.generateSeed(anchorLatitude, anchorLongitude, timeReference);
+    // console.log(this.seed);
     this.rnd.sow([this.seed]);
   }
 
-  generateSeed (anchorLatitude, anchorLongitude) {
-    return Math.abs(anchorLatitude) + Math.abs(anchorLongitude) + (Math.floor(Date.now() / 60000) * 60000);
+  generateSeed (anchorLatitude, anchorLongitude, timeReference) {
+    let generationInterval = window.settings.pickupLife.min * 1000;
+    return Math.abs(anchorLatitude) + Math.abs(anchorLongitude) + (Math.floor(timeReference / generationInterval) * generationInterval);
   }
 
-  generatePickups () {
-    console.log('generating pickups');
+  retroactiveGeneratePickups () {
+    // Generate previously-generated objects back to the longest-lived object still possibly alive.
+    console.log('retroactively generating pickups');
+
+    // New objects are generated each minimum pickup lifetime.
+    let generationInterval = window.settings.pickupLife.min * 1000;
+    let lastGenerationTime = Math.floor(Date.now() / generationInterval) * generationInterval;
+    console.log('last generation time: ' + lastGenerationTime);
+
+    // The object with the longest possible lifetime happened the max lifetime before the last generation time.
+    let startGeneratingFromTime = lastGenerationTime - (window.settings.pickupLife.max * 1000);
+    let startGenerationTime = Math.floor(startGeneratingFromTime / generationInterval) * generationInterval;
+    console.log('starting generation time: ' + startGenerationTime);
+
+    let retroactiveTime = startGenerationTime;
+
+    // Generate pickups between startGenerationTime and most recent generation time.
+    while (retroactiveTime < lastGenerationTime) {
+      this.generatePickups(retroactiveTime);
+      retroactiveTime += generationInterval;
+    }
+
+    // Finally, generate the current generation.
+    this.generatePickups(Date.now());
+
+    this.hasGeneratedItems = true;
+  }
+
+  generatePickups (timeReference) {
+    console.log('generating pickups for ' + timeReference);
+
+    this.setNewSeedFromGeoAnchor(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.longitude, timeReference);
 
     let numberOfItems = this.rnd.integerInRange(Math.floor(this.world.width * 0.05), Math.ceil(this.world.width * 0.1));
-    let halfWorld = this.world.width * 0.5;
 
     let anchorMinX = this.player.nav.currentGeoAnchor.longitude - window.settings.geoAnchorPlacement,
         anchorMaxX = this.player.nav.currentGeoAnchor.longitude + window.settings.geoAnchorPlacement,
@@ -283,44 +320,54 @@ export class PortraitInterface extends Phaser.State {
         anchorMaxY = this.player.nav.currentGeoAnchor.latitude + window.settings.geoAnchorPlacement;
 
     for (let i = 0; i < numberOfItems; i++) {
-      let randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY),
+      let pickupLife = this.rnd.realInRange(window.settings.pickupLife.min, window.settings.pickupLife.max);
+      let timeLeftToLiveIfGenerated = (timeReference + (pickupLife * 1000)) - Date.now();
+
+      // If there's actually time left before it is deleted, create it! If not, skip and save some processing power.
+      if (timeLeftToLiveIfGenerated > 0) {
+        let randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY),
+            randomLongitude = this.rnd.realInRange(anchorMinX, anchorMaxX);
+
+        let position = {
+          x: pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, randomLongitude)
+        , y: -pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, randomLatitude)
+        };
+
+        let timesRegenerated = 0;
+
+        // While the generated values are within range of another item, keep regenerating,
+        // but only a limited number of times.
+        while (timesRegenerated < window.settings.regeneratePositionTries && (this.worldgroup.children.some((element) => {
+                return ((element.pickup)
+                        && (position.x < element.x + element.width && position.x > element.x - element.width
+                            && position.y < element.y + element.height && position.y > element.y - element.height));
+              })))
+        {
+          randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY);
           randomLongitude = this.rnd.realInRange(anchorMinX, anchorMaxX);
+          position.x = pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, randomLongitude);
+          position.y = -pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, randomLatitude);
 
-      let position = {
-        x: pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, randomLongitude)
-      , y: pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, randomLatitude)
-      };
+          timesRegenerated++;
+        }
 
-      let timesRegenerated = 0;
+        let pickup = this.add.sprite(position.x, position.y, 'material');
+        // console.log(pickup.x + ', ' + pickup.y);
 
-      // While the generated values are within range of another item, keep regenerating,
-      // but only a limited number of times.
-      while (timesRegenerated < window.settings.regeneratePositionTries && (this.worldgroup.children.some((element) => {
-              return ((element.pickup)
-                      && (position.x < element.x + element.width && position.x > element.x - element.width
-                          && position.y < element.y + element.height && position.y > element.y - element.height));
-            })))
-      {
-        randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY);
-        randomLongitude = this.rnd.realInRange(anchorMinX, anchorMaxX);
+        pickup.pickup = new Pickup(pickup, this.player, pickupLife, randomLatitude, randomLongitude, timeReference);
 
-        timesRegenerated++;
+        pickup.events.onDestroy.add(() => {
+          pickup.pickup = null;
+        });
+
+        this.worldgroup.add(pickup);
       }
-
-      // let pickup = this.add.sprite(position.x, position.y, 'red-square');
-      let pickup = this.add.sprite(0, 0, 'material');
-      pickup.pickup = new Pickup(pickup, this.player, randomLatitude, randomLongitude);
-
-      pickup.events.onDestroy.add(() => {
-        pickup.pickup = null;
-      });
-
-      this.worldgroup.add(pickup);
     }
 
     console.log(this.worldgroup.children.filter((child) => {return child.pickup}).length + ' items generated');
 
-    this.hasGeneratedItems = true;
+    // Set it to generate a new items every minimum pickup lifetime.
+    this.nextGenerationTime = Date.now() + (window.settings.pickupLife.min * 1000);
   }
 
   generatePickupsGrid () {

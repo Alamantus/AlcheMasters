@@ -42,6 +42,7 @@ export class Settings {
     this.pickupLife = {
       min: 120
     , max: 300
+    , fadeTime: 5
     }
   }
 }

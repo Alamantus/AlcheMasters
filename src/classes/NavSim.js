@@ -32,7 +32,7 @@ export class NavSim {
     };
 
     this.turnSpeed = 2;
-    this.latLongSpeed = 0.000005;
+    this.latLongSpeed = 0.00001;
 
     this.state.navDebugText2 = 'Geolocation Not Supported: For Testing Only';
     this.state.navDebugText = 'Use Arrow Keys to Move Geoposition';

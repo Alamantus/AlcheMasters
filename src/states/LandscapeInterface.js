@@ -32,7 +32,7 @@ export class LandscapeInterface extends Phaser.State {
   resize (width, height) {
     if (height > width) {
       // If Portrait, change to Compass/Map
-      this.game.state.start('PortraitInterface', true, false);
+      this.game.state.start('PortraitInterface', false, false);
     }
   }
 }
