@@ -39,6 +39,9 @@ export class Settings {
 
     this.lerpPercent = 0.01;
 
+    // The pixel range around a generated object that another object can't be generated into.
+    this.minimumPickupDistance = 50;
+
     this.pickupLife = {
       min: 120
     , max: 300

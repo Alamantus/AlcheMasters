@@ -319,39 +319,50 @@ export class PortraitInterface extends Phaser.State {
         anchorMinY = this.player.nav.currentGeoAnchor.latitude - window.settings.geoAnchorPlacement,
         anchorMaxY = this.player.nav.currentGeoAnchor.latitude + window.settings.geoAnchorPlacement;
 
+    let alreadyGeneratedPositions = [];
+
+    this.worldgroup.children.forEach((child) => {
+      if (child.pickup) {
+        alreadyGeneratedPositions.push({
+          x: child.x
+        , y: child.y
+        });
+      }
+    })
+
     for (let i = 0; i < numberOfItems; i++) {
+      let randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY),
+          randomLongitude = this.rnd.realInRange(anchorMinX, anchorMaxX);
+
+      let generatedPosition = {
+        x: pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, randomLongitude)
+      , y: -pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, randomLatitude)
+      };
+
+      let timesRegenerated = 0;
+
+      // While the generated values are within range of another item, keep regenerating,
+      // but only a limited number of times.
+      while (timesRegenerated < window.settings.regeneratePositionTries && (alreadyGeneratedPositions.some((position) => {
+              return (generatedPosition.x < position.x + window.settings.minimumPickupDistance && generatedPosition.x > position.x - window.settings.minimumPickupDistance
+                      && generatedPosition.y < position.y + window.settings.minimumPickupDistance && generatedPosition.y > position.y - window.settings.minimumPickupDistance);
+            })))
+      {
+        randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY);
+        randomLongitude = this.rnd.realInRange(anchorMinX, anchorMaxX);
+        generatedPosition.x = pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, randomLongitude);
+        generatedPosition.y = -pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, randomLatitude);
+
+        timesRegenerated++;
+      }
+
+      // Now generate the pickup life to decide whether to actually generate the sprite.
       let pickupLife = this.rnd.realInRange(window.settings.pickupLife.min, window.settings.pickupLife.max);
       let timeLeftToLiveIfGenerated = (timeReference + (pickupLife * 1000)) - Date.now();
 
       // If there's actually time left before it is deleted, create it! If not, skip and save some processing power.
       if (timeLeftToLiveIfGenerated > 0) {
-        let randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY),
-            randomLongitude = this.rnd.realInRange(anchorMinX, anchorMaxX);
-
-        let position = {
-          x: pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, randomLongitude)
-        , y: -pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, randomLatitude)
-        };
-
-        let timesRegenerated = 0;
-
-        // While the generated values are within range of another item, keep regenerating,
-        // but only a limited number of times.
-        while (timesRegenerated < window.settings.regeneratePositionTries && (this.worldgroup.children.some((element) => {
-                return ((element.pickup)
-                        && (position.x < element.x + element.width && position.x > element.x - element.width
-                            && position.y < element.y + element.height && position.y > element.y - element.height));
-              })))
-        {
-          randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY);
-          randomLongitude = this.rnd.realInRange(anchorMinX, anchorMaxX);
-          position.x = pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.longitude, randomLongitude);
-          position.y = -pixelCoordFromGeoCoord(this.player.nav.currentGeoAnchor.latitude, randomLatitude);
-
-          timesRegenerated++;
-        }
-
-        let pickup = this.add.sprite(position.x, position.y, 'material');
+        let pickup = this.add.sprite(generatedPosition.x, generatedPosition.y, 'material');
         // console.log(pickup.x + ', ' + pickup.y);
 
         pickup.pickup = new Pickup(pickup, this.player, pickupLife, randomLatitude, randomLongitude, timeReference);
@@ -361,6 +372,11 @@ export class PortraitInterface extends Phaser.State {
         });
 
         this.worldgroup.add(pickup);
+
+        alreadyGeneratedPositions.push({
+          x: generatedPosition.x
+        , y: generatedPosition.y
+        });
       }
     }
 
