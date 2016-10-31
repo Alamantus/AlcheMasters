@@ -867,8 +867,9 @@
 	      }
 	
 	      if (this.hasGeneratedItems) {
+	        // console.log('this.nextGenerationTime: ' + this.nextGenerationTime);
 	        if (this.nextGenerationTime < Date.now()) {
-	          this.generatePickups(Date.now());
+	          this.generatePickups(this.nextGenerationTime);
 	        }
 	      }
 	
@@ -1000,20 +1001,18 @@
 	      console.log('last generation time: ' + lastGenerationTime);
 	
 	      // The object with the longest possible lifetime happened the max lifetime before the last generation time.
-	      var startGeneratingFromTime = lastGenerationTime - window.settings.pickupLife.max * 1000;
+	      var startGeneratingFromTime = lastGenerationTime - window.settings.pickupLife.max * 1000 * 2;
 	      var startGenerationTime = Math.floor(startGeneratingFromTime / generationInterval) * generationInterval;
 	      console.log('starting generation time: ' + startGenerationTime);
 	
 	      var retroactiveTime = startGenerationTime;
 	
 	      // Generate pickups between startGenerationTime and most recent generation time.
-	      while (retroactiveTime < lastGenerationTime) {
+	      while (retroactiveTime <= lastGenerationTime) {
+	        console.log(retroactiveTime == lastGenerationTime);
 	        this.generatePickups(retroactiveTime);
 	        retroactiveTime += generationInterval;
 	      }
-	
-	      // Finally, generate the current generation.
-	      this.generatePickups(Date.now());
 	
 	      this.hasGeneratedItems = true;
 	    }
@@ -1021,6 +1020,10 @@
 	    key: 'generatePickups',
 	    value: function generatePickups(timeReference) {
 	      var _this4 = this;
+	
+	      // In order for item generation to be consistent, the same number of calls to this.rnd must be made every time.
+	      // Because of this, there are a lot of extra calculations that do not actually end up being used, all for the sake
+	      // of consistency. It's a shame, but I think it's necessary!
 	
 	      console.log('generating pickups for ' + timeReference);
 	
@@ -1033,37 +1036,55 @@
 	          anchorMinY = this.player.nav.currentGeoAnchor.latitude - window.settings.geoAnchorPlacement,
 	          anchorMaxY = this.player.nav.currentGeoAnchor.latitude + window.settings.geoAnchorPlacement;
 	
-	      for (var i = 0; i < numberOfItems; i++) {
-	        var pickupLife = this.rnd.realInRange(window.settings.pickupLife.min, window.settings.pickupLife.max);
+	      var alreadyGeneratedPositions = [];
+	
+	      // console.log('existing children: ' + this.worldgroup.children.length);
+	      // this.worldgroup.children.forEach((child) => {
+	      //   if (child.pickup) {
+	      //     alreadyGeneratedPositions.push({
+	      //       x: child.x
+	      //     , y: child.y
+	      //     });
+	      //   }
+	      // })
+	
+	      var _loop = function _loop(i) {
+	        var pickupLife = _this4.rnd.realInRange(window.settings.pickupLife.min, window.settings.pickupLife.max);
 	        var timeLeftToLiveIfGenerated = timeReference + pickupLife * 1000 - Date.now();
+	
+	        var randomLatitude = _this4.rnd.realInRange(anchorMinY, anchorMaxY),
+	            randomLongitude = _this4.rnd.realInRange(anchorMinX, anchorMaxX);
+	
+	        var generatedPosition = {
+	          x: (0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.longitude, randomLongitude),
+	          y: -(0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.latitude, randomLatitude)
+	        };
+	
+	        var timesRegenerated = 0;
+	
+	        // While the generated values are within range of another item, keep regenerating,
+	        // but only a limited number of times.
+	        while (timesRegenerated < window.settings.regeneratePositionTries && alreadyGeneratedPositions.some(function (position) {
+	          return generatedPosition.x < position.x + window.settings.minimumPickupDistance && generatedPosition.x > position.x - window.settings.minimumPickupDistance && generatedPosition.y < position.y + window.settings.minimumPickupDistance && generatedPosition.y > position.y - window.settings.minimumPickupDistance;
+	        })) {
+	          randomLatitude = _this4.rnd.realInRange(anchorMinY, anchorMaxY);
+	          randomLongitude = _this4.rnd.realInRange(anchorMinX, anchorMaxX);
+	          generatedPosition.x = (0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.longitude, randomLongitude);
+	          generatedPosition.y = -(0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.latitude, randomLatitude);
+	
+	          timesRegenerated++;
+	        }
+	
+	        // Push this position to the queue even if the potential object would already be deleted so it all stays consistent.
+	        alreadyGeneratedPositions.push({
+	          x: generatedPosition.x,
+	          y: generatedPosition.y
+	        });
 	
 	        // If there's actually time left before it is deleted, create it! If not, skip and save some processing power.
 	        if (timeLeftToLiveIfGenerated > 0) {
 	          (function () {
-	            var randomLatitude = _this4.rnd.realInRange(anchorMinY, anchorMaxY),
-	                randomLongitude = _this4.rnd.realInRange(anchorMinX, anchorMaxX);
-	
-	            var position = {
-	              x: (0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.longitude, randomLongitude),
-	              y: -(0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.latitude, randomLatitude)
-	            };
-	
-	            var timesRegenerated = 0;
-	
-	            // While the generated values are within range of another item, keep regenerating,
-	            // but only a limited number of times.
-	            while (timesRegenerated < window.settings.regeneratePositionTries && _this4.worldgroup.children.some(function (element) {
-	              return element.pickup && position.x < element.x + element.width && position.x > element.x - element.width && position.y < element.y + element.height && position.y > element.y - element.height;
-	            })) {
-	              randomLatitude = _this4.rnd.realInRange(anchorMinY, anchorMaxY);
-	              randomLongitude = _this4.rnd.realInRange(anchorMinX, anchorMaxX);
-	              position.x = (0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.longitude, randomLongitude);
-	              position.y = -(0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.latitude, randomLatitude);
-	
-	              timesRegenerated++;
-	            }
-	
-	            var pickup = _this4.add.sprite(position.x, position.y, 'material');
+	            var pickup = _this4.add.sprite(generatedPosition.x, generatedPosition.y, 'material');
 	            // console.log(pickup.x + ', ' + pickup.y);
 	
 	            pickup.pickup = new _Pickup.Pickup(pickup, _this4.player, pickupLife, randomLatitude, randomLongitude, timeReference);
@@ -1075,6 +1096,10 @@
 	            _this4.worldgroup.add(pickup);
 	          })();
 	        }
+	      };
+	
+	      for (var i = 0; i < numberOfItems; i++) {
+	        _loop(i);
 	      }
 	
 	      console.log(this.worldgroup.children.filter(function (child) {
@@ -1082,7 +1107,9 @@
 	      }).length + ' items generated');
 	
 	      // Set it to generate a new items every minimum pickup lifetime.
-	      this.nextGenerationTime = Date.now() + window.settings.pickupLife.min * 1000;
+	      this.nextGenerationTime = timeReference + window.settings.pickupLife.min * 1000;
+	      console.log('Now: ' + Date.now());
+	      console.log('next generation time: ' + this.nextGenerationTime);
 	    }
 	  }, {
 	    key: 'generatePickupsGrid',
@@ -3825,6 +3852,9 @@
 	    this.geoMarginOfError = 0.00009;
 	
 	    this.lerpPercent = 0.01;
+	
+	    // The pixel range around a generated object that another object can't be generated into.
+	    this.minimumPickupDistance = 50;
 	
 	    this.pickupLife = {
 	        min: 120,
