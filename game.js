@@ -730,8 +730,9 @@
 	    _this.inventory = new _Inventory.Inventory();
 	
 	    _this.hasGeneratedItems = false;
+	    _this.nextGenerationTime = Date.now();
+	
 	    _this.isUsingNavSim = false;
-	    _this.navCheckDelay = 0;
 	
 	    _this.lastIntermediateAnchorLatitude = 0;
 	    _this.lastIntermediateAnchorLongitude = 0;
@@ -789,8 +790,6 @@
 	      if (this.isUsingNavSim) {
 	        this.player.nav = new _NavSim.NavSim(this.player, 0, 0);
 	
-	        this.setNewSeedFromGeoAnchor(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.longitude);
-	
 	        this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
 	        this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
 	
@@ -798,20 +797,19 @@
 	          return typeof child.pickup !== 'undefined';
 	        }).length === 0) {
 	          if (!this.hasGeneratedItems) {
-	            this.generatePickups();
+	            this.retroactiveGeneratePickups();
 	          }
 	        }
 	
 	        console.log('Player At: ' + this.player.x + ', ' + this.player.y);
 	      } else {
 	        this.player.nav = new _Nav.Nav(this.player, window.settings.locationCheckDelaySeconds, function (anchorLatitude, anchorLongitude) {
-	          _this2.setNewSeedFromGeoAnchor(anchorLatitude, anchorLongitude);
 	
 	          _this2.lastIntermediateAnchorLatitude = _this2.player.nav.currentGeoAnchor.intermediateLatitude;
 	          _this2.lastIntermediateAnchorLongitude = _this2.player.nav.currentGeoAnchor.intermediateLongitude;
 	
 	          if (!_this2.hasGeneratedItems) {
-	            _this2.generatePickups();
+	            _this2.retroactiveGeneratePickups();
 	            // this.generatePickupsGrid();
 	          }
 	
@@ -868,6 +866,12 @@
 	        }
 	      }
 	
+	      if (this.hasGeneratedItems) {
+	        if (this.nextGenerationTime < Date.now()) {
+	          this.generatePickups(Date.now());
+	        }
+	      }
+	
 	      this.worldgroup.pivot.x = this.player.x;
 	      this.worldgroup.pivot.y = this.player.y;
 	
@@ -885,6 +889,7 @@
 	      if (width > height) {
 	        // If Landscape, change to Item management
 	        // this.game.state.start('LandscapeInterface', true, false);
+	
 	        this.game.state.start('LandscapeInterface', false, false);
 	      }
 	    }
@@ -944,6 +949,8 @@
 	
 	            console.log('Player At Before Move: ' + _this3.player.x + ', ' + _this3.player.y);
 	
+	            _this3.player.nav.targetX += offsetX;
+	            _this3.player.nav.targetY += offsetY;
 	            _this3.worldgroup.children.forEach(function (child) {
 	              child.x += offsetX;
 	              child.y += offsetY;
@@ -969,74 +976,113 @@
 	    }
 	  }, {
 	    key: 'setNewSeedFromGeoAnchor',
-	    value: function setNewSeedFromGeoAnchor(anchorLatitude, anchorLongitude) {
+	    value: function setNewSeedFromGeoAnchor(anchorLatitude, anchorLongitude, timeReference) {
 	      // Produces a predictable seed based on the current Geo Anchor and minute.
-	      this.seed = this.generateSeed(anchorLatitude, anchorLongitude);
-	      console.log(this.seed);
+	      this.seed = this.generateSeed(anchorLatitude, anchorLongitude, timeReference);
+	      // console.log(this.seed);
 	      this.rnd.sow([this.seed]);
 	    }
 	  }, {
 	    key: 'generateSeed',
-	    value: function generateSeed(anchorLatitude, anchorLongitude) {
-	      return Math.abs(anchorLatitude) + Math.abs(anchorLongitude) + Math.floor(Date.now() / 60000) * 60000;
+	    value: function generateSeed(anchorLatitude, anchorLongitude, timeReference) {
+	      var generationInterval = window.settings.pickupLife.min * 1000;
+	      return Math.abs(anchorLatitude) + Math.abs(anchorLongitude) + Math.floor(timeReference / generationInterval) * generationInterval;
+	    }
+	  }, {
+	    key: 'retroactiveGeneratePickups',
+	    value: function retroactiveGeneratePickups() {
+	      // Generate previously-generated objects back to the longest-lived object still possibly alive.
+	      console.log('retroactively generating pickups');
+	
+	      // New objects are generated each minimum pickup lifetime.
+	      var generationInterval = window.settings.pickupLife.min * 1000;
+	      var lastGenerationTime = Math.floor(Date.now() / generationInterval) * generationInterval;
+	      console.log('last generation time: ' + lastGenerationTime);
+	
+	      // The object with the longest possible lifetime happened the max lifetime before the last generation time.
+	      var startGeneratingFromTime = lastGenerationTime - window.settings.pickupLife.max * 1000;
+	      var startGenerationTime = Math.floor(startGeneratingFromTime / generationInterval) * generationInterval;
+	      console.log('starting generation time: ' + startGenerationTime);
+	
+	      var retroactiveTime = startGenerationTime;
+	
+	      // Generate pickups between startGenerationTime and most recent generation time.
+	      while (retroactiveTime < lastGenerationTime) {
+	        this.generatePickups(retroactiveTime);
+	        retroactiveTime += generationInterval;
+	      }
+	
+	      // Finally, generate the current generation.
+	      this.generatePickups(Date.now());
+	
+	      this.hasGeneratedItems = true;
 	    }
 	  }, {
 	    key: 'generatePickups',
-	    value: function generatePickups() {
+	    value: function generatePickups(timeReference) {
 	      var _this4 = this;
 	
-	      console.log('generating pickups');
+	      console.log('generating pickups for ' + timeReference);
+	
+	      this.setNewSeedFromGeoAnchor(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.longitude, timeReference);
 	
 	      var numberOfItems = this.rnd.integerInRange(Math.floor(this.world.width * 0.05), Math.ceil(this.world.width * 0.1));
-	      var halfWorld = this.world.width * 0.5;
 	
 	      var anchorMinX = this.player.nav.currentGeoAnchor.longitude - window.settings.geoAnchorPlacement,
 	          anchorMaxX = this.player.nav.currentGeoAnchor.longitude + window.settings.geoAnchorPlacement,
 	          anchorMinY = this.player.nav.currentGeoAnchor.latitude - window.settings.geoAnchorPlacement,
 	          anchorMaxY = this.player.nav.currentGeoAnchor.latitude + window.settings.geoAnchorPlacement;
 	
-	      var _loop = function _loop(i) {
-	        var randomLatitude = _this4.rnd.realInRange(anchorMinY, anchorMaxY),
-	            randomLongitude = _this4.rnd.realInRange(anchorMinX, anchorMaxX);
-	
-	        var position = {
-	          x: (0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.longitude, randomLongitude),
-	          y: (0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.latitude, randomLatitude)
-	        };
-	
-	        var timesRegenerated = 0;
-	
-	        // While the generated values are within range of another item, keep regenerating,
-	        // but only a limited number of times.
-	        while (timesRegenerated < window.settings.regeneratePositionTries && _this4.worldgroup.children.some(function (element) {
-	          return element.pickup && position.x < element.x + element.width && position.x > element.x - element.width && position.y < element.y + element.height && position.y > element.y - element.height;
-	        })) {
-	          randomLatitude = _this4.rnd.realInRange(anchorMinY, anchorMaxY);
-	          randomLongitude = _this4.rnd.realInRange(anchorMinX, anchorMaxX);
-	
-	          timesRegenerated++;
-	        }
-	
-	        // let pickup = this.add.sprite(position.x, position.y, 'red-square');
-	        var pickup = _this4.add.sprite(0, 0, 'material');
-	        pickup.pickup = new _Pickup.Pickup(pickup, _this4.player, randomLatitude, randomLongitude);
-	
-	        pickup.events.onDestroy.add(function () {
-	          pickup.pickup = null;
-	        });
-	
-	        _this4.worldgroup.add(pickup);
-	      };
-	
 	      for (var i = 0; i < numberOfItems; i++) {
-	        _loop(i);
+	        var pickupLife = this.rnd.realInRange(window.settings.pickupLife.min, window.settings.pickupLife.max);
+	        var timeLeftToLiveIfGenerated = timeReference + pickupLife * 1000 - Date.now();
+	
+	        // If there's actually time left before it is deleted, create it! If not, skip and save some processing power.
+	        if (timeLeftToLiveIfGenerated > 0) {
+	          (function () {
+	            var randomLatitude = _this4.rnd.realInRange(anchorMinY, anchorMaxY),
+	                randomLongitude = _this4.rnd.realInRange(anchorMinX, anchorMaxX);
+	
+	            var position = {
+	              x: (0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.longitude, randomLongitude),
+	              y: -(0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.latitude, randomLatitude)
+	            };
+	
+	            var timesRegenerated = 0;
+	
+	            // While the generated values are within range of another item, keep regenerating,
+	            // but only a limited number of times.
+	            while (timesRegenerated < window.settings.regeneratePositionTries && _this4.worldgroup.children.some(function (element) {
+	              return element.pickup && position.x < element.x + element.width && position.x > element.x - element.width && position.y < element.y + element.height && position.y > element.y - element.height;
+	            })) {
+	              randomLatitude = _this4.rnd.realInRange(anchorMinY, anchorMaxY);
+	              randomLongitude = _this4.rnd.realInRange(anchorMinX, anchorMaxX);
+	              position.x = (0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.longitude, randomLongitude);
+	              position.y = -(0, _helpers.pixelCoordFromGeoCoord)(_this4.player.nav.currentGeoAnchor.latitude, randomLatitude);
+	
+	              timesRegenerated++;
+	            }
+	
+	            var pickup = _this4.add.sprite(position.x, position.y, 'material');
+	            // console.log(pickup.x + ', ' + pickup.y);
+	
+	            pickup.pickup = new _Pickup.Pickup(pickup, _this4.player, pickupLife, randomLatitude, randomLongitude, timeReference);
+	
+	            pickup.events.onDestroy.add(function () {
+	              pickup.pickup = null;
+	            });
+	
+	            _this4.worldgroup.add(pickup);
+	          })();
+	        }
 	      }
 	
 	      console.log(this.worldgroup.children.filter(function (child) {
 	        return child.pickup;
 	      }).length + ' items generated');
 	
-	      this.hasGeneratedItems = true;
+	      // Set it to generate a new items every minimum pickup lifetime.
+	      this.nextGenerationTime = Date.now() + window.settings.pickupLife.min * 1000;
 	    }
 	  }, {
 	    key: 'generatePickupsGrid',
@@ -1866,7 +1912,7 @@
 	        };
 	
 	        this.turnSpeed = 2;
-	        this.latLongSpeed = 0.000005;
+	        this.latLongSpeed = 0.00001;
 	
 	        this.state.navDebugText2 = 'Geolocation Not Supported: For Testing Only';
 	        this.state.navDebugText = 'Use Arrow Keys to Move Geoposition';
@@ -1954,7 +2000,7 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 	exports.Pickup = undefined;
 	
@@ -1973,34 +2019,47 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var Pickup = exports.Pickup = function (_MapSpriteController) {
-	  _inherits(Pickup, _MapSpriteController);
+	    _inherits(Pickup, _MapSpriteController);
 	
-	  function Pickup(parentObject, compassObject, latitude, longitude) {
-	    _classCallCheck(this, Pickup);
+	    function Pickup(parentObject, compassObject, life, latitude, longitude, generatedTime) {
+	        _classCallCheck(this, Pickup);
 	
-	    // Time before destruction in seconds.
-	    var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject, latitude, longitude));
+	        var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject, latitude, longitude, generatedTime));
 	
-	    _this.life = _this.state.rnd.realInRange(window.settings.pickupLife.min, window.settings.pickupLife.max);
+	        _this.canInteract = true;
 	
-	    _this.deathTime = Date.now() + _this.life * 1000 - (0, _helpers.millisecondsSinceLastMinute)();
+	        // Time before destruction in seconds.
+	        _this.life = life;
 	
-	    // setTimeout(() => this.parent.destroy(), this.life * 1000);
-	    return _this;
-	  }
+	        // this.deathTime = (this.generatedTime + (this.life * 1000)) - millisecondsSinceLastMinute();
+	        _this.deathTime = _this.generatedTime + _this.life * 1000;
 	
-	  _createClass(Pickup, [{
-	    key: 'update',
-	    value: function update() {
-	      _get(Pickup.prototype.__proto__ || Object.getPrototypeOf(Pickup.prototype), 'update', this).call(this);
-	      if (Date.now() > this.deathTime) {
-	        console.log('destroying!');
-	        this.parent.destroy();
-	      }
+	        // setTimeout(() => this.parent.destroy(), this.life * 1000);
+	        return _this;
 	    }
-	  }]);
+	
+	    _createClass(Pickup, [{
+	        key: 'update',
+	        value: function update() {
+	            _get(Pickup.prototype.__proto__ || Object.getPrototypeOf(Pickup.prototype), 'update', this).call(this);
+	
+	            // Fade pickup out if less than settings.fadeTime time is left.
+	            var timeLeft = this.deathTime - Date.now();
+	            if (timeLeft <= window.settings.pickupLife.fadeTime * 1000) {
+	                // Prevent interaction as it fades away.
+	                this.canInteract = false;
+	
+	                this.parent.alpha = timeLeft / (window.settings.pickupLife.fadeTime * 1000);
+	            }
+	
+	            if (Date.now() > this.deathTime) {
+	                console.log('destroying!');
+	                this.parent.destroy();
+	            }
+	        }
+	    }]);
 
-	  return Pickup;
+	    return Pickup;
 	}(_MapSpriteController2.MapSpriteController);
 
 /***/ },
@@ -2024,7 +2083,7 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var MapSpriteController = exports.MapSpriteController = function () {
-	  function MapSpriteController(parentObject, compassObject, latitude, longitude) {
+	  function MapSpriteController(parentObject, compassObject, latitude, longitude, generatedTime) {
 	    _classCallCheck(this, MapSpriteController);
 	
 	    this.parent = parentObject;
@@ -2035,14 +2094,19 @@
 	
 	    this.compass = compassObject;
 	
+	    this.generatedTime = generatedTime;
+	
+	    // Set the initial fade. If in mid-fade, this should set it correctly.
+	    this.fadeIn();
+	
 	    // I belive this will only be used for testing! LatLong will likely be distributed based on positions
 	    // at regular 0.005 (or something like that) global latlong intervals that the player is closest to.
 	    // const LATLONGMAXDISTANCE = 0.002;
 	    this.latitude = latitude;
 	    this.longitude = longitude;
 	
-	    this.parent.x = (0, _helpers.pixelCoordFromGeoCoord)(compassObject.nav.currentGeoAnchor.longitude, this.longitude);
-	    this.parent.y = -(0, _helpers.pixelCoordFromGeoCoord)(compassObject.nav.currentGeoAnchor.latitude, this.latitude);
+	    // this.parent.x = pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.longitude, this.longitude);
+	    // this.parent.y = -pixelCoordFromGeoCoord(compassObject.nav.currentGeoAnchor.latitude, this.latitude);
 	    // console.log('item latlong: ' + this.longitude + ', ' + this.latitude + '\nitem coords: ' + this.parent.x + ', ' + this.parent.y);
 	
 	    // this.updatePosition();
@@ -2069,10 +2133,21 @@
 	      // this.parent.shadow.scale.setTo(this.parent.scale.x, this.parent.scale.y);
 	    }
 	  }, {
+	    key: 'fadeIn',
+	    value: function fadeIn() {
+	      // Fade object in.
+	      var timeAlive = Date.now() - this.generatedTime;
+	      var timeToFade = window.settings.pickupLife.fadeTime * 1000;
+	      if (timeAlive <= timeToFade) {
+	        this.parent.alpha = timeAlive / timeToFade;
+	      } else if (this.parent.alpha != 1) {
+	        this.parent.alpha = 1;
+	      }
+	    }
+	  }, {
 	    key: 'update',
 	    value: function update() {
-	      // this.parent.rotation = this.compass.rotation;
-	      // this.updateScaleByDistance();
+	      this.fadeIn();
 	    }
 	  }]);
 
@@ -3686,7 +3761,7 @@
 	    value: function resize(width, height) {
 	      if (height > width) {
 	        // If Portrait, change to Compass/Map
-	        this.game.state.start('PortraitInterface', true, false);
+	        this.game.state.start('PortraitInterface', false, false);
 	      }
 	    }
 	  }]);
@@ -3753,7 +3828,8 @@
 	
 	    this.pickupLife = {
 	        min: 120,
-	        max: 300
+	        max: 300,
+	        fadeTime: 5
 	    };
 	};
 	
