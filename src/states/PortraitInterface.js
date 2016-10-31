@@ -147,8 +147,9 @@ export class PortraitInterface extends Phaser.State {
     }
 
     if (this.hasGeneratedItems) {
+      // console.log('this.nextGenerationTime: ' + this.nextGenerationTime);
       if (this.nextGenerationTime < Date.now()) {
-        this.generatePickups(Date.now());
+        this.generatePickups(this.nextGenerationTime);
       }
     }
 
@@ -289,25 +290,27 @@ export class PortraitInterface extends Phaser.State {
     console.log('last generation time: ' + lastGenerationTime);
 
     // The object with the longest possible lifetime happened the max lifetime before the last generation time.
-    let startGeneratingFromTime = lastGenerationTime - (window.settings.pickupLife.max * 1000);
+    let startGeneratingFromTime = lastGenerationTime - (window.settings.pickupLife.max * 1000 * 2);
     let startGenerationTime = Math.floor(startGeneratingFromTime / generationInterval) * generationInterval;
     console.log('starting generation time: ' + startGenerationTime);
 
     let retroactiveTime = startGenerationTime;
 
     // Generate pickups between startGenerationTime and most recent generation time.
-    while (retroactiveTime < lastGenerationTime) {
+    while (retroactiveTime <= lastGenerationTime) {
+      console.log(retroactiveTime == lastGenerationTime);
       this.generatePickups(retroactiveTime);
       retroactiveTime += generationInterval;
     }
-
-    // Finally, generate the current generation.
-    this.generatePickups(Date.now());
 
     this.hasGeneratedItems = true;
   }
 
   generatePickups (timeReference) {
+    // In order for item generation to be consistent, the same number of calls to this.rnd must be made every time.
+    // Because of this, there are a lot of extra calculations that do not actually end up being used, all for the sake
+    // of consistency. It's a shame, but I think it's necessary!
+
     console.log('generating pickups for ' + timeReference);
 
     this.setNewSeedFromGeoAnchor(this.player.nav.currentGeoAnchor.latitude, this.player.nav.currentGeoAnchor.longitude, timeReference);
@@ -321,16 +324,20 @@ export class PortraitInterface extends Phaser.State {
 
     let alreadyGeneratedPositions = [];
 
-    this.worldgroup.children.forEach((child) => {
-      if (child.pickup) {
-        alreadyGeneratedPositions.push({
-          x: child.x
-        , y: child.y
-        });
-      }
-    })
+    // console.log('existing children: ' + this.worldgroup.children.length);
+    // this.worldgroup.children.forEach((child) => {
+    //   if (child.pickup) {
+    //     alreadyGeneratedPositions.push({
+    //       x: child.x
+    //     , y: child.y
+    //     });
+    //   }
+    // })
 
     for (let i = 0; i < numberOfItems; i++) {
+      let pickupLife = this.rnd.realInRange(window.settings.pickupLife.min, window.settings.pickupLife.max);
+      let timeLeftToLiveIfGenerated = (timeReference + (pickupLife * 1000)) - Date.now();
+
       let randomLatitude = this.rnd.realInRange(anchorMinY, anchorMaxY),
           randomLongitude = this.rnd.realInRange(anchorMinX, anchorMaxX);
 
@@ -356,9 +363,11 @@ export class PortraitInterface extends Phaser.State {
         timesRegenerated++;
       }
 
-      // Now generate the pickup life to decide whether to actually generate the sprite.
-      let pickupLife = this.rnd.realInRange(window.settings.pickupLife.min, window.settings.pickupLife.max);
-      let timeLeftToLiveIfGenerated = (timeReference + (pickupLife * 1000)) - Date.now();
+      // Push this position to the queue even if the potential object would already be deleted so it all stays consistent.
+      alreadyGeneratedPositions.push({
+        x: generatedPosition.x
+      , y: generatedPosition.y
+      });
 
       // If there's actually time left before it is deleted, create it! If not, skip and save some processing power.
       if (timeLeftToLiveIfGenerated > 0) {
@@ -372,18 +381,15 @@ export class PortraitInterface extends Phaser.State {
         });
 
         this.worldgroup.add(pickup);
-
-        alreadyGeneratedPositions.push({
-          x: generatedPosition.x
-        , y: generatedPosition.y
-        });
       }
     }
 
     console.log(this.worldgroup.children.filter((child) => {return child.pickup}).length + ' items generated');
 
     // Set it to generate a new items every minimum pickup lifetime.
-    this.nextGenerationTime = Date.now() + (window.settings.pickupLife.min * 1000);
+    this.nextGenerationTime = timeReference + (window.settings.pickupLife.min * 1000);
+    console.log('Now: ' + Date.now());
+    console.log('next generation time: ' + this.nextGenerationTime);
   }
 
   generatePickupsGrid () {
