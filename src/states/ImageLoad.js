@@ -5,7 +5,8 @@ import 'phaser';
 import redSquareImagePath from '../images/ui/red-square.png';
 import compassImagePath from '../images/ui/compass.png';
 import pinImagePath from '../images/ui/pin_neutral.png';
-import paperImagePath from '../images/paper_map.jpg';
+// import paperImagePath from '../images/paper_map.jpg';
+import paperImagePath from '../images/grid.png';
 import materialImagePath from '../images/map_icons/material.png';
 
 export class ImageLoad extends Phaser.State {
