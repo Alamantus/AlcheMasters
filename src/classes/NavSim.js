@@ -11,9 +11,6 @@ export class NavSim {
     this.messages = {
       geolocationReady: 'Geolocation active!'
     , noGeolocation: 'Your device does not support geolocation! Please try playing again on a device that does.'
-    , noCompass: 'Your device does not support compass facing! Please try playing again on a device that does.'
-    , needGPS: 'No GPS Signal found. Go outside and get some signal!'
-    , needMove: 'Hold your phone ahead of you and start walking.'
     };
 
     // Each 0.00001 latlong difference is ~1 meter.
@@ -88,16 +85,16 @@ export class NavSim {
     this.latitude = coords.latitude;
     this.longitude = coords.longitude;
 
-    // let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 1000000);
-    // let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 1000000);
-    let targetX = pixelCoordFromGeoCoord(this.currentGeoAnchor.longitude, this.longitude);
-    let targetY = -pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
+    let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 1000000);
+    let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 1000000);
+    // let targetX = pixelCoordFromGeoCoord(this.currentGeoAnchor.longitude, this.longitude);
+    // let targetY = -pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
 
     // 1000000 gives latlong change within 1/10 of a meter.
     this.parent.x = targetX;
     this.parent.y = targetY;
 
-    // console.log('Player position: ' + this.parent.x + ', ' + this.parent.y + '\nPlayer coords: ' + this.latitude + ', ' + this.longitude + '\nAnchor: ' + this.currentGeoAnchor.latitude + ', ' + this.currentGeoAnchor.longitude
-    //             + '\nIntermediate Anchor: ' + this.currentGeoAnchor.intermediateLatitude + ', ' + this.currentGeoAnchor.intermediateLongitude);
+    console.log('Player coords: ' + this.latitude + ', ' + this.longitude + '\nAnchor: ' + this.currentGeoAnchor.latitude + ', ' + this.currentGeoAnchor.longitude
+                + '\nIntermediate Anchor: ' + this.currentGeoAnchor.intermediateLatitude + ', ' + this.currentGeoAnchor.intermediateLongitude);
   }
 }

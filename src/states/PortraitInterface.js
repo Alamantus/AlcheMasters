@@ -75,13 +75,13 @@ export class PortraitInterface extends Phaser.State {
       this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
       this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
 
-      if (this.worldgroup.children.filter((child) => {return (typeof child.pickup !== 'undefined')}).length === 0) {
-        if (!this.hasGeneratedItems) {
-          this.retroactiveGeneratePickups();
-        }
-      }
+      // if (this.worldgroup.children.filter((child) => {return (typeof child.pickup !== 'undefined')}).length === 0) {
+      //   if (!this.hasGeneratedItems) {
+      //     this.retroactiveGeneratePickups();
+      //   }
+      // }
 
-      console.log('Player At: ' + this.player.x + ', ' + this.player.y);
+      // console.log('Player At: ' + this.player.x + ', ' + this.player.y);
     } else {
       this.player.nav = new Nav(this.player, window.settings.locationCheckDelaySeconds,
         (anchorLatitude, anchorLongitude) => {
@@ -89,12 +89,12 @@ export class PortraitInterface extends Phaser.State {
           this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
           this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
 
-          if (!this.hasGeneratedItems) {
-            this.retroactiveGeneratePickups();
-            // this.generatePickupsGrid();
-          }
+          // if (!this.hasGeneratedItems) {
+          //   this.retroactiveGeneratePickups();
+          //   // this.generatePickupsGrid();
+          // }
 
-          console.log('Player At: ' + this.player.x + ', ' + this.player.y);
+          // console.log('Player At: ' + this.player.x + ', ' + this.player.y);
         });
     }
     this.worldgroup.add(this.player);
@@ -131,27 +131,27 @@ export class PortraitInterface extends Phaser.State {
     this.bg.tilePosition.x = -this.player.x / this.bg.tileScale.x;
     this.bg.tilePosition.y = -this.player.y / this.bg.tileScale.y;
 
-    this.itemCheckFrameDelay--;
-    if (this.hasGeneratedItems) {
-      if (this.itemCheckFrameDelay <= 0) {
-        this.worldgroup.children.forEach((child) => {
-          // If it's a pickup, run the update method.
-          if (child.pickup) {
-            child.pickup.update();
-          }
-        });
+    // this.itemCheckFrameDelay--;
+    // if (this.hasGeneratedItems) {
+    //   if (this.itemCheckFrameDelay <= 0) {
+    //     this.worldgroup.children.forEach((child) => {
+    //       // If it's a pickup, run the update method.
+    //       if (child.pickup) {
+    //         child.pickup.update();
+    //       }
+    //     });
 
-        // Only check items once every this number of frames.
-        this.itemCheckFrameDelay = window.settings.itemCheckDelayNumberOfFrames;
-      }
-    }
+    //     // Only check items once every this number of frames.
+    //     this.itemCheckFrameDelay = window.settings.itemCheckDelayNumberOfFrames;
+    //   }
+    // }
 
-    if (this.hasGeneratedItems) {
-      // console.log('this.nextGenerationTime: ' + this.nextGenerationTime);
-      if (this.nextGenerationTime < Date.now()) {
-        this.generatePickups(this.nextGenerationTime);
-      }
-    }
+    // if (this.hasGeneratedItems) {
+    //   // console.log('this.nextGenerationTime: ' + this.nextGenerationTime);
+    //   if (this.nextGenerationTime < Date.now()) {
+    //     this.generatePickups(this.nextGenerationTime);
+    //   }
+    // }
 
     this.worldgroup.pivot.x = this.player.x;
     this.worldgroup.pivot.y = this.player.y;
@@ -162,7 +162,7 @@ export class PortraitInterface extends Phaser.State {
     // this.game.camera.focusOnXY(this.player.x, this.player.y + this.player.height - this.camera.view.halfHeight);
     this.game.camera.focusOnXY(this.player.x, this.player.y);
 
-    this.moveWorldgroupIfPast();
+    // this.moveWorldgroupIfPast();
   }
 
   resize (width, height) {
@@ -390,36 +390,5 @@ export class PortraitInterface extends Phaser.State {
     this.nextGenerationTime = timeReference + (window.settings.pickupLife.min * 1000);
     console.log('Now: ' + Date.now());
     console.log('next generation time: ' + this.nextGenerationTime);
-  }
-
-  generatePickupsGrid () {
-    console.log('generating pickups in a grid');
-
-    for (let x = -Math.floor(this.world.width * 0.5); x < this.world.width; x += Math.floor(this.world.width / 30)) {
-      for (let y = -Math.floor(this.world.width * 0.5); y < this.world.height; y += Math.floor(this.world.width / 30)) {
-        if (!(x === 0 && y === 0)) {
-          // let shadow = this.add.image(x, y, 'shadow');
-          // shadow.anchor.setTo(0.1, 0.5);
-          // shadow.tint = 0xaaaaaa;
-          // this.worldgroup.add(shadow);
-          // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
-          
-          let pickup = this.add.sprite(x, y, 'material');
-          pickup.pickup = new Pickup(pickup, this.player, 0, 0);
-          pickup.tint = 0x22ac00;
-          pickup.anchor.setTo(0.5, 0.9);
-          // pickup.shadow = shadow;
-          pickup.events.onDestroy.add(() => {
-            // pickup.shadow.destroy();
-            pickup.pickup = null;
-          });
-          this.worldgroup.add(pickup);
-        }
-      }
-    }
-
-    console.log(this.worldgroup.children.filter((child) => {return child.pickup}).length + ' items generated');
-
-    this.hasGeneratedItems = true;
   }
 }
