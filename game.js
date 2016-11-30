@@ -63,9 +63,9 @@
 	
 	var _PortraitInterface = __webpack_require__(/*! ./states/PortraitInterface */ 19);
 	
-	var _LandscapeInterface = __webpack_require__(/*! ./states/LandscapeInterface */ 29);
+	var _LandscapeInterface = __webpack_require__(/*! ./states/LandscapeInterface */ 28);
 	
-	var _Settings = __webpack_require__(/*! ./classes/Settings */ 30);
+	var _Settings = __webpack_require__(/*! ./classes/Settings */ 29);
 	
 	window.settings = new _Settings.Settings();
 	
@@ -482,7 +482,7 @@
   \***************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(/*! !./~/script-loader/addScript.js */ 7)(__webpack_require__(/*! !./~/raw-loader!./~/phaser/build/custom/pixi.js */ 8)+"\n\n// SCRIPT-LOADER FOOTER\n//# sourceURL=script:///C:/Users/rmantenesse/Documents/Git-Repositories/AlcheMasters/master/node_modules/phaser/build/custom/pixi.js")
+	__webpack_require__(/*! !./~/script-loader/addScript.js */ 7)(__webpack_require__(/*! !./~/raw-loader!./~/phaser/build/custom/pixi.js */ 8)+"\n\n// SCRIPT-LOADER FOOTER\n//# sourceURL=script:///home/robbie/Projects/AlcheMasters/master/node_modules/phaser/build/custom/pixi.js")
 
 /***/ },
 /* 7 */
@@ -519,7 +519,7 @@
   \*************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(/*! !./~/script-loader/addScript.js */ 7)(__webpack_require__(/*! !./~/raw-loader!./~/phaser/build/custom/p2.js */ 10)+"\n\n// SCRIPT-LOADER FOOTER\n//# sourceURL=script:///C:/Users/rmantenesse/Documents/Git-Repositories/AlcheMasters/master/node_modules/phaser/build/custom/p2.js")
+	__webpack_require__(/*! !./~/script-loader/addScript.js */ 7)(__webpack_require__(/*! !./~/raw-loader!./~/phaser/build/custom/p2.js */ 10)+"\n\n// SCRIPT-LOADER FOOTER\n//# sourceURL=script:///home/robbie/Projects/AlcheMasters/master/node_modules/phaser/build/custom/p2.js")
 
 /***/ },
 /* 10 */
@@ -537,7 +537,7 @@
   \***********************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(/*! !./~/script-loader/addScript.js */ 7)(__webpack_require__(/*! !./~/raw-loader!./~/phaser/build/custom/phaser-split.js */ 12)+"\n\n// SCRIPT-LOADER FOOTER\n//# sourceURL=script:///C:/Users/rmantenesse/Documents/Git-Repositories/AlcheMasters/master/node_modules/phaser/build/custom/phaser-split.js")
+	__webpack_require__(/*! !./~/script-loader/addScript.js */ 7)(__webpack_require__(/*! !./~/raw-loader!./~/phaser/build/custom/phaser-split.js */ 12)+"\n\n// SCRIPT-LOADER FOOTER\n//# sourceURL=script:///home/robbie/Projects/AlcheMasters/master/node_modules/phaser/build/custom/phaser-split.js")
 
 /***/ },
 /* 12 */
@@ -558,7 +558,7 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	   value: true
 	});
 	exports.ImageLoad = undefined;
 	
@@ -582,7 +582,7 @@
 	
 	var _pin_neutral2 = _interopRequireDefault(_pin_neutral);
 	
-	var _grid = __webpack_require__(/*! ../images/grid.png */ 32);
+	var _grid = __webpack_require__(/*! ../images/grid.png */ 17);
 	
 	var _grid2 = _interopRequireDefault(_grid);
 	
@@ -601,37 +601,37 @@
 	
 	
 	var ImageLoad = exports.ImageLoad = function (_Phaser$State) {
-	  _inherits(ImageLoad, _Phaser$State);
+	   _inherits(ImageLoad, _Phaser$State);
 	
-	  function ImageLoad() {
-	    _classCallCheck(this, ImageLoad);
+	   function ImageLoad() {
+	      _classCallCheck(this, ImageLoad);
 	
-	    return _possibleConstructorReturn(this, (ImageLoad.__proto__ || Object.getPrototypeOf(ImageLoad)).call(this));
-	  }
+	      return _possibleConstructorReturn(this, (ImageLoad.__proto__ || Object.getPrototypeOf(ImageLoad)).call(this));
+	   }
 	
-	  _createClass(ImageLoad, [{
-	    key: 'init',
-	    value: function init() {}
-	  }, {
-	    key: 'preload',
-	    value: function preload() {
-	      this.load.spritesheet('red-square', _redSquare2.default, 32, 32);
-	      this.load.spritesheet('compass', _compass2.default, 32, 32);
-	      this.load.spritesheet('pin_neutral', _pin_neutral2.default, 32, 32);
-	      this.load.image('paper', _grid2.default);
-	      this.load.image('material', _material2.default);
-	    }
-	  }, {
-	    key: 'create',
-	    value: function create() {
-	      this.game.state.start('PortraitInterface', true, false);
-	    }
-	  }, {
-	    key: 'update',
-	    value: function update() {}
-	  }]);
+	   _createClass(ImageLoad, [{
+	      key: 'init',
+	      value: function init() {}
+	   }, {
+	      key: 'preload',
+	      value: function preload() {
+	         this.load.spritesheet('red-square', _redSquare2.default, 32, 32);
+	         this.load.spritesheet('compass', _compass2.default, 32, 32);
+	         this.load.spritesheet('pin_neutral', _pin_neutral2.default, 32, 32);
+	         this.load.image('paper', _grid2.default);
+	         this.load.image('material', _material2.default);
+	      }
+	   }, {
+	      key: 'create',
+	      value: function create() {
+	         this.game.state.start('PortraitInterface', true, false);
+	      }
+	   }, {
+	      key: 'update',
+	      value: function update() {}
+	   }]);
 	
-	  return ImageLoad;
+	   return ImageLoad;
 	}(Phaser.State);
 
 /***/ },
@@ -662,7 +662,15 @@
 	module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4AobEh8IyxuIrwAAAUxJREFUWMPNliFPw1AURs+rwACeIEAQEiQTBAyYJdOQGRz/ADdFFhx/AYOawC0kSCwhA4cH1AyYmQEJIA6mIwXK2DLWx0le0ryXft/Xpr33BnJQ87YrwDqwDCwCM8BUevYI3AM3wDVwDpx9FQgh8CtqdpXUQ7Xj8HTSe0tZzUGN59SGf0cj1fw5SOZwR+3693RT7e8BMuZ1x0/9U4iMec3iqH2ESC/KFk9ZJaSv4hJYpViugLWgbgInxGErAarEoxrUW2AhUoC7oL4AE5ECvCZEJgHaEf3bCdCKGKCVAM2IAZrRC1HvI9yL8PR7/6MZRW/HsQaSfgHijGTRh9I+IXqrMoR5JU9jZNT1Acw3xvrzqqd9zI/HXj3UJfUtx/xZnS+khKlHOQH2C6uh6qz6lDFvq5OFFnL1IBNgu/BOok6rD+qFGoiBuquujKLxDtu10YdO57bwAAAAAElFTkSuQmCC"
 
 /***/ },
-/* 17 */,
+/* 17 */
+/*!*****************************!*\
+  !*** ./src/images/grid.png ***!
+  \*****************************/
+/***/ function(module, exports) {
+
+	module.exports = "data:image/png;base64,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"
+
+/***/ },
 /* 18 */
 /*!*******************************************!*\
   !*** ./src/images/map_icons/material.png ***!
@@ -695,15 +703,15 @@
 	
 	var _Nav = __webpack_require__(/*! ../classes/Nav */ 20);
 	
-	var _NavSim = __webpack_require__(/*! ../classes/NavSim */ 23);
+	var _NavSim = __webpack_require__(/*! ../classes/NavSim */ 22);
 	
-	var _Pickup = __webpack_require__(/*! ../classes/Pickup */ 24);
+	var _Pickup = __webpack_require__(/*! ../classes/Pickup */ 23);
 	
-	var _Character = __webpack_require__(/*! ../classes/Character */ 26);
+	var _Character = __webpack_require__(/*! ../classes/Character */ 25);
 	
-	var _Inventory = __webpack_require__(/*! ../classes/Inventory */ 27);
+	var _Inventory = __webpack_require__(/*! ../classes/Inventory */ 26);
 	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 22);
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -787,27 +795,25 @@
 	        this.lastIntermediateAnchorLatitude = this.player.nav.currentGeoAnchor.intermediateLatitude;
 	        this.lastIntermediateAnchorLongitude = this.player.nav.currentGeoAnchor.intermediateLongitude;
 	
-	        if (this.worldgroup.children.filter(function (child) {
-	          return typeof child.pickup !== 'undefined';
-	        }).length === 0) {
-	          if (!this.hasGeneratedItems) {
-	            this.retroactiveGeneratePickups();
-	          }
-	        }
+	        // if (this.worldgroup.children.filter((child) => {return (typeof child.pickup !== 'undefined')}).length === 0) {
+	        //   if (!this.hasGeneratedItems) {
+	        //     this.retroactiveGeneratePickups();
+	        //   }
+	        // }
 	
-	        console.log('Player At: ' + this.player.x + ', ' + this.player.y);
+	        // console.log('Player At: ' + this.player.x + ', ' + this.player.y);
 	      } else {
 	        this.player.nav = new _Nav.Nav(this.player, window.settings.locationCheckDelaySeconds, function (anchorLatitude, anchorLongitude) {
 	
 	          _this2.lastIntermediateAnchorLatitude = _this2.player.nav.currentGeoAnchor.intermediateLatitude;
 	          _this2.lastIntermediateAnchorLongitude = _this2.player.nav.currentGeoAnchor.intermediateLongitude;
 	
-	          if (!_this2.hasGeneratedItems) {
-	            _this2.retroactiveGeneratePickups();
-	            // this.generatePickupsGrid();
-	          }
+	          // if (!this.hasGeneratedItems) {
+	          //   this.retroactiveGeneratePickups();
+	          //   // this.generatePickupsGrid();
+	          // }
 	
-	          console.log('Player At: ' + _this2.player.x + ', ' + _this2.player.y);
+	          // console.log('Player At: ' + this.player.x + ', ' + this.player.y);
 	        });
 	      }
 	      this.worldgroup.add(this.player);
@@ -845,27 +851,27 @@
 	      this.bg.tilePosition.x = -this.player.x / this.bg.tileScale.x;
 	      this.bg.tilePosition.y = -this.player.y / this.bg.tileScale.y;
 	
-	      this.itemCheckFrameDelay--;
-	      if (this.hasGeneratedItems) {
-	        if (this.itemCheckFrameDelay <= 0) {
-	          this.worldgroup.children.forEach(function (child) {
-	            // If it's a pickup, run the update method.
-	            if (child.pickup) {
-	              child.pickup.update();
-	            }
-	          });
+	      // this.itemCheckFrameDelay--;
+	      // if (this.hasGeneratedItems) {
+	      //   if (this.itemCheckFrameDelay <= 0) {
+	      //     this.worldgroup.children.forEach((child) => {
+	      //       // If it's a pickup, run the update method.
+	      //       if (child.pickup) {
+	      //         child.pickup.update();
+	      //       }
+	      //     });
 	
-	          // Only check items once every this number of frames.
-	          this.itemCheckFrameDelay = window.settings.itemCheckDelayNumberOfFrames;
-	        }
-	      }
+	      //     // Only check items once every this number of frames.
+	      //     this.itemCheckFrameDelay = window.settings.itemCheckDelayNumberOfFrames;
+	      //   }
+	      // }
 	
-	      if (this.hasGeneratedItems) {
-	        // console.log('this.nextGenerationTime: ' + this.nextGenerationTime);
-	        if (this.nextGenerationTime < Date.now()) {
-	          this.generatePickups(this.nextGenerationTime);
-	        }
-	      }
+	      // if (this.hasGeneratedItems) {
+	      //   // console.log('this.nextGenerationTime: ' + this.nextGenerationTime);
+	      //   if (this.nextGenerationTime < Date.now()) {
+	      //     this.generatePickups(this.nextGenerationTime);
+	      //   }
+	      // }
 	
 	      this.worldgroup.pivot.x = this.player.x;
 	      this.worldgroup.pivot.y = this.player.y;
@@ -876,7 +882,7 @@
 	      // this.game.camera.focusOnXY(this.player.x, this.player.y + this.player.height - this.camera.view.halfHeight);
 	      this.game.camera.focusOnXY(this.player.x, this.player.y);
 	
-	      this.moveWorldgroupIfPast();
+	      // this.moveWorldgroupIfPast();
 	    }
 	  }, {
 	    key: 'resize',
@@ -1105,44 +1111,6 @@
 	      console.log('Now: ' + Date.now());
 	      console.log('next generation time: ' + this.nextGenerationTime);
 	    }
-	  }, {
-	    key: 'generatePickupsGrid',
-	    value: function generatePickupsGrid() {
-	      var _this5 = this;
-	
-	      console.log('generating pickups in a grid');
-	
-	      for (var x = -Math.floor(this.world.width * 0.5); x < this.world.width; x += Math.floor(this.world.width / 30)) {
-	        for (var y = -Math.floor(this.world.width * 0.5); y < this.world.height; y += Math.floor(this.world.width / 30)) {
-	          if (!(x === 0 && y === 0)) {
-	            (function () {
-	              // let shadow = this.add.image(x, y, 'shadow');
-	              // shadow.anchor.setTo(0.1, 0.5);
-	              // shadow.tint = 0xaaaaaa;
-	              // this.worldgroup.add(shadow);
-	              // console.log(randomLatitude + ', ' + randomLatitude + '\n' + pickup.x + ', ' + pickup.y);
-	
-	              var pickup = _this5.add.sprite(x, y, 'material');
-	              pickup.pickup = new _Pickup.Pickup(pickup, _this5.player, 0, 0);
-	              pickup.tint = 0x22ac00;
-	              pickup.anchor.setTo(0.5, 0.9);
-	              // pickup.shadow = shadow;
-	              pickup.events.onDestroy.add(function () {
-	                // pickup.shadow.destroy();
-	                pickup.pickup = null;
-	              });
-	              _this5.worldgroup.add(pickup);
-	            })();
-	          }
-	        }
-	      }
-	
-	      console.log(this.worldgroup.children.filter(function (child) {
-	        return child.pickup;
-	      }).length + ' items generated');
-	
-	      this.hasGeneratedItems = true;
-	    }
 	  }]);
 	
 	  return PortraitInterface;
@@ -1162,13 +1130,11 @@
 	});
 	exports.Nav = undefined;
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // import '../../node_modules/compass.js/lib/compass.js';
 	
-	__webpack_require__(/*! ../../~/compass.js/lib/compass.js */ 21);
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
 	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 22);
-	
-	var _NavSim = __webpack_require__(/*! ./NavSim */ 23);
+	var _NavSim = __webpack_require__(/*! ./NavSim */ 22);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -1183,10 +1149,7 @@
 	
 	    this.messages = {
 	      geolocationReady: 'Geolocation active!',
-	      noGeolocation: 'Your device does not support geolocation! Please try playing again on a device that does.',
-	      noCompass: 'Your device does not support compass facing! Please try playing again on a device that does.',
-	      needGPS: 'No GPS Signal found. Go outside and get some signal!',
-	      needMove: 'Hold your phone ahead of you and start walking.'
+	      noGeolocation: 'Your device does not support geolocation! Please try playing again on a device that does.'
 	    };
 	
 	    this.latitude = 0;
@@ -1195,8 +1158,6 @@
 	    this.lastLongitude = null;
 	    this.lastCheck = null;
 	    this.lastUpdate = null;
-	    this.heading = 0;
-	    this.lastHeading = null;
 	
 	    this.currentGeoAnchor = {
 	      latitude: 0,
@@ -1205,15 +1166,8 @@
 	      intermediateLongitude: 0
 	    };
 	
-	    this.geoWatcherIsActive = false;
-	    this.geoWatcher = null;
-	    this.compasWatcherIsActive = false;
-	    this.compasWatcher = null;
-	
 	    this.targetX = this.parent.x;
 	    this.targetY = this.parent.y;
-	
-	    this.locationCheckTimeout = locationCheckDelaySeconds * 1000;
 	
 	    this.state.navDebugText = 'Inititializing...';
 	
@@ -1235,98 +1189,23 @@
 	          _this.currentGeoAnchor.intermediateLongitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, _this.longitude);
 	          _this.lastCheck = position.timestamp;
 	
-	          _this.parent.x = _this.targetX = (0, _helpers.pixelCoordFromGeoCoord)(_this.currentGeoAnchor.longitude, _this.longitude);
-	          _this.parent.y = _this.targetY = -(0, _helpers.pixelCoordFromGeoCoord)(_this.currentGeoAnchor.latitude, _this.latitude);
+	          // this.parent.x = this.targetX = pixelCoordFromGeoCoord(this.currentGeoAnchor.longitude, this.longitude);
+	          // this.parent.y = this.targetY = -pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
 	
-	          _this.updateMessage(_this.messages.geolocationReady + '\nGeoposition: ' + _this.latitude + ', ' + _this.longitude);
+	          _this.updateMessage('Geoposition: ' + _this.latitude + ', ' + _this.longitude);
 	
 	          if (runOnReady) {
 	            runOnReady(_this.currentGeoAnchor.latitude, _this.currentGeoAnchor.longitude);
 	          }
 	
-	          _this.startGeoWatcher();
+	          // this.startGeoWatcher();
 	
-	          _this.initiateCompass();
+	          // this.initiateCompass();
 	        }, function (error) {
 	          _this.updateMessage(error.message);
 	        }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
 	      } else {
 	        this.updateMessage(this.messages.noGeolocation);
-	      }
-	    }
-	  }, {
-	    key: 'initiateCompass',
-	    value: function initiateCompass() {
-	      var _this2 = this;
-	
-	      Compass.needGPS(function () {
-	        if (_this2.state.navDebugText !== _this2.messages.needGPS) {
-	          _this2.updateMessage(_this2.messages.needGPS);
-	        }
-	      }).needMove(function () {
-	        if (_this2.state.navDebugText !== _this2.messages.needMove) {
-	          _this2.updateMessage(_this2.messages.needMove);
-	        }
-	      }).init(function (method) {
-	        if (method !== false) {
-	          _this2.compassWatcher = Compass.watch(function (heading) {
-	            if (!_this2.compasWatcherIsActive) _this2.compasWatcherIsActive = true;
-	
-	            _this2.lastHeading = _this2.heading;
-	
-	            if (!_this2.headingIsInsideMarginOfError(heading)) {
-	              _this2.heading = heading;
-	              // this.updateMessage(this.heading);
-	            }
-	          });
-	        } else {
-	          _this2.updateMessage(_this2.messages.noCompass);
-	          _this2.revertToNavSim();
-	        }
-	      });
-	    }
-	  }, {
-	    key: 'startGeoWatcher',
-	    value: function startGeoWatcher() {
-	      var _this3 = this;
-	
-	      this.geoWatcher = navigator.geolocation.watchPosition(function (position) {
-	        if (!_this3.geoWatcherIsActive) _this3.geoWatcherIsActive = true;
-	
-	        _this3.lastLongitude = _this3.longitude;
-	        _this3.lastLatitude = _this3.latitude;
-	        _this3.lastCheck = position.timestamp;
-	
-	        if (!_this3.geoIsInsideMarginOfError(position.coords.latitude, position.coords.longitude)) {
-	          _this3.longitude = position.coords.longitude;
-	          _this3.latitude = position.coords.latitude;
-	          _this3.lastUpdate = position.timestamp;
-	
-	          _this3.currentGeoAnchor.latitude = (0, _helpers.closestMultipleOf)(window.settings.geoAnchorPlacement, _this3.latitude);
-	          _this3.currentGeoAnchor.longitude = (0, _helpers.closestMultipleOf)(window.settings.geoAnchorPlacement, _this3.longitude);
-	          _this3.currentGeoAnchor.intermediateLatitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, _this3.latitude);
-	          _this3.currentGeoAnchor.intermediateLongitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, _this3.longitude);
-	
-	          // Set target value for lerping game world position.
-	          _this3.targetX = (0, _helpers.pixelCoordFromGeoCoord)(_this3.currentGeoAnchor.longitude, _this3.longitude);
-	          _this3.targetY = -(0, _helpers.pixelCoordFromGeoCoord)(_this3.currentGeoAnchor.latitude, _this3.latitude);
-	        }
-	
-	        _this3.updateMessage('position: ' + _this3.longitude.toFixed(6) + ', ' + _this3.latitude.toFixed(6) + '\nchanged: ' + (_this3.lastLongitude - _this3.longitude).toFixed(6) + ', ' + (_this3.lastLatitude - _this3.latitude).toFixed(6));
-	      }, function (error) {
-	        _this3.updateMessage(error.message);
-	      }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
-	    }
-	  }, {
-	    key: 'stopNavWatchers',
-	    value: function stopNavWatchers() {
-	      if (this.geoWatcherIsActive) {
-	        navigator.geowatcher.clearWatch(this.geoWatcher);
-	        this.geoWatcherIsActive = false;
-	      }
-	      if (this.compassWatcherIsActive) {
-	        Compass.unwatch(this.compassWatcher);
-	        this.compasWatcherIsActive = false;
 	      }
 	    }
 	  }, {
@@ -1344,11 +1223,6 @@
 	      return longitude < this.lastLongitude + window.settings.geoMarginOfError && longitude > this.lastLongitude - window.settings.geoMarginOfError && latitude < this.lastLatitude + window.settings.geoMarginOfError && latitude > this.lastLatitude - window.settings.geoMarginOfError;
 	    }
 	  }, {
-	    key: 'headingIsInsideMarginOfError',
-	    value: function headingIsInsideMarginOfError(angle) {
-	      return angle < this.lastHeading + window.settings.angleMarginOfError && angle > this.lastHeading - window.settings.angleMarginOfError;
-	    }
-	  }, {
 	    key: 'updateMessage',
 	    value: function updateMessage(newMessage) {
 	      this.state.navDebugText = newMessage;
@@ -1356,16 +1230,7 @@
 	    }
 	  }, {
 	    key: 'update',
-	    value: function update() {
-	      this.parent.rotation = this.state.math.degToRad(this.heading);
-	      this.state.worldgroup.rotation = -1 * this.parent.rotation;
-	
-	      // Get the value within 500 meters (0.005 latlongs)
-	      this.parent.x = this.state.math.linear(this.parent.x, this.targetX, window.settings.lerpPercent);
-	      this.parent.y = this.state.math.linear(this.parent.y, this.targetY, window.settings.lerpPercent);
-	
-	      console.log(this.heading + 'degrees, ' + this.latitude + ', ' + this.longitude + '\nPlayer position: ' + this.parent.x + ', ' + this.parent.y);
-	    }
+	    value: function update() {}
 	  }, {
 	    key: 'canUseGeolocation',
 	    get: function get() {
@@ -1381,16 +1246,6 @@
 	    get: function get() {
 	      return this.longitude !== this.lastLongitude || this.latitude === this.lastLatitude;
 	    }
-	  }, {
-	    key: 'headingHasChanged',
-	    get: function get() {
-	      return this.heading !== this.lastHeading;
-	    }
-	  }, {
-	    key: 'hasChanged',
-	    get: function get() {
-	      return this.headingHasChanged || this.positionHasChanged;
-	    }
 	  }]);
 
 	  return Nav;
@@ -1398,373 +1253,6 @@
 
 /***/ },
 /* 21 */
-/*!*************************************!*\
-  !*** ./~/compass.js/lib/compass.js ***!
-  \*************************************/
-/***/ function(module, exports) {
-
-	;(function(undefined) {
-	  "use strict";
-	
-	  // Shortcut to check, that `variable` is not `undefined` or `null`.
-	  var defined = function (variable) {
-	    return (variable != null || variable != undefined);
-	  };
-	
-	  // Fire `type` callbacks with `args`.
-	  var fire = function (type, args) {
-	    var callbacks = self._callbacks[type];
-	    for (var i = 0; i < callbacks.length; i++) {
-	      callbacks[i].apply(window, args);
-	    }
-	  };
-	
-	  // Calculate average value for last 5 `array` items;
-	  var average5 = function (array) {
-	    var sum = 0;
-	    for (var i = array.length - 1; i > array.length - 6; i--) {
-	      sum += array[i];
-	    }
-	    return sum / 5;
-	  };
-	
-	  // Compass.js allow you to get compass heading in JavaScript.
-	  // We can get compass data by two proprietary APIs and one hack:
-	  // * PhoneGap have `navigator.compass` API.
-	  // * iOS Safari add `webkitCompassHeading` to `deviceorientation` event.
-	  // * We can enable GPS and ask user to go forward. GPS will send
-	  //   current heading, so we can calculate difference between real North
-	  //   and zero in `deviceorientation` event. Next we use this difference
-	  //   to get compass heading only by device orientation.
-	  //
-	  // Hide compass, when there isn’t any method:
-	  //
-	  //   Compass.noSupport(function () {
-	  //     $('.compass').hide();
-	  //   });
-	  //
-	  // Show instructions for GPS hack:
-	  //
-	  //   Compass.needGPS(function () {
-	  //     $('.go-outside-message').show();
-	  //   }).needMove(function () {
-	  //     $('.go-outside-message').hide()
-	  //     $('.move-and-hold-ahead-message').show();
-	  //   }).init(function () {
-	  //     $('.move-and-hold-ahead-message').hide();
-	  //   });
-	  var self = window.Compass = {
-	
-	    // Name of method to get compass heading. It will have value only after
-	    // library initialization from `init` method. So better way to get
-	    // method name is to use `init`:
-	    //
-	    //   Compass.init(function (method) {
-	    //     console.log('Compass by ' + method);
-	    //   });
-	    //
-	    // Available methods:
-	    // * `phonegap` take from PhoneGap’s `navigator.compass`.
-	    // * `webkitOrientation` take from iPhone’s proprietary
-	    //   `webkitCompassHeading` proprerty in `DeviceOrientationEvent`.
-	    // * `orientationAndGPS` take from device orientation with GPS hack.
-	    //
-	    // If browser hasn’t access to compass, `method` will be `false`.
-	    method: undefined,
-	
-	    // Watch for compass heading changes and execute `callback` with degrees
-	    // relative to magnetic north (from 0 to 360).
-	    //
-	    // Method return watcher ID to use it in `unwatch`.
-	    //
-	    //   var watchID = Compass.watch(function (heading) {
-	    //     $('.degrees').text(heading);
-	    //     // Don’t forget to change degree sign, when rotate compass.
-	    //     $('.compass').css({ transform: 'rotate(' + (-heading) + 'deg)' });
-	    //   });
-	    //
-	    //   someApp.close(function () {
-	    //     Compass.unwatch(watchID);
-	    //   });
-	    watch: function (callback) {
-	      var id = ++self._lastId;
-	
-	      self.init(function (method) {
-	
-	        if ( method == 'phonegap' ) {
-	          self._watchers[id] = self._nav.compass.watchHeading(callback);
-	
-	        } else if ( method == 'webkitOrientation' ) {
-	          var watcher = function (e) {
-	            callback(e.webkitCompassHeading);
-	          };
-	          self._win.addEventListener('deviceorientation', watcher);
-	          self._watchers[id] = watcher;
-	
-	        } else if ( method == 'orientationAndGPS' ) {
-	          var degrees;
-	          var watcher = function (e) {
-	            degrees = -e.alpha + self._gpsDiff;
-	            if ( degrees < 0 ) {
-	              degrees += 360;
-	            } else if ( degrees > 360 ) {
-	              degrees -= 360;
-	            }
-	            callback(degrees);
-	          };
-	          self._win.addEventListener('deviceorientation', watcher);
-	          self._watchers[id] = watcher;
-	
-	        }
-	      });
-	
-	      return id;
-	    },
-	
-	    // Remove watcher by watcher ID from `watch`.
-	    //
-	    //   Compass.unwatch(watchID)
-	    unwatch: function (id) {
-	      self.init(function (m) {
-	
-	        if ( m == 'phonegap' ) {
-	          self._nav.compass.clearWatch(self._watchers[id]);
-	
-	        } else if ( m == 'webkitOrientation' || m == 'orientationAndGPS' ) {
-	          self._win.removeEventListener(
-	            'deviceorientation', self._watchers[id]);
-	
-	        }
-	        delete self._watchers[id];
-	      });
-	      return self;
-	    },
-	
-	    // Execute `callback`, when GPS hack activated to detect difference between
-	    // device orientation and real North from GPS.
-	    //
-	    // You need to show to user some message, that he must go outside to be able
-	    // to receive GPS signal.
-	    //
-	    // Callback must be set before `init` or `watch` executing.
-	    //
-	    //   Compass.needGPS(function () {
-	    //     $('.go-outside-message').show();
-	    //   });
-	    //
-	    // Don’t forget to hide message by `needMove` callback in second step.
-	    needGPS: function (callback) {
-	      self._callbacks.needGPS.push(callback);
-	      return self;
-	    },
-	
-	    // Execute `callback` on second GPS hack step, when library has GPS signal,
-	    // but user must move and hold the device straight ahead. Library will use
-	    // `heading` from GPS movement tracking to detect difference between
-	    // device orientation and real North.
-	    //
-	    // Callback must be set before `init` or `watch` executing.
-	    //
-	    //   Compass.needMove(function () {
-	    //     $('.go-outside-message').hide()
-	    //     $('.move-and-hold-ahead-message').show();
-	    //   });
-	    //
-	    // Don’t forget to hide message in `init` callback:
-	    //
-	    //   Compass.init(function () {
-	    //     $('.move-and-hold-ahead-message').hide();
-	    //   });
-	    needMove: function (callback) {
-	      self._callbacks.needMove.push(callback);
-	      return self;
-	    },
-	
-	    // Execute `callback` if browser hasn’t any way to get compass heading.
-	    //
-	    //   Compass.noSupport(function () {
-	    //     $('.compass').hide();
-	    //   });
-	    //
-	    // On Firefox detecting can take about 0.5 second. So, it will be better
-	    // to show compass in `init`, than to hide it in `noSupport`.
-	    noSupport: function (callback) {
-	      if ( self.method === false ) {
-	        callback();
-	      } else if ( !defined(self.method) ) {
-	        self._callbacks.noSupport.push(callback);
-	      }
-	      return self;
-	    },
-	
-	    // Detect compass method and execute `callback`, when library will be
-	    // initialized. Callback will get method name (or `false` if library can’t
-	    // detect compass) in first argument.
-	    //
-	    // It is best way to check `method` property.
-	    //
-	    //   Compass.init(function (method) {
-	    //     console.log('Compass by ' + method);
-	    //   });
-	    init: function (callback) {
-	      if ( defined(self.method) ) {
-	        callback(self.method);
-	        return;
-	      }
-	      self._callbacks.init.push(callback);
-	
-	      if ( self._initing ) {
-	        return;
-	      }
-	      self._initing = true;
-	
-	      if ( self._nav.compass ) {
-	        self._start('phonegap');
-	
-	      } else if ( self._win.DeviceOrientationEvent ) {
-	        self._checking = 0;
-	        self._win.addEventListener('deviceorientation', self._checkEvent);
-	        setTimeout(function () {
-	          if ( self._checking !== false ) {
-	            self._start(false);
-	          }
-	        }, 500);
-	
-	      } else {
-	        self._start(false);
-	      }
-	      return self;
-	    },
-	
-	    // Last watch ID.
-	    _lastId: 0,
-	
-	    // Hash of internal ID to watcher to use it in `unwatch`.
-	    _watchers: { },
-	
-	    // Window object for testing.
-	    _win: window,
-	
-	    // Navigator object for testing.
-	    _nav: navigator,
-	
-	    // List of callbacks.
-	    _callbacks: {
-	
-	      // Callbacks from `init` method.
-	      init: [],
-	
-	      // Callbacks from `noSupport` method.
-	      noSupport: [],
-	
-	      // Callbacks from `needGPS` method.
-	      needGPS: [],
-	
-	      // Callbacks from `needMove` method.
-	      needMove: []
-	
-	    },
-	
-	    // Is library now try to detect compass method.
-	    _initing: false,
-	
-	    // Difference between `alpha` orientation and real North from GPS.
-	    _gpsDiff: undefined,
-	
-	    // Finish library initialization and use `method` to get compass heading.
-	    _start: function (method) {
-	      self.method   = method;
-	      self._initing = false;
-	
-	      fire('init', [method]);
-	      self._callbacks.init = [];
-	
-	      if ( method === false ) {
-	        fire('noSupport', []);
-	      }
-	      self._callbacks.noSupport = [];
-	    },
-	
-	    // Tell, that we wait for `DeviceOrientationEvent`.
-	    _checking: false,
-	
-	    // Check `DeviceOrientationEvent` to detect compass method.
-	    _checkEvent: function (e) {
-	      self._checking += 1;
-	      var wait = false;
-	
-	      if ( defined(e.webkitCompassHeading) ) {
-	        self._start('webkitOrientation');
-	
-	      } else if ( defined(e.alpha) && self._nav.geolocation ) {
-	        self._gpsHack();
-	
-	      } else if ( self._checking > 1 ) {
-	        self._start(false);
-	
-	      } else {
-	        wait = true;
-	      }
-	
-	      if ( !wait ) {
-	        self._checking = false;
-	        self._win.removeEventListener('deviceorientation', self._checkEvent);
-	      }
-	    },
-	
-	    // Use GPS to detect difference  between `alpha` orientation and real North.
-	    _gpsHack: function () {
-	      var first    = true;
-	      var alphas   = [];
-	      var headings = [];
-	
-	      fire('needGPS');
-	
-	      var saveAlpha = function (e) {
-	        alphas.push(e.alpha);
-	      }
-	      self._win.addEventListener('deviceorientation', saveAlpha);
-	
-	      var success = function (position) {
-	        var coords = position.coords
-	        if ( !defined(coords.heading) ) {
-	          return; // Position not from GPS
-	        }
-	
-	        if ( first ) {
-	          first = false;
-	          fire('needMove');
-	        }
-	
-	        if ( coords.speed > 1 ) {
-	          headings.push(coords.heading);
-	          if ( headings.length >= 5 && alphas.length >= 5 ) {
-	            self._win.removeEventListener('deviceorientation', saveAlpha);
-	            self._nav.geolocation.clearWatch(watcher);
-	
-	            self._gpsDiff = average5(headings) + average5(alphas);
-	            self._start('orientationAndGPS');
-	          }
-	        } else {
-	          headings = [];
-	        }
-	      };
-	      var error = function () {
-	        self._win.removeEventListener('deviceorientation', saveAlpha);
-	        self._start(false);
-	      };
-	
-	      var watcher = self._nav.geolocation.
-	        watchPosition(success, error, { enableHighAccuracy: true });
-	    }
-	
-	  };
-	
-	})();
-
-
-/***/ },
-/* 22 */
 /*!***************************!*\
   !*** ./src/js/helpers.js ***!
   \***************************/
@@ -1880,7 +1368,7 @@
 	}
 
 /***/ },
-/* 23 */
+/* 22 */
 /*!*******************************!*\
   !*** ./src/classes/NavSim.js ***!
   \*******************************/
@@ -1889,130 +1377,126 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	exports.NavSim = undefined;
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 22);
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var NavSim = exports.NavSim = function () {
-	    function NavSim(parent, latitude, longitude) {
-	        _classCallCheck(this, NavSim);
+	  function NavSim(parent, latitude, longitude) {
+	    _classCallCheck(this, NavSim);
 	
-	        this.parent = parent;
-	        this.state = parent.game.state.getCurrentState();
-	        this.state.isUsingNavSim = true;
+	    this.parent = parent;
+	    this.state = parent.game.state.getCurrentState();
+	    this.state.isUsingNavSim = true;
 	
-	        this.type = 'test';
+	    this.type = 'test';
 	
-	        this.messages = {
-	            geolocationReady: 'Geolocation active!',
-	            noGeolocation: 'Your device does not support geolocation! Please try playing again on a device that does.',
-	            noCompass: 'Your device does not support compass facing! Please try playing again on a device that does.',
-	            needGPS: 'No GPS Signal found. Go outside and get some signal!',
-	            needMove: 'Hold your phone ahead of you and start walking.'
-	        };
+	    this.messages = {
+	      geolocationReady: 'Geolocation active!',
+	      noGeolocation: 'Your device does not support geolocation! Please try playing again on a device that does.'
+	    };
 	
-	        // Each 0.00001 latlong difference is ~1 meter.
-	        this.latitude = latitude;
-	        this.longitude = longitude;
-	        this.lastLatitude = null;
-	        this.lastLongitude = null;
-	        this.heading = 0;
-	        this.lastHeading = null;
+	    // Each 0.00001 latlong difference is ~1 meter.
+	    this.latitude = latitude;
+	    this.longitude = longitude;
+	    this.lastLatitude = null;
+	    this.lastLongitude = null;
+	    this.heading = 0;
+	    this.lastHeading = null;
 	
-	        this.currentGeoAnchor = {
-	            latitude: 0,
-	            longitude: 0,
-	            intermediateLatitude: 0,
-	            intermediateLongitude: 0
-	        };
+	    this.currentGeoAnchor = {
+	      latitude: 0,
+	      longitude: 0,
+	      intermediateLatitude: 0,
+	      intermediateLongitude: 0
+	    };
 	
-	        this.turnSpeed = 2;
-	        this.latLongSpeed = 0.00001;
+	    this.turnSpeed = 2;
+	    this.latLongSpeed = 0.00001;
 	
-	        this.state.navDebugText2 = 'Geolocation Not Supported: For Testing Only';
-	        this.state.navDebugText = 'Use Arrow Keys to Move Geoposition';
+	    this.state.navDebugText2 = 'Geolocation Not Supported: For Testing Only';
+	    this.state.navDebugText = 'Use Arrow Keys to Move Geoposition';
+	  }
+	
+	  _createClass(NavSim, [{
+	    key: 'update',
+	    value: function update() {
+	      this.lastHeading = this.heading;
+	      this.lastLatitude = this.latitude;
+	      this.lastLongitude = this.longitude;
+	
+	      this.currentGeoAnchor.latitude = (0, _helpers.closestMultipleOf)(window.settings.geoAnchorPlacement, this.latitude);
+	      this.currentGeoAnchor.longitude = (0, _helpers.closestMultipleOf)(window.settings.geoAnchorPlacement, this.longitude);
+	      this.currentGeoAnchor.intermediateLatitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, this.latitude);
+	      this.currentGeoAnchor.intermediateLongitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, this.longitude);
+	
+	      var heading = this.heading,
+	          coords = { latitude: this.latitude, longitude: this.longitude };
+	
+	      if (this.state.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
+	        heading -= this.turnSpeed;
+	      } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
+	        heading += this.turnSpeed;
+	      }
+	
+	      if (heading < 0) heading += 360;
+	      if (heading >= 360) heading -= 360;
+	
+	      this.heading = heading;
+	
+	      this.parent.rotation = this.state.math.degToRad(this.heading);
+	      this.state.worldgroup.rotation = -this.state.math.degToRad(this.heading);
+	
+	      if (this.state.input.keyboard.isDown(Phaser.Keyboard.UP)) {
+	        coords.latitude += this.latLongSpeed * Math.cos(this.parent.rotation);
+	        coords.longitude += this.latLongSpeed * Math.sin(this.parent.rotation);
+	      } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
+	        coords.latitude -= this.latLongSpeed * Math.cos(this.parent.rotation);
+	        coords.longitude -= this.latLongSpeed * Math.sin(this.parent.rotation);
+	      }
+	
+	      this.latitude = coords.latitude;
+	      this.longitude = coords.longitude;
+	
+	      var targetX = this.parent.x + (this.longitude - this.lastLongitude) * 1000000;
+	      var targetY = this.parent.y + (this.latitude - this.lastLatitude) * 1000000;
+	      // let targetX = pixelCoordFromGeoCoord(this.currentGeoAnchor.longitude, this.longitude);
+	      // let targetY = -pixelCoordFromGeoCoord(this.currentGeoAnchor.latitude, this.latitude);
+	
+	      // 1000000 gives latlong change within 1/10 of a meter.
+	      this.parent.x = targetX;
+	      this.parent.y = targetY;
+	
+	      console.log('Player coords: ' + this.latitude + ', ' + this.longitude + '\nAnchor: ' + this.currentGeoAnchor.latitude + ', ' + this.currentGeoAnchor.longitude + '\nIntermediate Anchor: ' + this.currentGeoAnchor.intermediateLatitude + ', ' + this.currentGeoAnchor.intermediateLongitude);
 	    }
-	
-	    _createClass(NavSim, [{
-	        key: 'update',
-	        value: function update() {
-	            this.lastHeading = this.heading;
-	            this.lastLatitude = this.latitude;
-	            this.lastLongitude = this.longitude;
-	
-	            this.currentGeoAnchor.latitude = (0, _helpers.closestMultipleOf)(window.settings.geoAnchorPlacement, this.latitude);
-	            this.currentGeoAnchor.longitude = (0, _helpers.closestMultipleOf)(window.settings.geoAnchorPlacement, this.longitude);
-	            this.currentGeoAnchor.intermediateLatitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, this.latitude);
-	            this.currentGeoAnchor.intermediateLongitude = (0, _helpers.closestMultipleOf)(window.settings.halfGeoAnchorPlacement, this.longitude);
-	
-	            var heading = this.heading,
-	                coords = { latitude: this.latitude, longitude: this.longitude };
-	
-	            if (this.state.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
-	                heading -= this.turnSpeed;
-	            } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
-	                heading += this.turnSpeed;
-	            }
-	
-	            if (heading < 0) heading += 360;
-	            if (heading >= 360) heading -= 360;
-	
-	            this.heading = heading;
-	
-	            this.parent.rotation = this.state.math.degToRad(this.heading);
-	            this.state.worldgroup.rotation = -this.state.math.degToRad(this.heading);
-	
-	            if (this.state.input.keyboard.isDown(Phaser.Keyboard.UP)) {
-	                coords.latitude += this.latLongSpeed * Math.cos(this.parent.rotation);
-	                coords.longitude += this.latLongSpeed * Math.sin(this.parent.rotation);
-	            } else if (this.state.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-	                coords.latitude -= this.latLongSpeed * Math.cos(this.parent.rotation);
-	                coords.longitude -= this.latLongSpeed * Math.sin(this.parent.rotation);
-	            }
-	
-	            this.latitude = coords.latitude;
-	            this.longitude = coords.longitude;
-	
-	            // let targetX = this.parent.x + ((this.longitude - this.lastLongitude) * 1000000);
-	            // let targetY = this.parent.y + ((this.latitude - this.lastLatitude) * 1000000);
-	            var targetX = (0, _helpers.pixelCoordFromGeoCoord)(this.currentGeoAnchor.longitude, this.longitude);
-	            var targetY = -(0, _helpers.pixelCoordFromGeoCoord)(this.currentGeoAnchor.latitude, this.latitude);
-	
-	            // 1000000 gives latlong change within 1/10 of a meter.
-	            this.parent.x = targetX;
-	            this.parent.y = targetY;
-	
-	            // console.log('Player position: ' + this.parent.x + ', ' + this.parent.y + '\nPlayer coords: ' + this.latitude + ', ' + this.longitude + '\nAnchor: ' + this.currentGeoAnchor.latitude + ', ' + this.currentGeoAnchor.longitude
-	            //             + '\nIntermediate Anchor: ' + this.currentGeoAnchor.intermediateLatitude + ', ' + this.currentGeoAnchor.intermediateLongitude);
-	        }
-	    }, {
-	        key: 'positionHasChanged',
-	        get: function get() {
-	            return this.longitude !== this.lastLongitude || this.latitude === this.lastLatitude;
-	        }
-	    }, {
-	        key: 'headingHasChanged',
-	        get: function get() {
-	            return this.heading !== this.lastHeading;
-	        }
-	    }, {
-	        key: 'hasChanged',
-	        get: function get() {
-	            return this.headingHasChanged || this.positionHasChanged;
-	        }
-	    }]);
+	  }, {
+	    key: 'positionHasChanged',
+	    get: function get() {
+	      return this.longitude !== this.lastLongitude || this.latitude === this.lastLatitude;
+	    }
+	  }, {
+	    key: 'headingHasChanged',
+	    get: function get() {
+	      return this.heading !== this.lastHeading;
+	    }
+	  }, {
+	    key: 'hasChanged',
+	    get: function get() {
+	      return this.headingHasChanged || this.positionHasChanged;
+	    }
+	  }]);
 
-	    return NavSim;
+	  return NavSim;
 	}();
 
 /***/ },
-/* 24 */
+/* 23 */
 /*!*******************************!*\
   !*** ./src/classes/Pickup.js ***!
   \*******************************/
@@ -2021,7 +1505,7 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	exports.Pickup = undefined;
 	
@@ -2029,9 +1513,9 @@
 	
 	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 	
-	var _MapSpriteController2 = __webpack_require__(/*! ./MapSpriteController */ 25);
+	var _MapSpriteController2 = __webpack_require__(/*! ./MapSpriteController */ 24);
 	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 22);
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -2040,51 +1524,51 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var Pickup = exports.Pickup = function (_MapSpriteController) {
-	    _inherits(Pickup, _MapSpriteController);
+	  _inherits(Pickup, _MapSpriteController);
 	
-	    function Pickup(parentObject, compassObject, life, latitude, longitude, generatedTime) {
-	        _classCallCheck(this, Pickup);
+	  function Pickup(parentObject, compassObject, life, latitude, longitude, generatedTime) {
+	    _classCallCheck(this, Pickup);
 	
-	        var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject, latitude, longitude, generatedTime));
+	    var _this = _possibleConstructorReturn(this, (Pickup.__proto__ || Object.getPrototypeOf(Pickup)).call(this, parentObject, compassObject, latitude, longitude, generatedTime));
 	
-	        _this.canInteract = true;
+	    _this.canInteract = true;
 	
-	        // Time before destruction in seconds.
-	        _this.life = life;
+	    // Time before destruction in seconds.
+	    _this.life = life;
 	
-	        // this.deathTime = (this.generatedTime + (this.life * 1000)) - millisecondsSinceLastMinute();
-	        _this.deathTime = _this.generatedTime + _this.life * 1000;
+	    // this.deathTime = (this.generatedTime + (this.life * 1000)) - millisecondsSinceLastMinute();
+	    _this.deathTime = _this.generatedTime + _this.life * 1000;
 	
-	        // setTimeout(() => this.parent.destroy(), this.life * 1000);
-	        return _this;
+	    // setTimeout(() => this.parent.destroy(), this.life * 1000);
+	    return _this;
+	  }
+	
+	  _createClass(Pickup, [{
+	    key: 'update',
+	    value: function update() {
+	      _get(Pickup.prototype.__proto__ || Object.getPrototypeOf(Pickup.prototype), 'update', this).call(this);
+	
+	      // Fade pickup out if less than settings.fadeTime time is left.
+	      var timeLeft = this.deathTime - Date.now();
+	      if (timeLeft <= window.settings.pickupLife.fadeTime * 1000) {
+	        // Prevent interaction as it fades away.
+	        this.canInteract = false;
+	
+	        this.parent.alpha = timeLeft / (window.settings.pickupLife.fadeTime * 1000);
+	      }
+	
+	      if (Date.now() > this.deathTime) {
+	        console.log('destroying!');
+	        this.parent.destroy();
+	      }
 	    }
-	
-	    _createClass(Pickup, [{
-	        key: 'update',
-	        value: function update() {
-	            _get(Pickup.prototype.__proto__ || Object.getPrototypeOf(Pickup.prototype), 'update', this).call(this);
-	
-	            // Fade pickup out if less than settings.fadeTime time is left.
-	            var timeLeft = this.deathTime - Date.now();
-	            if (timeLeft <= window.settings.pickupLife.fadeTime * 1000) {
-	                // Prevent interaction as it fades away.
-	                this.canInteract = false;
-	
-	                this.parent.alpha = timeLeft / (window.settings.pickupLife.fadeTime * 1000);
-	            }
-	
-	            if (Date.now() > this.deathTime) {
-	                console.log('destroying!');
-	                this.parent.destroy();
-	            }
-	        }
-	    }]);
+	  }]);
 
-	    return Pickup;
+	  return Pickup;
 	}(_MapSpriteController2.MapSpriteController);
 
 /***/ },
-/* 25 */
+/* 24 */
 /*!********************************************!*\
   !*** ./src/classes/MapSpriteController.js ***!
   \********************************************/
@@ -2099,7 +1583,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 22);
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -2176,7 +1660,7 @@
 	}();
 
 /***/ },
-/* 26 */
+/* 25 */
 /*!**********************************!*\
   !*** ./src/classes/Character.js ***!
   \**********************************/
@@ -2202,7 +1686,7 @@
 	var character = exports.character = new Character();
 
 /***/ },
-/* 27 */
+/* 26 */
 /*!**********************************!*\
   !*** ./src/classes/Inventory.js ***!
   \**********************************/
@@ -2217,9 +1701,9 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	__webpack_require__(/*! idb-wrapper */ 28);
+	__webpack_require__(/*! idb-wrapper */ 27);
 	
-	var _helpers = __webpack_require__(/*! ../js/helpers */ 22);
+	var _helpers = __webpack_require__(/*! ../js/helpers */ 21);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -2303,7 +1787,7 @@
 	var inventory = exports.inventory = new Inventory();
 
 /***/ },
-/* 28 */
+/* 27 */
 /*!***********************************!*\
   !*** ./~/idb-wrapper/idbstore.js ***!
   \***********************************/
@@ -3717,7 +3201,7 @@
 
 
 /***/ },
-/* 29 */
+/* 28 */
 /*!******************************************!*\
   !*** ./src/states/LandscapeInterface.js ***!
   \******************************************/
@@ -3791,7 +3275,7 @@
 	}(Phaser.State);
 
 /***/ },
-/* 30 */
+/* 29 */
 /*!*********************************!*\
   !*** ./src/classes/Settings.js ***!
   \*********************************/
@@ -3800,74 +3284,64 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var Settings = exports.Settings = function Settings() {
-	    _classCallCheck(this, Settings);
+	  _classCallCheck(this, Settings);
 	
-	    // Set Default Settings
-	    this.sortMethod = ['name'];
+	  // Set Default Settings
+	  this.sortMethod = ['name'];
 	
-	    this.randomSeed = 'AlcheMasters';
+	  this.randomSeed = 'AlcheMasters';
 	
-	    this.locationCheckDelaySeconds = 5;
+	  this.locationCheckDelaySeconds = 5;
 	
-	    // Number of frames to skip before recalculating item positions.
-	    this.itemCheckDelayNumberOfFrames = 5;
+	  // Number of frames to skip before recalculating item positions.
+	  this.itemCheckDelayNumberOfFrames = 5;
 	
-	    // The number of times to retry generating a position that is not within range of another item.
-	    this.regeneratePositionTries = 10;
+	  // The number of times to retry generating a position that is not within range of another item.
+	  this.regeneratePositionTries = 10;
 	
-	    // Multiplier for converting 1000 * latlong to distance in pixels for MapSpriteControllers.
-	    this.pixelScale = 100;
+	  // Multiplier for converting 1000 * latlong to distance in pixels for MapSpriteControllers.
+	  this.pixelScale = 100;
 	
-	    // Min and max pixels that a map object can draw from the center of the circle.
-	    this.minPixelDistance = 16;
-	    this.maxPixelDistance = 180;
+	  // Min and max pixels that a map object can draw from the center of the circle.
+	  this.minPixelDistance = 16;
+	  this.maxPixelDistance = 180;
 	
-	    // Geo Anchors are placed every x * 111000 meters.
-	    this.geoAnchorPlacement = 0.05;
-	    this.halfGeoAnchorPlacement = this.geoAnchorPlacement / 2;
+	  // Geo Anchors are placed every x * 111000 meters.
+	  this.geoAnchorPlacement = 0.05;
+	  this.halfGeoAnchorPlacement = this.geoAnchorPlacement / 2;
 	
-	    // 1 latlong is ~111 km (~111000 m), so each 0.00001 latlong difference is ~1 meter.
-	    // Using 1 pixel = ~1 meter, means multiplying the below value by a geocoordinate offset
-	    // produces its pixel position!
-	    this.geoToPixelScale = 100000;
+	  // 1 latlong is ~111 km (~111000 m), so each 0.00001 latlong difference is ~1 meter.
+	  // Using 1 pixel = ~1 meter, means multiplying the below value by a geocoordinate offset
+	  // produces its pixel position!
+	  this.geoToPixelScale = 100000;
 	
-	    // The margin range within which an item's position will not update if the player's compass heading.
-	    // Meant to combat items floating/moving when the heading change is very small.
-	    this.angleMarginOfError = 0.05;
+	  // The margin range within which an item's position will not update if the player's compass heading.
+	  // Meant to combat items floating/moving when the heading change is very small.
+	  this.angleMarginOfError = 0.05;
 	
-	    // The margin range within which an item's position will not update if the player's coordinates change.
-	    // Meant to combat items floating/moving when the geoposition calculation is inconsistent.
-	    this.geoMarginOfError = 0.00009;
+	  // The margin range within which an item's position will not update if the player's coordinates change.
+	  // Meant to combat items floating/moving when the geoposition calculation is inconsistent.
+	  this.geoMarginOfError = 0.00009;
 	
-	    this.lerpPercent = 0.01;
+	  this.lerpPercent = 0.01;
 	
-	    // The pixel range around a generated object that another object can't be generated into.
-	    this.minimumPickupDistance = 50;
+	  // The pixel range around a generated object that another object can't be generated into.
+	  this.minimumPickupDistance = 50;
 	
-	    this.pickupLife = {
-	        min: 120,
-	        max: 300,
-	        fadeTime: 5
-	    };
+	  this.pickupLife = {
+	    min: 120,
+	    max: 300,
+	    fadeTime: 5
+	  };
 	};
 	
 	var settings = exports.settings = new Settings();
-
-/***/ },
-/* 31 */,
-/* 32 */
-/*!*****************************!*\
-  !*** ./src/images/grid.png ***!
-  \*****************************/
-/***/ function(module, exports) {
-
-	module.exports = "data:image/png;base64,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"
 
 /***/ }
 /******/ ]);
